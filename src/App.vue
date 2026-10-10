@@ -2,7 +2,7 @@
   <!-- Fixed UI lives outside the ScrollSmoother wrapper (transforms would break position: fixed). -->
   <Teleport to="body">
     <a class="skip-link" href="#main">{{ translations[lang].navbar.skip }}</a>
-    <IntroScreen v-if="showIntro" @done="onIntroDone" />
+    <IntroScreen v-if="showIntro" @reveal="introDone = true" @done="onIntroDone" />
     <AmbientBackground />
     <Navbar :intro-complete="introDone" />
     <SideRails />

@@ -38,7 +38,4 @@ useGsap(root, () => {
   transition: background 0.3s var(--ease-out);
 }
 
-/* While a section gate holds the page, the bar flips to orange as a visible cue. */
-:global(html.is-gated) .progress { height: 5px; }
-:global(html.is-gated) .progress__bar { background: var(--c-orange); }
 </style>

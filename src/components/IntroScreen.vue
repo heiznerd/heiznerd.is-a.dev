@@ -19,6 +19,9 @@
       <span class="intro__count mono" aria-hidden="true"><span ref="countEl">000</span>%</span>
     </div>
     <div class="intro__bar" aria-hidden="true"><span ref="barEl"></span></div>
+    <span class="intro__layer intro__layer--violet" aria-hidden="true"></span>
+    <span class="intro__layer intro__layer--orange" aria-hidden="true"></span>
+    <span class="intro__layer intro__layer--pink" aria-hidden="true"></span>
   </div>
 </template>
 
@@ -27,7 +30,7 @@ import { computed, inject, nextTick, onMounted, onUnmounted, ref } from 'vue';
 import { gsap, SplitText } from '@/lib/gsap';
 import Shape from './ui/Shape.vue';
 
-const emit = defineEmits(['done']);
+const emit = defineEmits(['done', 'reveal']);
 const lang = inject('lang');
 const translations = inject('translations');
 const t = computed(() => translations[lang.value].intro);
@@ -55,10 +58,35 @@ const finish = () => {
 };
 
 const exit = () => {
-  // Wipe the curtain up and hand control to the hero.
-  return gsap.timeline({ onComplete: finish })
-    .to('.intro__stage, .intro__foot, .intro__bar', { yPercent: -30, autoAlpha: 0, duration: 0.3, ease: 'power3.in' })
-    .to(root.value, { clipPath: 'inset(0% 0% 100% 0%)', duration: 0.55, ease: 'hz.inOut' }, '-=0.15');
+  // Shapes burst, three colour curtains rise and cover, then leave upward
+  // while the hero starts animating underneath.
+  const layers = gsap.utils.toArray('.intro__layer');
+  const shapeEls = gsap.utils.toArray('.intro__shape');
+  const tlOut = gsap.timeline({ onComplete: finish });
+  tlOut
+    .to(shapeEls, {
+      x: (i) => (i - 2) * 160,
+      y: (i) => (i % 2 ? -140 : 140),
+      scale: 2.2,
+      rotate: (i) => (i - 2) * 120,
+      autoAlpha: 0,
+      duration: 0.5,
+      ease: 'power3.out',
+    }, 0)
+    .to('.intro__word', { scale: 1.35, letterSpacing: '0.02em', autoAlpha: 0, duration: 0.45, ease: 'power3.in' }, 0)
+    .to('.intro__foot, .intro__bar', { autoAlpha: 0, duration: 0.2 }, 0)
+    .fromTo(layers,
+      { clipPath: 'inset(100% 0% 0% 0%)' },
+      { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.45, stagger: 0.09, ease: 'power3.inOut' }, 0.12)
+    .set(root.value, { backgroundColor: 'transparent' })
+    .call(() => emit('reveal'))
+    .to([...layers].reverse(), {
+      clipPath: 'inset(0% 0% 100% 0%)',
+      duration: 0.55,
+      stagger: 0.09,
+      ease: 'power3.inOut',
+    }, '>');
+  return tlOut;
 };
 
 function skip() {
@@ -142,6 +170,16 @@ onUnmounted(() => {
 }
 
 .intro__count { color: var(--c-cream); font-size: clamp(1.2rem, 3vw, 2.4rem); letter-spacing: -0.04em; }
+
+.intro__layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  clip-path: inset(100% 0% 0% 0%);
+}
+.intro__layer--violet { background: #8a5cff; }
+.intro__layer--orange { background: #ff9a5c; }
+.intro__layer--pink { background: #ff5c93; }
 
 .intro__bar {
   position: absolute;
