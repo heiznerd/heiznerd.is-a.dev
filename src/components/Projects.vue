@@ -1,87 +1,128 @@
 <template>
-  <section id="projects" class="projects">
+  <section id="projects" ref="root" class="projects section" aria-labelledby="projects-title">
     <div class="container">
-      <header class="projects-heading drift from-top">
+      <header class="projects__head">
         <div>
-          <span class="section-eyebrow">{{ t.label }}</span>
-          <h2 class="section-title">{{ t.title }}</h2>
-          <p class="section-subtitle">{{ t.headerSubtitle }}</p>
+          <span class="mono projects__eyebrow">04 — {{ t.label }}</span>
+          <h2 id="projects-title" class="section-title projects__title">{{ t.title }}</h2>
         </div>
-        <span class="projects-index" aria-hidden="true">04 — SELECTED WORK</span>
+        <p class="projects__sub lead">{{ t.headerSubtitle }}</p>
       </header>
 
-      <div class="featured-grid">
-        <article
+      <ol class="stackcards">
+        <li
           v-for="(project, index) in projects"
           :key="project.key"
-          class="project-card drift from-bottom"
-          :style="{ '--accent': project.color, transitionDelay: `${index * 120}ms` }"
+          class="proj"
+          :style="{ '--card': project.color, '--card-deep': project.deep }"
         >
-          <header class="project-head">
-            <span class="project-number">0{{ index + 1 }}</span>
-            <span class="project-icon" aria-hidden="true"><i :class="project.icon"></i></span>
-            <div>
-              <span class="project-kicker">{{ t.featured }}</span>
-              <h3>{{ t[project.key].name }}</h3>
+          <div class="proj__float">
+          <article class="proj__inner" :aria-labelledby="`proj-${project.key}`">
+            <span class="proj__shade" aria-hidden="true"></span>
+            <div class="proj__content">
+              <div class="proj__top">
+                <span class="proj__index mono">{{ String(index + 1).padStart(2, '0') }} / {{ String(projects.length).padStart(2, '0') }}</span>
+                <span class="proj__status">{{ t[project.key].status }}</span>
+              </div>
+
+              <h3 :id="`proj-${project.key}`" class="proj__name">{{ t[project.key].name }}</h3>
+
+              <div class="proj__roles">
+                <span class="proj__roles-label mono">{{ t.rolesLabel }}</span>
+                <ul>
+                  <li v-for="role in (t[project.key].roles || project.roles || [])" :key="role" class="proj__role">{{ role }}</li>
+                </ul>
+              </div>
+
+              <p class="proj__desc">{{ t[project.key].description }}</p>
+
+              <CopyCommand
+                v-if="project.command"
+                class="proj__cmd"
+                :command="project.command"
+                :label="t.install"
+                :copy-label="t.copy"
+                :done-label="t.copied"
+                :fail-label="t.copyFailed"
+              />
+
+              <div class="proj__actions">
+                <a
+                  v-for="link in project.links"
+                  :key="link.href"
+                  v-magnetic="0.2"
+                  :href="link.href"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="pill"
+                  :class="link.primary ? 'pill--solid-dark' : 'pill--dark'"
+                  :data-cursor="link.type === 'app' ? t.visit : 'GitHub'"
+                >
+                  <i :class="link.type === 'app' ? 'fas fa-arrow-up-right-from-square' : 'fab fa-github'" aria-hidden="true"></i>
+                  <span>{{ link.type === 'app' ? t.openApp : t.source }}</span>
+                  <span class="sr-only">— {{ t[project.key].name }}</span>
+                </a>
+                <span class="proj__meta mono">{{ t[project.key].meta }}</span>
+              </div>
+
+              <div v-if="project.lineage" class="proj__lineage">
+                <span class="proj__lineage-label mono">{{ t.lineageLabel }}</span>
+                <div class="proj__lineage-body">
+                  <a :href="project.lineage.href" target="_blank" rel="noopener noreferrer" class="proj__lineage-link">
+                    <strong>{{ t[project.lineage.key].name }}</strong>
+                    <span>· {{ t[project.lineage.key].status }} · {{ t[project.lineage.key].meta }}</span>
+                    <i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i>
+                  </a>
+                  <p>{{ t[project.lineage.key].description }}</p>
+                  <ul class="proj__lineage-stack" :aria-label="t.stackLabel">
+                    <li v-for="tech in project.lineage.stack" :key="tech">{{ tech }}</li>
+                  </ul>
+                </div>
+              </div>
+
+              <ul v-if="project.stack" class="proj__stack" :aria-label="t.stackLabel">
+                <li v-for="tech in project.stack" :key="tech">{{ tech }}</li>
+              </ul>
             </div>
-            <span class="project-status">{{ t[project.key].status }}</span>
-          </header>
 
-          <p class="project-description">{{ t[project.key].description }}</p>
-
-          <div class="project-stack">
-            <span>{{ t.stackLabel }}</span>
-            <ul>
-              <li v-for="tech in project.stack" :key="tech">{{ tech }}</li>
-            </ul>
-          </div>
-
-          <div v-if="project.command" class="install-command">
-            <span>{{ t.install }}</span>
-            <code>{{ project.command }}</code>
-          </div>
-
-          <footer class="project-footer">
-            <span>{{ t[project.key].meta }}</span>
-            <a :href="project.link" target="_blank" rel="noopener noreferrer">
-              <i class="fab fa-github" aria-hidden="true"></i>
-              <span>{{ t.source }}</span>
-              <i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i>
-            </a>
-          </footer>
-        </article>
-      </div>
-
-      <section class="current-work drift from-bottom" :aria-labelledby="`${t.currentWorkTitle}-title`">
-        <header class="work-heading">
-          <div>
-            <span class="work-kicker">05 — CURRENT WORK</span>
-            <h3 :id="`${t.currentWorkTitle}-title`">{{ t.currentWorkTitle }}</h3>
-          </div>
-          <p>{{ t.currentWorkSubtitle }}</p>
-        </header>
-
-        <div class="work-list drift-stagger">
-          <article v-for="(role, index) in workRoles" :key="role.key" class="work-role drift from-bottom">
-            <span class="work-number">0{{ index + 1 }}</span>
-            <span class="work-icon" aria-hidden="true"><i :class="role.icon"></i></span>
-            <div class="work-copy">
-              <span>{{ t.active }}</span>
-              <h4>{{ t[role.key].name }}</h4>
-              <p>{{ t[role.key].description }}</p>
+            <div class="proj__art">
+              <ProjectArt :kind="project.art" />
             </div>
-            <a v-if="role.link" :href="role.link" target="_blank" rel="noopener noreferrer" :aria-label="`${t.visit} ${t[role.key].name}`">
-              <i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i>
-            </a>
           </article>
-        </div>
+          </div>
+        </li>
+      </ol>
+
+      <!-- Current work -->
+      <section class="work" aria-labelledby="work-title">
+        <header class="work__head">
+          <BraceLabel id="work-title" tag="h3" size="md">{{ t.currentWorkTitle }}</BraceLabel>
+          <p class="muted">{{ t.currentWorkSubtitle }}</p>
+        </header>
+        <ul class="work__list">
+          <li v-for="role in workRoles" :key="role.key" class="work__row">
+            <span class="work__shape" aria-hidden="true"><Shape name="arch" palette="green" /></span>
+            <span class="work__icon" aria-hidden="true"><i :class="role.icon"></i></span>
+            <div class="work__copy">
+              <h4 class="work__name">{{ t[role.key].name }}</h4>
+              <p class="work__desc">{{ t[role.key].description }}</p>
+            </div>
+          </li>
+        </ul>
       </section>
     </div>
   </section>
 </template>
 
 <script setup>
-import { computed, inject } from 'vue';
+import { computed, inject, ref } from 'vue';
+import { gsap, ScrollTrigger } from '@/lib/gsap';
+import { useGsap, MEDIA } from '@/composables/useGsap';
+import { useGate } from '@/composables/useGate';
+import Shape from './ui/Shape.vue';
+import BraceLabel from './ui/BraceLabel.vue';
+import CopyCommand from './ui/CopyCommand.vue';
+import ProjectArt from './ProjectArt.vue';
 
 const lang = inject('lang');
 const translations = inject('translations');
@@ -89,108 +130,236 @@ const t = computed(() => translations[lang.value].projects);
 
 const projects = [
   {
-    key: 'nekocomics',
-    icon: 'fas fa-book-open',
-    color: '#b58ce8',
-    stack: ['Vue', 'Vite', 'Rails', 'PostgreSQL', 'Redis', 'Node'],
-    link: 'https://github.com/nekoo-moe/NekoComics-Rework',
+    key: 'danshi',
+    color: '#fec5fb',
+    deep: '#f7a8f2',
+    art: 'danshi',
+    command: 'npm install -g danshi',
+    links: [{ type: 'source', href: 'https://github.com/nekoo-moe/danshi', primary: true }],
+  },
+  {
+    key: 'nekoai',
+    color: '#9d95ff',
+    deep: '#8a80ff',
+    art: 'nekoai',
+    links: [{ type: 'app', href: 'https://app.nekoai.is-a.dev/', primary: true }],
+  },
+  {
+    key: 'nekocomicsV2',
+    color: '#ff8709',
+    deep: '#ff7a00',
+    art: 'comics',
+    links: [{ type: 'source', href: 'https://github.com/nekoo-moe/NekoComics', primary: true }],
+    lineage: {
+      key: 'nekocomics',
+      href: 'https://github.com/nekoo-moe/NekoComics-Rework',
+      stack: ['Vue', 'Vite', 'Rails', 'PostgreSQL', 'Redis', 'Node'],
+    },
   },
   {
     key: 'nekostream',
-    icon: 'fas fa-terminal',
-    color: '#79c8b5',
-    stack: ['Node'],
+    color: '#00bae2',
+    deep: '#00a6ca',
+    art: 'terminal',
+    roles: [],
     command: 'npm install -g nekostream',
-    link: 'https://github.com/nekoo-moe/NekoStream-CLI',
+    stack: ['Node'],
+    links: [{ type: 'source', href: 'https://github.com/nekoo-moe/NekoStream-CLI', primary: true }],
   },
 ];
 
-const workRoles = [
-  { key: 'nekotech', icon: 'fas fa-building', link: null },
-  { key: 'langbang', icon: 'fas fa-cube', link: 'https://langbangvn.net' },
-];
+const workRoles = [{ key: 'nekotech', icon: 'fas fa-building' }];
+
+const root = ref(null);
+useGate(root, { target: '.projects__head' });
+
+useGsap(root, ({ root: el, mm }) => {
+  mm.add(MEDIA, context => {
+    const { motion, desktop } = context.conditions;
+    if (!motion) return;
+
+    gsap.from('.projects__head > *', {
+      y: 70,
+      autoAlpha: 0,
+      stagger: 0.12,
+      duration: 1.2,
+      scrollTrigger: { trigger: '.projects__head', start: 'top 85%', once: true },
+    });
+
+    const cards = gsap.utils.toArray('.proj', el);
+
+    // Each card rises into place with a little tilt.
+    cards.forEach((card, i) => {
+      gsap.from(card.querySelector('.proj__float'), {
+        y: 160,
+        rotate: i % 2 ? -3 : 3,
+        duration: 1.3,
+        ease: 'expo.out',
+        scrollTrigger: { trigger: card, start: 'top 92%', once: true },
+      });
+      gsap.from(card.querySelectorAll('.proj__name, .proj__roles, .proj__desc, .proj__cmd, .proj__actions, .proj__lineage, .proj__stack'), {
+        y: 50,
+        autoAlpha: 0,
+        stagger: 0.07,
+        duration: 1,
+        scrollTrigger: { trigger: card, start: 'top 75%', once: true },
+      });
+    });
+
+    if (desktop && cards.length > 1) {
+      // Stacking cards: each card pins under the header while the next one slides over it.
+      const last = cards[cards.length - 1];
+      const offset = () => Math.round(window.innerHeight * 0.1);
+      // Cards taller than the viewport pin by their bottom edge so no content is ever hidden.
+      const pinStart = card => () => (card.offsetHeight + offset() > window.innerHeight ? 'bottom bottom-=16' : `top top+=${offset()}`);
+      cards.forEach((card, i) => {
+        if (i === cards.length - 1) return;
+        ScrollTrigger.create({
+          trigger: card,
+          start: pinStart(card),
+          endTrigger: last,
+          end: () => `top top+=${offset()}`,
+          pin: true,
+          pinSpacing: false,
+          invalidateOnRefresh: true,
+        });
+        gsap.timeline({
+          scrollTrigger: {
+            trigger: cards[i + 1],
+            start: 'top bottom',
+            end: () => `top top+=${offset()}`,
+            scrub: true,
+            invalidateOnRefresh: true,
+          },
+        })
+          .to(card.querySelector('.proj__inner'), { scale: 0.9, rotate: i % 2 ? 1.5 : -1.5, ease: 'none' }, 0)
+          .to(card.querySelector('.proj__shade'), { opacity: 0.55, ease: 'none' }, 0);
+      });
+    }
+
+    // Current work row
+    gsap.from('.work__head > *, .work__row', {
+      y: 60,
+      autoAlpha: 0,
+      stagger: 0.1,
+      duration: 1.1,
+      scrollTrigger: { trigger: '.work', start: 'top 88%', once: true },
+    });
+    gsap.fromTo('.work__shape', { rotate: -45, scale: 0.6 }, {
+      rotate: 25,
+      scale: 1,
+      ease: 'none',
+      scrollTrigger: { trigger: '.work', start: 'top bottom', end: 'bottom top', scrub: true },
+    });
+  });
+});
 </script>
 
 <style scoped>
-.projects { background: transparent; }
-.projects-heading,
-.project-head,
-.project-footer,
-.work-heading,
-.work-role { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
-.projects-index,
-.project-number,
-.project-kicker,
-.work-kicker,
-.work-number,
-.work-copy > span,
-.project-stack > span,
-.install-command > span { color: var(--md-on-surface-var); font-family: var(--font-mono); font-size: 0.61rem; letter-spacing: 0.13em; text-transform: uppercase; }
+.projects__head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 24px 48px; }
+.projects__eyebrow { color: var(--c-green); }
+.projects__title { margin-top: 14px; }
+.projects__sub { max-width: 34ch; }
 
-.featured-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 52px; }
-.project-card { position: relative; display: flex; min-width: 0; min-height: 470px; flex-direction: column; gap: 26px; padding: clamp(26px, 3.5vw, 38px); overflow: hidden; border: 1px solid var(--md-outline-var); border-radius: var(--md-radius-xl); background: rgba(15, 15, 18, 0.67); box-shadow: var(--md-shadow-2); backdrop-filter: blur(14px); transition: transform 300ms var(--md-ease-spring), border-color 300ms ease, background 300ms ease; }
-.project-card::before { content: ''; position: absolute; inset: 0 0 auto; height: 2px; background: linear-gradient(90deg, var(--accent), transparent 72%); }
-.project-card::after { content: ''; position: absolute; width: 220px; height: 220px; top: -150px; right: -110px; border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent); border-radius: 50%; box-shadow: 0 0 0 28px color-mix(in srgb, var(--accent) 3%, transparent); pointer-events: none; }
-.project-card:hover { border-color: color-mix(in srgb, var(--accent) 38%, transparent); background: rgba(23, 20, 28, 0.78); transform: translateY(-5px); }
-.project-head { justify-content: flex-start; }
-.project-head > div { flex: 1; min-width: 0; }
-.project-number { align-self: flex-start; color: color-mix(in srgb, var(--accent) 62%, transparent); }
-.project-icon { display: grid; width: 46px; height: 46px; flex: 0 0 auto; place-items: center; border: 1px solid color-mix(in srgb, var(--accent) 34%, transparent); border-radius: 13px; color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
-.project-kicker { display: block; margin-bottom: 4px; color: var(--accent); }
-.project-head h3 { color: var(--md-on-surface); font-size: 1.32rem; letter-spacing: -0.025em; }
-.project-status { align-self: flex-start; flex: 0 0 auto; padding: 5px 10px; border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); border-radius: 100px; color: var(--accent); background: color-mix(in srgb, var(--accent) 7%, transparent); font-size: 0.62rem; }
-.project-description { color: var(--md-on-surface-var); font-size: 0.91rem; line-height: 1.75; }
-.project-stack > span { display: block; margin-bottom: 11px; }
-.project-stack ul { display: flex; flex-wrap: wrap; gap: 7px; padding: 0; list-style: none; }
-.project-stack li { padding: 6px 10px; border: 1px solid var(--md-outline-var); border-radius: 9px; color: var(--md-on-surface-var); background: rgba(255,255,255,.018); font-family: var(--font-mono); font-size: 0.66rem; }
-.install-command { display: grid; gap: 9px; padding: 13px 15px; border: 1px solid var(--md-outline-var); border-radius: var(--md-radius-md); background: rgba(0,0,0,.18); }
-.install-command code { color: var(--md-secondary); font-family: var(--font-mono); font-size: 0.75rem; user-select: all; }
-.project-footer { margin-top: auto; padding-top: 19px; border-top: 1px solid var(--md-outline-var); }
-.project-footer > span { color: var(--md-on-surface-var); font-size: 0.7rem; }
-.project-footer a { display: inline-flex; align-items: center; gap: 8px; min-height: 38px; padding: 8px 12px; border: 1px solid color-mix(in srgb, var(--accent) 36%, transparent); border-radius: 100px; color: var(--accent); text-decoration: none; font-size: 0.7rem; transition: transform 220ms var(--md-ease-spring), background 220ms ease; }
-.project-footer a:hover,
-.project-footer a:focus-visible { background: color-mix(in srgb, var(--accent) 8%, transparent); outline: none; transform: translateY(-2px); }
+.stackcards { display: grid; gap: clamp(28px, 4vw, 64px); margin-top: clamp(48px, 7vw, 100px); }
 
-.current-work { margin-top: 18px; padding: clamp(28px, 4vw, 42px); border: 1px solid var(--md-outline-var); border-radius: var(--md-radius-xl); background: rgba(15,15,18,.6); backdrop-filter: blur(14px); }
-.work-heading { align-items: flex-end; }
-.work-heading h3 { margin-top: 6px; color: var(--md-on-surface); font-size: clamp(1.5rem, 3vw, 2.2rem); letter-spacing: -.04em; }
-.work-heading > p { max-width: 330px; color: var(--md-on-surface-var); font-size: .8rem; line-height: 1.6; text-align: right; }
-.work-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); margin-top: 30px; border-top: 1px solid var(--md-outline-var); }
-.work-role { position: relative; justify-content: flex-start; min-width: 0; padding: 24px 22px; }
-.work-role + .work-role { border-left: 1px solid var(--md-outline-var); }
-.work-number { color: rgba(187,134,252,.38); }
-.work-icon { display: grid; width: 38px; height: 38px; flex: 0 0 auto; place-items: center; border: 1px solid rgba(187,134,252,.2); border-radius: 50%; color: var(--md-primary); background: rgba(187,134,252,.055); }
-.work-copy { flex: 1; min-width: 0; }
-.work-copy > span { color: var(--md-secondary); }
-.work-copy h4 { margin-top: 4px; color: var(--md-on-surface); font-size: .98rem; }
-.work-copy p { margin-top: 5px; color: var(--md-on-surface-var); font-size: .78rem; line-height: 1.55; }
-.work-role > a { display: grid; width: 36px; height: 36px; flex: 0 0 auto; place-items: center; border: 1px solid var(--md-outline-var); border-radius: 50%; color: var(--md-on-surface-var); text-decoration: none; transition: color 220ms ease, border-color 220ms ease, transform 220ms var(--md-ease-spring); }
-.work-role > a:hover,
-.work-role > a:focus-visible { border-color: var(--md-primary); color: var(--md-primary); outline: none; transform: translate(2px,-2px); }
-
-@media (max-width: 820px) {
-  .featured-grid,
-  .work-list { grid-template-columns: 1fr; }
-  .project-card { min-height: 0; }
-  .work-role + .work-role { border-top: 1px solid var(--md-outline-var); border-left: 0; }
+.proj { position: relative; }
+.proj__inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: clamp(20px, 3vw, 44px);
+  min-height: min(80vh, 780px);
+  padding: clamp(20px, 2.4vw, 36px);
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  color: var(--c-bg);
+  background:
+    radial-gradient(120% 90% at 0% 0%, rgba(255, 255, 255, 0.35), transparent 55%),
+    var(--card);
+  transform-origin: 50% 0%;
+  will-change: transform;
 }
-@media (max-width: 560px) {
-  .projects-heading,
-  .project-head,
-  .project-footer,
-  .work-heading { align-items: flex-start; flex-wrap: wrap; }
-  .projects-index { display: none; }
-  .project-status { order: 4; margin-left: 66px; }
-  .project-footer { flex-direction: column; }
-  .work-heading > p { max-width: none; text-align: left; }
-  .work-role { align-items: flex-start; padding-inline: 0; }
+.proj__shade { position: absolute; inset: 0; z-index: 3; border-radius: inherit; background: #0e100f; opacity: 0; pointer-events: none; }
+
+.proj__content { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 22px; min-width: 0; padding: clamp(6px, 1vw, 14px); }
+.proj__top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.proj__index { font-weight: 700; }
+.proj__status { padding: 6px 14px; border: 1.5px solid var(--c-bg); border-radius: var(--radius-pill); font-size: 0.85rem; font-weight: 600; }
+
+.proj__name {
+  margin-top: auto;
+  color: var(--c-bg);
+  font-size: clamp(3rem, 7.2vw, 7.4rem);
+  font-weight: 600;
+  line-height: 0.9;
+  letter-spacing: -0.06em;
+  overflow-wrap: anywhere;
 }
-@media (prefers-reduced-motion: reduce) {
-  .project-card,
-  .project-footer a,
-  .work-role > a { transition: none; }
-  .project-card:hover,
-  .project-footer a:hover,
-  .work-role > a:hover { transform: none; }
+
+.proj__roles { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.proj__roles-label { font-weight: 700; }
+.proj__roles ul { display: flex; flex-wrap: wrap; gap: 8px; }
+.proj__role { padding: 7px 14px; border-radius: var(--radius-pill); color: var(--c-cream); background: var(--c-bg); font-size: 0.92rem; font-weight: 600; }
+.proj__roles:has(ul:empty) { display: none; }
+
+.proj__desc { max-width: 46ch; font-size: clamp(1.1rem, 1.45vw, 1.35rem); font-weight: 500; line-height: 1.4; letter-spacing: -0.015em; }
+
+.proj__cmd { max-width: 460px; }
+.proj__cmd :deep(.copy-cmd__label) { color: var(--c-bg); font-weight: 700; }
+.proj__cmd :deep(.copy-cmd__row) { border-color: transparent; background: var(--c-bg); }
+
+.proj__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
+.proj__meta { font-weight: 700; }
+
+.proj__lineage { display: grid; gap: 8px; padding-top: 16px; border-top: 1.5px solid rgba(14, 16, 15, 0.25); }
+.proj__lineage-label { font-weight: 700; }
+.proj__lineage-link { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 6px; font-size: 1rem; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 4px; }
+.proj__lineage-link i { font-size: 0.75em; }
+.proj__lineage-body p { max-width: 56ch; margin-top: 6px; font-size: 0.92rem; line-height: 1.45; }
+.proj__lineage-stack,
+.proj__stack { display: flex; flex-wrap: wrap; gap: 6px; }
+.proj__lineage-stack { margin-top: 10px; }
+.proj__lineage-stack li,
+.proj__stack li { padding: 4px 10px; border: 1.5px solid var(--c-bg); border-radius: var(--radius-pill); font-family: var(--font-mono); font-size: 0.75rem; font-weight: 700; }
+
+.proj__art {
+  position: relative;
+  z-index: 1;
+  min-height: 320px;
+  overflow: hidden;
+  border-radius: calc(var(--radius-xl) - 12px);
+  background:
+    radial-gradient(80% 60% at 70% 20%, rgba(255, 252, 225, 0.06), transparent 70%),
+    var(--c-bg);
+}
+
+.proj__inner :focus-visible { outline-color: var(--c-bg); }
+
+/* Current work */
+.work { margin-top: clamp(100px, 12vw, 180px); }
+.work__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 32px; }
+.work__head p { max-width: 44ch; }
+.work__list { margin-top: 28px; border-top: 1px solid var(--c-line); }
+.work__row {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(16px, 3vw, 40px);
+  padding-block: clamp(28px, 4vw, 48px);
+  border-bottom: 1px solid var(--c-line);
+}
+.work__shape { width: clamp(64px, 8vw, 120px); }
+.work__icon { display: grid; width: 54px; height: 54px; place-items: center; border-radius: 50%; color: var(--c-bg); background: var(--c-cream); font-size: 1.2rem; }
+.work__name { color: var(--c-green); font-size: clamp(2rem, 4.4vw, 4.2rem); font-weight: 500; letter-spacing: -0.05em; }
+.work__desc { margin-top: 8px; color: var(--c-cream); font-size: clamp(1.1rem, 1.6vw, 1.45rem); }
+
+@media (max-width: 899px) {
+  .proj__inner { grid-template-columns: 1fr; min-height: 0; }
+  .proj__art { order: -1; min-height: 260px; aspect-ratio: 4 / 3; }
+  .proj__name { margin-top: 8px; }
+  .work__row { grid-template-columns: auto minmax(0, 1fr); }
+  .work__shape { display: none; }
 }
 </style>

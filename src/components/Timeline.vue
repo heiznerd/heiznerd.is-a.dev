@@ -1,49 +1,56 @@
 <template>
-  <section id="timeline" ref="section" class="timeline">
-    <div ref="sticky" class="timeline-sticky">
-      <div class="container">
-        <header class="timeline-heading drift from-top">
-          <div>
-            <span class="section-eyebrow">{{ t.label }}</span>
-            <h2 class="section-title">{{ t.title }}</h2>
-            <p class="section-subtitle">{{ t.headerSubtitle }}</p>
-          </div>
-          <span class="timeline-range" aria-hidden="true">2011 — 2026 · SCROLL TO EXPLORE</span>
-        </header>
+  <section id="timeline" ref="root" class="tl" aria-labelledby="tl-title">
+    <div class="tl__pin">
+      <div class="container tl__head">
+        <div class="tl__head-copy">
+          <span class="mono tl__eyebrow">03 — {{ t.label }}</span>
+          <h2 id="tl-title" class="section-title tl__title">{{ t.title }}</h2>
+          <p class="tl__subtitle muted">{{ t.headerSubtitle }}</p>
+        </div>
+        <div class="tl__controls">
+          <span class="tl__counter mono" aria-hidden="true"><b>{{ String(activeIndex + 1).padStart(2, '0') }}</b> / {{ String(t.items.length).padStart(2, '0') }}</span>
+          <button type="button" class="icon-btn tl__btn" :aria-label="t.previous" :disabled="activeIndex === 0" @click="go(activeIndex - 1)">
+            <i class="fas fa-arrow-left" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="icon-btn tl__btn" :aria-label="t.next" :disabled="activeIndex === t.items.length - 1" @click="go(activeIndex + 1)">
+            <i class="fas fa-arrow-right" aria-hidden="true"></i>
+          </button>
+        </div>
       </div>
 
       <div
         ref="viewport"
-        class="timeline-viewport"
+        class="tl__viewport"
         tabindex="0"
+        role="region"
         :aria-label="t.scrollLabel"
-        @keydown="handleKeydown"
+        @keydown="onKeydown"
+        @scroll.passive="onNativeScroll"
       >
-        <ol ref="rail" class="timeline-track drift-stagger">
+        <ol class="tl__track">
           <li
             v-for="(item, index) in t.items"
             :key="item.id"
-            class="timeline-item drift from-right"
+            class="tl__item"
             :class="{ 'is-current': item.current }"
-            :style="{ transitionDelay: `${Math.min(index * 70, 420)}ms` }"
+            :style="{ '--card': palette[index % palette.length].bg }"
           >
-            <div class="timeline-meta">
+            <div class="tl__meta">
               <time :datetime="item.datetime">{{ item.date }}</time>
-              <span class="timeline-node" aria-hidden="true"><i></i></span>
-              <span class="timeline-index">{{ String(index + 1).padStart(2, '0') }}</span>
+              <span v-if="item.current" class="tl__now"><span aria-hidden="true"></span>{{ t.current }}</span>
             </div>
-
-            <article class="timeline-card">
-              <p class="timeline-kicker">{{ item.kicker }}</p>
-              <h3>{{ item.title }}</h3>
-              <p class="timeline-description">{{ item.description }}</p>
-
-              <ul v-if="item.links?.length" class="timeline-links" :aria-label="t.linksLabel">
+            <article class="tl__card">
+              <span class="tl__card-shape" aria-hidden="true"><Shape :name="palette[index % palette.length].shape" palette="cream" :shine="false" /></span>
+              <span class="tl__index mono" aria-hidden="true">{{ String(index + 1).padStart(2, '0') }}</span>
+              <p class="tl__kicker">{{ item.kicker }}</p>
+              <h3 class="tl__card-title">{{ item.title }}</h3>
+              <p class="tl__desc">{{ item.description }}</p>
+              <ul v-if="item.links?.length" class="tl__links" :aria-label="t.linksLabel">
                 <li v-for="link in item.links" :key="link.href">
-                  <a :href="link.href" target="_blank" rel="noopener noreferrer">
+                  <a :href="link.href" target="_blank" rel="noopener noreferrer" class="tl__link">
                     <i class="fab fa-github" aria-hidden="true"></i>
                     <span>{{ link.label }}</span>
-                    <i class="fas fa-arrow-up-right-from-square external-icon" aria-hidden="true"></i>
+                    <i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i>
                   </a>
                 </li>
               </ul>
@@ -51,311 +58,227 @@
           </li>
         </ol>
       </div>
+
+      <div class="container">
+        <div class="tl__rail" aria-hidden="true"><span ref="fillEl" class="tl__rail-fill"></span></div>
+      </div>
     </div>
   </section>
 </template>
 
 <script setup>
-import { computed, inject, onMounted, onUnmounted, ref } from 'vue';
+import { computed, inject, ref } from 'vue';
+import { gsap, getSmoother, prefersReducedMotion } from '@/lib/gsap';
+import { useGsap, MEDIA } from '@/composables/useGsap';
+import Shape from './ui/Shape.vue';
 
 const lang = inject('lang');
 const translations = inject('translations');
 const t = computed(() => translations[lang.value].timeline);
-const section = ref(null);
-const sticky = ref(null);
+
+const palette = [
+  { bg: '#fec5fb', shape: 'flower' },
+  { bg: '#ff8709', shape: 'star' },
+  { bg: '#9d95ff', shape: 'ring' },
+  { bg: '#00bae2', shape: 'arch' },
+  { bg: '#abff84', shape: 'diamond' },
+  { bg: '#fffce1', shape: 'hourglass' },
+  { bg: '#bef3fe', shape: 'drop' },
+  { bg: '#0ae448', shape: 'spark' },
+];
+
+const root = ref(null);
 const viewport = ref(null);
-const rail = ref(null);
+const fillEl = ref(null);
+const activeIndex = ref(0);
+const pinned = ref(false);
 
-let resizeObserver;
-let animationFrame;
-let distance = 0;
-let pinned = false;
-let reduced = false;
-let desktopQuery;
-let motionQuery;
+let pinTrigger = null;
 
-const updateRail = () => {
-  animationFrame = 0;
-  if (!pinned || !section.value || !sticky.value || !rail.value || !distance) return;
-  const travel = Math.max(section.value.offsetHeight - sticky.value.offsetHeight, 1);
-  const progress = Math.min(1, Math.max(0, -section.value.getBoundingClientRect().top / travel));
-  rail.value.style.transform = `translate3d(${-progress * distance}px, 0, 0)`;
-};
+const itemCount = () => t.value.items.length;
 
-const requestUpdate = () => {
-  if (!animationFrame) animationFrame = requestAnimationFrame(updateRail);
-};
-
-const measure = () => {
-  if (!section.value || !viewport.value || !rail.value) return;
-  pinned = desktopQuery.matches && !motionQuery.matches;
-  reduced = motionQuery.matches;
-  const viewportStyle = getComputedStyle(viewport.value);
-  const inlinePadding = parseFloat(viewportStyle.paddingLeft) + parseFloat(viewportStyle.paddingRight);
-  distance = Math.max(0, rail.value.scrollWidth - viewport.value.clientWidth + inlinePadding);
-
-  if (pinned && distance > 0) {
-    section.value.style.setProperty('--timeline-distance', `${distance}px`);
-    rail.value.style.transform = '';
-    requestUpdate();
-  } else {
-    section.value.style.removeProperty('--timeline-distance');
-    rail.value.style.transform = 'none';
-  }
-};
-
-const scrollToOffset = offset => {
-  if (!section.value || !sticky.value || !viewport.value) return;
-  const target = Math.min(distance, Math.max(0, offset));
-  if (!pinned) {
-    viewport.value.scrollTo({ left: target, behavior: reduced ? 'auto' : 'smooth' });
+const go = index => {
+  const target = Math.max(0, Math.min(itemCount() - 1, index));
+  if (pinned.value && pinTrigger) {
+    const progress = target / Math.max(itemCount() - 1, 1);
+    const y = pinTrigger.start + (pinTrigger.end - pinTrigger.start) * progress;
+    const smoother = getSmoother();
+    if (smoother) smoother.scrollTo(y, true);
+    else window.scrollTo({ top: y, behavior: 'smooth' });
     return;
   }
-
-  const travel = Math.max(section.value.offsetHeight - sticky.value.offsetHeight, 1);
-  const sectionTop = window.scrollY + section.value.getBoundingClientRect().top;
-  window.scrollTo({ top: sectionTop + (target / Math.max(distance, 1)) * travel, behavior: reduced ? 'auto' : 'smooth' });
+  const items = viewport.value?.querySelectorAll('.tl__item');
+  const item = items?.[target];
+  if (!item) return;
+  const padding = parseFloat(getComputedStyle(viewport.value).paddingLeft) || 0;
+  viewport.value.scrollTo({ left: item.offsetLeft - padding, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
 };
 
-const handleKeydown = event => {
-  const current = pinned
-    ? Math.min(distance, Math.max(0, -section.value.getBoundingClientRect().top / Math.max(section.value.offsetHeight - sticky.value.offsetHeight, 1) * distance))
-    : viewport.value.scrollLeft;
-  const step = Math.min(viewport.value.clientWidth * 0.72, 360);
-  const targets = { ArrowLeft: current - step, ArrowRight: current + step, Home: 0, End: distance };
-  if (!(event.key in targets)) return;
+const onKeydown = event => {
+  const map = { ArrowRight: activeIndex.value + 1, ArrowLeft: activeIndex.value - 1, Home: 0, End: itemCount() - 1 };
+  if (!(event.key in map)) return;
   event.preventDefault();
-  scrollToOffset(targets[event.key]);
+  go(map[event.key]);
 };
 
-onMounted(() => {
-  desktopQuery = window.matchMedia('(min-width: 769px) and (hover: hover) and (pointer: fine)');
-  motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-  resizeObserver = new ResizeObserver(measure);
-  resizeObserver.observe(viewport.value);
-  resizeObserver.observe(rail.value);
-  desktopQuery.addEventListener('change', measure);
-  motionQuery.addEventListener('change', measure);
-  window.addEventListener('scroll', requestUpdate, { passive: true });
-  measure();
-});
+const onNativeScroll = () => {
+  if (pinned.value || !viewport.value) return;
+  const el = viewport.value;
+  const max = el.scrollWidth - el.clientWidth;
+  const progress = max > 0 ? el.scrollLeft / max : 0;
+  if (fillEl.value) fillEl.value.style.transform = `scaleX(${progress})`;
+  activeIndex.value = Math.round(progress * (itemCount() - 1));
+};
 
-onUnmounted(() => {
-  cancelAnimationFrame(animationFrame);
-  resizeObserver?.disconnect();
-  desktopQuery?.removeEventListener('change', measure);
-  motionQuery?.removeEventListener('change', measure);
-  window.removeEventListener('scroll', requestUpdate);
+useGsap(root, ({ root: el, mm }) => {
+  mm.add(MEDIA, context => {
+    const { motion, desktop } = context.conditions;
+
+    if (motion && desktop) {
+      const track = el.querySelector('.tl__track');
+      const view = el.querySelector('.tl__viewport');
+      el.classList.add('is-pinned');
+      pinned.value = true;
+      const distance = () => {
+        const style = getComputedStyle(view);
+        const inner = view.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+        return Math.max(0, track.scrollWidth - inner);
+      };
+
+      const tl = gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: {
+          trigger: el,
+          pin: '.tl__pin',
+          start: 'top top',
+          end: () => `+=${distance()}`,
+          scrub: 0.8,
+          invalidateOnRefresh: true,
+          onUpdate: self => {
+            activeIndex.value = Math.round(self.progress * (itemCount() - 1));
+          },
+        },
+      });
+      tl.to(track, { x: () => -distance() }, 0)
+        .fromTo('.tl__rail-fill', { scaleX: 0 }, { scaleX: 1 }, 0);
+      pinTrigger = tl.scrollTrigger;
+
+      gsap.utils.toArray('.tl__item', el).forEach((item, i) => {
+        gsap.from(item.querySelector('.tl__card'), {
+          y: 120,
+          rotate: i % 2 ? -7 : 7,
+          scale: 0.86,
+          ease: 'none',
+          scrollTrigger: { trigger: item, containerAnimation: tl, start: 'left 105%', end: 'left 62%', scrub: 0.6 },
+        });
+        gsap.fromTo(item.querySelector('.tl__card-shape'), { rotate: -90 }, {
+          rotate: 120,
+          ease: 'none',
+          scrollTrigger: { trigger: item, containerAnimation: tl, start: 'left right', end: 'right left', scrub: true },
+        });
+      });
+
+      gsap.from('.tl__head-copy > *, .tl__controls', {
+        y: 60,
+        autoAlpha: 0,
+        stagger: 0.1,
+        duration: 1.1,
+        scrollTrigger: { trigger: el, start: 'top 75%', once: true },
+      });
+
+      return () => {
+        el.classList.remove('is-pinned');
+        pinned.value = false;
+        pinTrigger = null;
+      };
+    }
+
+    if (motion) {
+      gsap.from('.tl__head-copy > *', { y: 50, autoAlpha: 0, stagger: 0.1, scrollTrigger: { trigger: el, start: 'top 80%', once: true } });
+      gsap.from('.tl__card', { y: 80, rotate: 4, autoAlpha: 0, stagger: 0.1, duration: 1, scrollTrigger: { trigger: '.tl__viewport', start: 'top 85%', once: true } });
+    }
+    return undefined;
+  });
 });
 </script>
 
 <style scoped>
-.timeline {
-  --timeline-distance: 0px;
-  min-height: calc(100svh + var(--timeline-distance));
-  padding: 0;
-  overflow: visible;
-  background: transparent;
+.tl { position: relative; padding-block: var(--section-pad); }
+.tl.is-pinned { padding-block: 0; }
+.tl__pin { display: flex; flex-direction: column; justify-content: center; gap: clamp(28px, 4vh, 48px); }
+.tl.is-pinned .tl__pin { height: 100svh; padding-top: calc(var(--header-h) + 8px); overflow: hidden; }
+
+.tl__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
+.tl__eyebrow { color: var(--c-green); }
+.tl__title { margin-top: 14px; }
+.tl__subtitle { max-width: 46ch; margin-top: 14px; }
+.tl__controls { display: flex; align-items: center; gap: 10px; }
+.tl__counter { margin-right: 10px; color: var(--c-cream-75); font-size: 0.9rem; }
+.tl__counter b { color: var(--c-cream); font-weight: 700; }
+.tl__btn:disabled { opacity: 0.35; pointer-events: none; }
+
+.tl__viewport {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 12px var(--gutter) 24px;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--gutter);
+  scrollbar-width: none;
+  outline-offset: -4px;
+}
+.tl__viewport::-webkit-scrollbar { display: none; }
+.tl.is-pinned .tl__viewport { overflow: visible; scroll-snap-type: none; }
+@media (min-width: 1440px) {
+  .tl__viewport { padding-inline: calc((100vw - var(--max-width)) / 2 + var(--gutter)); }
 }
 
-.timeline-sticky {
-  position: sticky;
-  top: 0;
-  display: flex;
-  height: 100svh;
-  flex-direction: column;
-  justify-content: center;
-  overflow: hidden;
-  padding: clamp(66px, 8vh, 92px) 0 76px;
-}
+.tl__track { display: flex; gap: clamp(16px, 1.8vw, 28px); width: max-content; will-change: transform; }
 
-.timeline-heading {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 32px;
-}
+.tl__item { width: clamp(280px, 25vw, 390px); flex: 0 0 auto; scroll-snap-align: start; }
+.tl__meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 34px; margin-bottom: 12px; font-family: var(--font-mono); font-size: 0.85rem; }
+.tl__meta time { color: var(--c-cream); }
+.tl__now { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: var(--radius-pill); color: var(--c-bg); background: var(--c-green); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; }
+.tl__now span { width: 7px; height: 7px; border-radius: 50%; background: var(--c-bg); }
 
-.timeline-range {
-  color: var(--md-on-surface-var);
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.12em;
-}
-
-.timeline-viewport {
-  width: 100%;
-  margin-top: clamp(38px, 6vh, 58px);
-  padding: 8px max(24px, calc((100vw - var(--max-width)) / 2)) 24px;
-  overflow: hidden;
-  direction: ltr;
-}
-
-.timeline-viewport:focus-visible {
-  outline: 1px solid rgba(187, 134, 252, 0.34);
-  outline-offset: -2px;
-}
-
-.timeline-track {
+.tl__card {
   position: relative;
   display: flex;
-  gap: 20px;
-  width: max-content;
-  min-width: 100%;
-  margin: 0;
-  padding: 0 max(24px, calc((100vw - var(--max-width)) / 2)) 10px 0;
-  list-style: none;
+  flex-direction: column;
+  min-height: clamp(320px, 44vh, 420px);
+  padding: clamp(22px, 2vw, 30px);
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  color: var(--c-bg);
+  background: var(--card);
   will-change: transform;
 }
-
-.timeline-track::before {
-  content: '';
-  position: absolute;
-  z-index: 0;
-  top: 48px;
-  right: 0;
-  left: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(187, 134, 252, 0.62) 2%, rgba(187, 134, 252, 0.24) 96%, transparent);
-  transform: scaleX(0);
-  transform-origin: left;
-  animation: railDraw 1.8s var(--md-ease-decel) 220ms forwards;
+.tl__card-shape { position: absolute; top: -16%; right: -14%; width: 56%; opacity: 0.35; mix-blend-mode: soft-light; pointer-events: none; }
+.tl__index { position: relative; font-weight: 700; }
+.tl__kicker { position: relative; margin-top: auto; padding-top: 40px; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; }
+.tl__card-title { position: relative; margin-top: 8px; color: var(--c-bg); font-size: clamp(1.5rem, 2.1vw, 2.05rem); font-weight: 600; line-height: 1.08; letter-spacing: -0.04em; }
+.tl__desc { position: relative; margin-top: 12px; font-size: 0.98rem; line-height: 1.45; }
+.tl__links { position: relative; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.tl__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 8px 14px;
+  border: 1.5px solid var(--c-bg);
+  border-radius: var(--radius-pill);
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: background 0.3s var(--ease-out), color 0.3s var(--ease-out);
 }
+.tl__link:hover, .tl__link:focus-visible { color: var(--card); background: var(--c-bg); }
+.tl__link .fa-arrow-up-right-from-square { font-size: 0.7em; }
+.tl__card :focus-visible { outline-color: var(--c-bg); }
 
-.timeline-item {
-  position: relative;
-  z-index: 1;
-  width: clamp(238px, 23vw, 292px);
-  flex: 0 0 clamp(238px, 23vw, 292px);
-  scroll-snap-align: center;
-}
+.tl__rail { position: relative; height: 2px; overflow: hidden; border-radius: 2px; background: var(--c-line); }
+.tl__rail-fill { position: absolute; inset: 0; background: var(--g-green); transform: scaleX(0); transform-origin: left; }
 
-.timeline-meta {
-  position: relative;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  height: 70px;
-  align-items: start;
-}
-
-.timeline-meta time,
-.timeline-index,
-.timeline-kicker {
-  font-family: var(--font-mono);
-  font-size: 0.59rem;
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
-}
-
-.timeline-meta time { color: var(--md-primary); font-size: 0.67rem; white-space: nowrap; }
-.timeline-index { color: rgba(187, 134, 252, 0.34); }
-
-.timeline-node {
-  position: absolute;
-  z-index: 2;
-  top: 39px;
-  left: 17px;
-  display: grid;
-  width: 18px;
-  height: 18px;
-  place-items: center;
-  border: 1px solid rgba(187, 134, 252, 0.48);
-  border-radius: 50%;
-  background: var(--md-bg);
-  transition: transform 260ms var(--md-ease-spring), border-color 260ms ease;
-}
-
-.timeline-node::after {
-  content: '';
-  position: absolute;
-  top: 17px;
-  left: 8px;
-  width: 1px;
-  height: 17px;
-  background: linear-gradient(rgba(187, 134, 252, 0.48), transparent);
-}
-
-.timeline-node i { width: 6px; height: 6px; border-radius: 50%; background: var(--md-primary); opacity: 0.62; }
-.timeline-item:hover .timeline-node { border-color: var(--md-primary); transform: scale(1.16); }
-.timeline-item.is-current .timeline-node { border-color: var(--md-primary); box-shadow: 0 0 0 6px rgba(187, 134, 252, 0.09); }
-.timeline-item.is-current .timeline-node i { opacity: 1; animation: nodePulse 2.2s ease-in-out infinite; }
-
-.timeline-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  min-height: 202px;
-  padding: 19px 20px;
-  overflow: hidden;
-  border: 1px solid var(--md-outline-var);
-  border-radius: var(--md-radius-lg);
-  background: rgba(15, 15, 18, 0.7);
-  box-shadow: var(--md-shadow-1);
-  backdrop-filter: blur(14px);
-  transition: transform 300ms var(--md-ease-spring), border-color 300ms ease, background 300ms ease;
-}
-
-.timeline-card::before {
-  content: '';
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 2px;
-  background: linear-gradient(var(--md-primary), transparent 70%);
-  opacity: 0.52;
-}
-
-.timeline-item:nth-child(even) .timeline-card { transform: translateY(12px); }
-.timeline-item:hover .timeline-card { border-color: rgba(187, 134, 252, 0.27); background: rgba(24, 21, 29, 0.82); transform: translateY(-3px); }
-.timeline-item:nth-child(even):hover .timeline-card { transform: translateY(8px); }
-.timeline-kicker { margin-bottom: 8px; color: var(--md-primary); }
-.timeline-card h3 { max-width: 95%; color: var(--md-on-surface); font-size: 0.96rem; line-height: 1.35; }
-.timeline-description { margin-top: 8px; color: var(--md-on-surface-var); font-size: 0.78rem; line-height: 1.6; }
-
-.timeline-links { display: flex; flex-wrap: wrap; gap: 7px; margin-top: auto; padding: 13px 0 0; list-style: none; }
-.timeline-links a { display: inline-flex; align-items: center; gap: 7px; min-height: 32px; padding: 6px 9px; border: 1px solid rgba(187, 134, 252, 0.2); border-radius: 100px; color: var(--md-on-surface-var); background: rgba(187, 134, 252, 0.045); font-size: 0.62rem; text-decoration: none; transition: color 220ms ease, border-color 220ms ease, transform 220ms var(--md-ease-spring); }
-.timeline-links a:hover,
-.timeline-links a:focus-visible { border-color: rgba(187, 134, 252, 0.46); color: var(--md-primary); outline: none; transform: translateY(-2px); }
-.external-icon { font-size: 0.54rem; transition: transform 220ms ease; }
-.timeline-links a:hover .external-icon { transform: translate(2px, -2px); }
-
-@keyframes railDraw { to { transform: scaleX(1); } }
-@keyframes nodePulse { 50% { transform: scale(0.5); opacity: 0.35; } }
-
-@media (max-width: 768px), (hover: none), (pointer: coarse) {
-  .timeline { min-height: 0; padding: var(--section-pad); overflow: hidden; }
-  .timeline-sticky { position: static; height: auto; overflow: visible; padding: 0; }
-  .timeline-heading { align-items: flex-start; flex-direction: column; }
-  .timeline-range { display: none; }
-  .timeline-viewport {
-    margin-top: 42px;
-    padding-inline: 20px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    touch-action: pan-x;
-    scroll-snap-type: x proximity;
-    scrollbar-width: thin;
-    mask-image: linear-gradient(90deg, transparent, #000 16px, #000 calc(100% - 16px), transparent);
-    -webkit-mask-image: linear-gradient(90deg, transparent, #000 16px, #000 calc(100% - 16px), transparent);
-  }
-  .timeline-track { gap: 15px; transform: none !important; }
-  .timeline-item { width: min(78vw, 286px); flex-basis: min(78vw, 286px); }
-  .timeline-card { min-height: 220px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .timeline { min-height: 0; padding: var(--section-pad); overflow: hidden; }
-  .timeline-sticky { position: static; height: auto; overflow: visible; padding: 0; }
-  .timeline-viewport { overflow-x: auto; scroll-snap-type: x proximity; }
-  .timeline-track { transform: none !important; }
-  .timeline-track::before { animation: none; transform: scaleX(1); }
-  .timeline-card,
-  .timeline-node,
-  .timeline-links a,
-  .external-icon { transition: none; }
-  .timeline-item:nth-child(even) .timeline-card,
-  .timeline-item:hover .timeline-card,
-  .timeline-item:nth-child(even):hover .timeline-card,
-  .timeline-links a:hover { transform: none; }
-  .timeline-item.is-current .timeline-node i { animation: none; }
+@media (max-width: 899px) {
+  .tl__head { flex-direction: column; align-items: flex-start; }
+  .tl__item { width: min(80vw, 340px); }
 }
 </style>

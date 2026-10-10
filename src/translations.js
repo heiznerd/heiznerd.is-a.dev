@@ -7,7 +7,17 @@ export const translations = {
       timeline: 'Hành trình',
       projects: 'Dự án',
       contact: 'Liên hệ',
-      switchLang: 'Switch to English'
+      switchLang: 'Switch to English',
+      mainNav: 'Điều hướng chính',
+      menu: 'Mở menu',
+      closeMenu: 'Đóng menu',
+      commands: 'Mở bảng lệnh',
+      calendar: 'Xem lịch',
+      skip: 'Bỏ qua tới nội dung chính',
+      backHome: 'Về trang chủ'
+    },
+    intro: {
+      skip: 'Nhấn phím bất kỳ để bỏ qua'
     },
     hero: {
       greeting: 'Xin chào, tớ là',
@@ -20,6 +30,7 @@ export const translations = {
       available: 'Sẵn sàng làm việc',
       roles: ['Frontend Developer', 'Vue.js Enthusiast', 'Người xây sản phẩm web'],
       scroll: 'Cuộn xuống',
+      socials: 'Mạng xã hội',
       stats: {
         projectsVal: '10+',
         ageVal: '14',
@@ -31,15 +42,18 @@ export const translations = {
       title: 'Who am I?',
       headerSubtitle: 'Tớ là ai?',
       intro: 'Xin chào!',
-      paragraph1: 'Tớ là Heiznerd (AKA Capta1nHwuy), một developer trẻ 14 tuổi đam mê công nghệ và anime. Tớ đặc biệt yêu thích thể loại Rom-com (Lãng mạn - Hài hước).',
-      paragraph2: 'Sau 128,168+ giờ sống trên đời này (kể từ 20/08/2011), tớ đã dành phần lớn thời gian để khám phá thế giới lập trình và xem anime.',
+      paragraph1: 'Tớ là Heiznerd (AKA Capta1nHwuy), một developer trẻ đam mê công nghệ và anime. Tớ đặc biệt yêu thích thể loại Rom-com (Lãng mạn - Hài hước).',
+      paragraph2: 'Sau 268,168+ giờ sống trên đời này, tớ đã dành phần lớn thời gian để khám phá thế giới lập trình và xem anime.',
       paragraph3: 'Tớ code vào thời gian rảnh rỗi, luôn học hỏi và xây dựng các dự án cá nhân. Mục tiêu của tớ là tạo ra những sản phẩm ổn định, hữu ích và dễ sử dụng.',
+      statementHighlights: { Heiznerd: 'green', 'công': 'blue', 'nghệ': 'blue', anime: 'pink', 'Rom-com': 'orange' },
       interests: 'Sở thích',
       coding: 'Lập trình',
       anime: 'Anime',
       romcom: 'Rom-com',
       gaming: 'Gaming',
       learning: 'Đang học hỏi',
+      location: 'Việt Nam',
+      statsLabel: 'Vài con số',
       stackLabel: 'Kỹ năng',
       stackTitle: 'My TechStack',
       stackDescription: 'Những công nghệ tớ dùng để biến ý tưởng thành sản phẩm ổn định, nhanh và dễ bảo trì.',
@@ -63,20 +77,49 @@ export const translations = {
       title: 'Technologies & Tools',
       headerSubtitle: 'Công nghệ & Công cụ',
       languages: 'Ngôn ngữ lập trình',
-      tools: 'Công cụ & Framework'
+      tools: 'Công cụ & Framework',
+      rolesLabel: 'Vai trò của tớ',
+      itemsLabel: 'Công nghệ trong nhóm',
+      marqueeLabel: 'Technologies in motion'
     },
     projects: {
       label: 'Portfolio',
       title: 'Featured Projects',
-      headerSubtitle: 'Hai dự án phản ánh cách tớ xây dựng, thử nghiệm và chia sẻ sản phẩm.',
+      headerSubtitle: 'Những dự án phản ánh cách tớ xây dựng, thử nghiệm và chia sẻ sản phẩm.',
       featured: 'Dự án nổi bật',
       stackLabel: 'Kiến trúc & công nghệ',
+      rolesLabel: 'Vai trò',
       install: 'Cài đặt',
+      copy: 'Sao chép lệnh',
+      copied: 'Đã sao chép lệnh vào clipboard',
+      copyFailed: 'Không sao chép được, hãy chọn và sao chép thủ công',
       source: 'Xem mã nguồn',
       visit: 'Truy cập',
-      active: 'Đang hoạt động',
+      openApp: 'Mở ứng dụng',
+      lineageLabel: 'Phiên bản trước',
       currentWorkTitle: 'Current Work',
       currentWorkSubtitle: 'Những tổ chức và cộng đồng tớ đang đồng hành, xây dựng và vận hành.',
+      danshi: {
+        name: 'Danshi',
+        status: 'Open Source · CLI',
+        roles: ['Full-Core Dev'],
+        description: 'Công cụ tự động render video replay osu!, kèm trình tải beatmap đa mirror và trình quản lý skin thông minh cho Danser (đa nền tảng).',
+        meta: 'Node · Danser · Cross-Platform'
+      },
+      nekoai: {
+        name: 'NekoAI',
+        status: 'Web App',
+        roles: ['Designer', 'Frontend Development'],
+        description: 'Người bạn đồng hành số của riêng bạn, sống trong thế giới số. Tính cách tùy chỉnh, tương tác thời gian thực và hiện diện trên nhiều nền tảng.',
+        meta: 'app.nekoai.is-a.dev'
+      },
+      nekocomicsV2: {
+        name: 'NekoComics-V2',
+        status: 'Reborn từ NekoComics',
+        roles: ['Designer', 'Backend Developer', 'Audit', 'Core Dev'],
+        description: 'Nền tảng truyện trang hướng tới sự thoải mái, tiện nghi với UI-UX và trải nghiệm tuyệt vời',
+        meta: 'NekoTech LLC.'
+      },
       nekocomics: {
         name: 'NekoComics Rework',
         status: 'Archived · Private Beta',
@@ -92,11 +135,35 @@ export const translations = {
       nekotech: {
         name: 'NekoTech LLC.',
         description: 'Đang làm việc và đồng hành cùng NekoTech LLC.'
-      },
-      langbang: {
-        name: 'Làng Băng VN',
-        description: 'Owner cụm EcoSMP tại máy chủ Minecraft Làng Băng VN.'
       }
+    },
+    quintet: {
+      label: 'Góc Rom-com',
+      title: 'Rom-com Corner',
+      subtitle: 'Một góc nhỏ cho bộ rom-com tớ thích: Nhà có năm nàng dâu (五等分の花嫁 · Gotoubun no Hanayome).',
+      hint: 'Rê chuột hoặc chạm vào từng cô nàng',
+      groupLabel: 'Ảnh minh họa chính thức của năm chị em nhà Nakano. Chọn một người để xem ảnh khác.',
+      toggle: 'Xem ảnh khác',
+      postersLabel: 'Mùa & Phim',
+      posters: ['Mùa 1', 'Mùa 2', 'Movie'],
+      weddingAlt: 'Ảnh minh họa chính thức: năm chị em trong váy cưới giữa cánh hoa anh đào',
+      credit: 'Artwork © Negi Haruba / Kodansha / Ban sản xuất Gotoubun no Hanayome. Trang fan tribute, không liên kết chính thức. Hình ảnh qua AniList.',
+      sisters: [
+        { name: 'Ichika', kanji: '一花', order: 'Chị cả' },
+        { name: 'Nino', kanji: '二乃', order: 'Chị hai' },
+        { name: 'Miku', kanji: '三玖', order: 'Chị ba' },
+        { name: 'Yotsuba', kanji: '四葉', order: 'Chị tư' },
+        { name: 'Itsuki', kanji: '五月', order: 'Út' }
+      ]
+    },
+    thanks: {
+      tag: 'NekoTech Community',
+      alt: 'Banner cộng đồng NekoTech',
+      before: 'Cảm ơn tất cả người bạn thân của tôi tại',
+      middle: 'đã giúp tôi có được như ngày hôm nay, cảm ơn',
+      and: ',',
+      after: 'đã giúp tôi rất nhiều. Dù sao cũng cảm ơn',
+      end: 'vì tấm banner tuyệt đẹp này nhoa!'
     },
     contact: {
       label: 'Liên hệ',
@@ -105,7 +172,22 @@ export const translations = {
       description: 'Bạn có ý tưởng, dự án hoặc muốn hợp tác? Hãy liên hệ với tớ!',
       message: 'Nhắn tin',
       viewProfile: 'Xem profile',
-      connect: 'Kết nối'
+      connect: 'Kết nối',
+      ctaTitle: 'Cùng nhau xây dựng điều gì đó nhé',
+      ctaText: 'Sẵn sàng hợp tác, nhận việc freelance, hoặc đơn giản là trò chuyện cho vui.',
+      activityTitle: 'Hoạt động gần đây',
+      live: 'Live',
+      events: {
+        PushEvent: 'Đã push lên',
+        CreateEvent: 'Đã tạo',
+        WatchEvent: 'Đã star',
+        ForkEvent: 'Đã fork',
+        IssuesEvent: 'Issue tại',
+        PullRequestEvent: 'PR tại',
+        IssueCommentEvent: 'Bình luận tại',
+        DeleteEvent: 'Đã xóa'
+      },
+      ago: { now: 'vừa xong', m: 'phút trước', h: 'giờ trước', d: 'ngày trước', mo: 'tháng trước' }
     },
     timeline: {
       label: 'Hành trình',
@@ -114,9 +196,9 @@ export const translations = {
       linksLabel: 'Liên kết dự án',
       previous: 'Xem mốc trước',
       next: 'Xem mốc tiếp theo',
+      current: 'Hiện tại',
       scrollLabel: 'Dòng thời gian My Path, cuộn ngang từ trái sang phải',
       items: [
-        { id: 'born', datetime: '2011-08-20', date: '20 / 08 / 2011', kicker: 'Khởi đầu', title: 'Hello, world.', description: 'Chào đời và bắt đầu khám phá thế giới.' },
         { id: 'practical-coding', datetime: '2024-10', date: '10 / 2024', kicker: 'Lập trình', title: 'Làm quen lập trình thực tiễn', description: 'Bắt đầu tiếp cận lập trình qua các bài toán và dự án thực tế.' },
         { id: 'nekotech', datetime: '2025-09', date: '09 / 2025', kicker: 'NekoTech LLC.', title: 'Gia nhập NekoTech LLC.', description: 'Đảm nhiệm vai trò CO-Owner và Project Manager.' },
         { id: 'nekocomics-v2', datetime: '2025-11', date: '11 / 2025', kicker: 'NekoComics', title: 'Phát triển NekoComics V2', description: 'Tham gia xây dựng thế hệ tiếp theo của dự án NekoComics.' },
@@ -128,7 +210,9 @@ export const translations = {
     },
     footer: {
       designedBy: 'Thiết kế & Xây dựng bởi',
-      rights: 'Quyền hạn được bảo lưu.'
+      rights: 'Quyền hạn được bảo lưu.',
+      builtWith: 'Xây dựng với',
+      backToTop: 'Lên đầu trang'
     },
     whatIDo: {
       label: 'Dịch vụ',
@@ -154,7 +238,17 @@ export const translations = {
       projects: 'Projects',
       timeline: 'Timeline',
       contact: 'Contact',
-      switchLang: 'Chuyển sang Tiếng Việt'
+      switchLang: 'Chuyển sang Tiếng Việt',
+      mainNav: 'Main navigation',
+      menu: 'Open menu',
+      closeMenu: 'Close menu',
+      commands: 'Open command palette',
+      calendar: 'Show calendar',
+      skip: 'Skip to main content',
+      backHome: 'Back to home'
+    },
+    intro: {
+      skip: 'Press any key to skip'
     },
     hero: {
       greeting: 'Hi, I\'m',
@@ -167,6 +261,7 @@ export const translations = {
       available: 'Available for work',
       roles: ['Frontend Developer', 'Vue.js Enthusiast', 'Web Product Builder'],
       scroll: 'Scroll down',
+      socials: 'Social links',
       stats: {
         projectsVal: '10+',
         ageVal: '14',
@@ -178,15 +273,18 @@ export const translations = {
       title: 'Who am I?',
       headerSubtitle: null,
       intro: 'Hello!',
-      paragraph1: 'I\'m Heiznerd (AKA Capta1nHwuy), a 14-year-old rookie developer passionate about technology and anime. I especially love Rom-com (Romantic Comedy) genre.',
-      paragraph2: 'After 128,168+ hours living in this world (since 20/08/2011), I\'ve spent most of my time exploring the programming world and watching anime.',
+      paragraph1: 'I\'m Heiznerd (AKA Capta1nHwuy), a rookie developer passionate about technology and anime. I especially love Rom-com (Romantic Comedy) genre.',
+      paragraph2: 'After 128,168+ hours living in this world, I\'ve spent most of my time exploring the programming world and watching anime.',
       paragraph3: 'I code in my free time, always learning and building personal projects. My goal is to create stable, useful, and easy-to-use products.',
+      statementHighlights: { Heiznerd: 'green', technology: 'blue', anime: 'pink', 'Rom-com': 'orange' },
       interests: 'Interests',
       coding: 'Coding',
       anime: 'Anime',
       romcom: 'Rom-com',
       gaming: 'Gaming',
       learning: 'Learning & building',
+      location: 'Vietnam',
+      statsLabel: 'A few numbers',
       stackLabel: 'Skills',
       stackTitle: 'My TechStack',
       stackDescription: 'Technologies I use to turn ideas into stable, fast and maintainable products.',
@@ -210,20 +308,49 @@ export const translations = {
       title: 'Technologies & Tools',
       headerSubtitle: null,
       languages: 'Programming Languages',
-      tools: 'Tools & Frameworks'
+      tools: 'Tools & Frameworks',
+      rolesLabel: 'What I play',
+      itemsLabel: 'Technologies in this group',
+      marqueeLabel: 'Technologies in motion'
     },
     projects: {
       label: 'Portfolio',
       title: 'Featured Projects',
-      headerSubtitle: 'Two projects that reflect how I build, experiment and share products.',
+      headerSubtitle: 'Projects that reflect how I build, experiment and share products.',
       featured: 'Featured project',
       stackLabel: 'Architecture & stack',
+      rolesLabel: 'Roles',
       install: 'Install',
+      copy: 'Copy command',
+      copied: 'Command copied to clipboard',
+      copyFailed: 'Could not copy, please select and copy it manually',
       source: 'View source',
       visit: 'Visit',
-      active: 'Currently active',
+      openApp: 'Open app',
+      lineageLabel: 'Previous version',
       currentWorkTitle: 'Current Work',
       currentWorkSubtitle: 'Organizations and communities I am currently helping build and operate.',
+      danshi: {
+        name: 'Danshi',
+        status: 'Open source · CLI',
+        roles: ['Full-Core Dev'],
+        description: 'Automated osu! replay video renderer with multi-mirror beatmap auto-fetcher & smart skin manager for Danser (Cross-Platform)',
+        meta: 'Node · Danser · Cross-Platform'
+      },
+      nekoai: {
+        name: 'NekoAI',
+        status: 'Web app',
+        roles: ['Designer', 'Frontend Development'],
+        description: 'Your own digital companion lives inside digital world. Customizable personalities, real-time interaction, and multi-platform presence.',
+        meta: 'app.nekoai.is-a.dev'
+      },
+      nekocomicsV2: {
+        name: 'NekoComics-V2',
+        status: 'Reborn from NekoComics',
+        roles: ['Designer', 'Backend Developer', 'Audit', 'Core Dev'],
+        description: 'A comic reading platform built for comfort and convenience, with great UI/UX and a polished experience.',
+        meta: 'NekoTech LLC.'
+      },
       nekocomics: {
         name: 'NekoComics Rework',
         status: 'Archived · Private beta',
@@ -239,11 +366,35 @@ export const translations = {
       nekotech: {
         name: 'NekoTech LLC.',
         description: 'Currently working with and contributing to NekoTech LLC.'
-      },
-      langbang: {
-        name: 'Làng Băng VN',
-        description: 'Owner of the EcoSMP cluster on the Làng Băng VN Minecraft server.'
       }
+    },
+    quintet: {
+      label: 'Rom-com corner',
+      title: 'Rom-com Corner',
+      subtitle: 'A small corner for a rom-com I love: The Quintessential Quintuplets (五等分の花嫁 · Gotoubun no Hanayome).',
+      hint: 'Hover or tap each sister',
+      groupLabel: 'Official artwork of the five Nakano sisters. Select one to see a different picture.',
+      toggle: 'Show another picture',
+      postersLabel: 'Seasons & Movie',
+      posters: ['Season 1', 'Season 2', 'Movie'],
+      weddingAlt: 'Official artwork: the five sisters in wedding dresses among cherry blossom petals',
+      credit: 'Artwork © Negi Haruba / Kodansha / The Quintessential Quintuplets Production Committee. Fan tribute, not officially affiliated. Images via AniList.',
+      sisters: [
+        { name: 'Ichika', kanji: '一花', order: 'Eldest' },
+        { name: 'Nino', kanji: '二乃', order: '2nd' },
+        { name: 'Miku', kanji: '三玖', order: '3rd' },
+        { name: 'Yotsuba', kanji: '四葉', order: '4th' },
+        { name: 'Itsuki', kanji: '五月', order: 'Youngest' }
+      ]
+    },
+    thanks: {
+      tag: 'NekoTech Community',
+      alt: 'NekoTech community banner',
+      before: 'Thank you to all of my close friends at',
+      middle: 'for helping me become who I am today. Thank you',
+      and: ' and',
+      after: 'for helping me so much. And thanks again',
+      end: 'for this beautiful banner!'
     },
     timeline: {
       label: 'Journey',
@@ -252,9 +403,9 @@ export const translations = {
       linksLabel: 'Project links',
       previous: 'View previous milestone',
       next: 'View next milestone',
+      current: 'Now',
       scrollLabel: 'My Path timeline, scroll horizontally from left to right',
       items: [
-        { id: 'born', datetime: '2011-08-20', date: '20 / 08 / 2011', kicker: 'Beginning', title: 'Hello, world.', description: 'Born and began exploring the world.' },
         { id: 'practical-coding', datetime: '2024-10', date: '10 / 2024', kicker: 'Coding', title: 'Getting into practical programming', description: 'Started approaching programming through real problems and hands-on projects.' },
         { id: 'nekotech', datetime: '2025-09', date: '09 / 2025', kicker: 'NekoTech LLC.', title: 'Joined NekoTech LLC.', description: 'Took on the roles of CO-Owner and Project Manager.' },
         { id: 'nekocomics-v2', datetime: '2025-11', date: '11 / 2025', kicker: 'NekoComics', title: 'Developing NekoComics V2', description: 'Helped build the next generation of the NekoComics project.' },
@@ -271,11 +422,28 @@ export const translations = {
       description: 'Have an idea, project or want to collaborate? Let\'s connect!',
       message: 'Send Message',
       viewProfile: 'View Profile',
-      connect: 'Connect'
+      connect: 'Connect',
+      ctaTitle: 'Let\'s build something together',
+      ctaText: 'Open to collaborations, freelance work, or just a friendly chat.',
+      activityTitle: 'Recent Activity',
+      live: 'Live',
+      events: {
+        PushEvent: 'Pushed to',
+        CreateEvent: 'Created',
+        WatchEvent: 'Starred',
+        ForkEvent: 'Forked',
+        IssuesEvent: 'Issue on',
+        PullRequestEvent: 'PR on',
+        IssueCommentEvent: 'Commented on',
+        DeleteEvent: 'Deleted'
+      },
+      ago: { now: 'just now', m: 'm ago', h: 'h ago', d: 'd ago', mo: 'mo ago' }
     },
     footer: {
       designedBy: 'Designed & Built by',
-      rights: 'All rights reserved.'
+      rights: 'All rights reserved.',
+      builtWith: 'Built with',
+      backToTop: 'Back to top'
     },
     whatIDo: {
       label: 'Services',

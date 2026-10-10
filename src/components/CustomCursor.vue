@@ -1,125 +1,127 @@
 <template>
-  <div class="cursor-wrapper">
-    <!-- Main Cursor -->
-    <div 
-      class="custom-cursor" 
-      :style="{ left: x + 'px', top: y + 'px' }"
-      :class="{ 'hovering': isHovering, 'clicking': isClicking }"
-    ></div>
-    
-    <!-- Trail Effect -->
-    <div 
-      v-for="(point, index) in trail" 
-      :key="index"
-      class="cursor-trail"
-      :style="{ 
-        left: point.x + 'px', 
-        top: point.y + 'px',
-        opacity: (1 - index / trailLength) * 0.5,
-        transform: `translate(-50%, -50%) scale(${1 - index / trailLength})`
-      }"
-    ></div>
+  <div v-if="enabled" ref="root" class="cursor" aria-hidden="true">
+    <div class="cursor__follow">
+      <div class="cursor__ring"></div>
+      <span class="cursor__label">{{ label }}</span>
+    </div>
+    <div class="cursor__dot"></div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { nextTick, onMounted, onUnmounted, ref } from 'vue';
+import { gsap, prefersReducedMotion, FINE_POINTER_QUERY } from '@/lib/gsap';
 
-const x = ref(-100);
-const y = ref(-100);
-const isHovering = ref(false);
-const isClicking = ref(false);
-const trail = ref([]);
-const trailLength = 12;
+// Decorative follower only: the native cursor stays visible, and touch / reduced-motion users never get it.
+const enabled = ref(false);
+const root = ref(null);
+const label = ref('');
 
-const moveCursor = (e) => {
-  x.value = e.clientX;
-  y.value = e.clientY;
-  
-  // Add point to trail
-  trail.value.unshift({ x: e.clientX, y: e.clientY });
-  if (trail.value.length > trailLength) {
-    trail.value.pop();
+let ctx;
+let ring;
+let labelEl;
+let followX; let followY; let dotX; let dotY;
+let state = 'idle';
+let visible = false;
+
+const scaleFor = s => (s === 'label' ? 2.8 : s === 'link' ? 1.6 : 1);
+
+const setState = (next, text = '') => {
+  if (state === next && label.value === text) return;
+  state = next;
+  label.value = text;
+  gsap.to(ring, { scale: scaleFor(next), duration: 0.5, ease: 'expo.out', overwrite: 'auto' });
+  gsap.to(labelEl, { autoAlpha: next === 'label' ? 1 : 0, scale: next === 'label' ? 1 : 0.6, duration: 0.3, overwrite: 'auto' });
+  ring.classList.toggle('has-label', next === 'label');
+  ring.classList.toggle('is-link', next === 'link');
+};
+
+const onMove = event => {
+  followX(event.clientX); followY(event.clientY);
+  dotX(event.clientX); dotY(event.clientY);
+  if (!visible) {
+    visible = true;
+    gsap.to(root.value, { opacity: 1, duration: 0.3 });
   }
 };
 
-const checkHover = (e) => {
-  if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' || e.target.closest('a') || e.target.closest('button') || e.target.classList.contains('sticker')) {
-    isHovering.value = true;
-  } else {
-    isHovering.value = false;
-  }
+const onOver = event => {
+  const labelled = event.target.closest?.('[data-cursor]');
+  if (labelled) return setState('label', labelled.getAttribute('data-cursor'));
+  const interactive = event.target.closest?.('a, button, [role="button"], input, label, summary, [role="option"]');
+  return setState(interactive ? 'link' : 'idle');
 };
 
-const mouseDown = () => {
-  isClicking.value = true;
+const onLeaveWindow = () => {
+  visible = false;
+  gsap.to(root.value, { opacity: 0, duration: 0.3 });
 };
+const onDown = () => gsap.to(ring, { scale: scaleFor(state) * 0.8, duration: 0.15, overwrite: 'auto' });
+const onUp = () => gsap.to(ring, { scale: scaleFor(state), duration: 0.5, ease: 'back.out(3)', overwrite: 'auto' });
 
-const mouseUp = () => {
-  isClicking.value = false;
-};
-
-onMounted(() => {
-  window.addEventListener('mousemove', moveCursor);
-  window.addEventListener('mouseover', checkHover);
-  window.addEventListener('mousedown', mouseDown);
-  window.addEventListener('mouseup', mouseUp);
+onMounted(async () => {
+  if (prefersReducedMotion() || !window.matchMedia(FINE_POINTER_QUERY).matches) return;
+  enabled.value = true;
+  await nextTick();
+  ctx = gsap.context(() => {
+    ring = root.value.querySelector('.cursor__ring');
+    labelEl = root.value.querySelector('.cursor__label');
+    gsap.set(root.value, { opacity: 0 });
+    gsap.set(labelEl, { autoAlpha: 0 });
+    gsap.set(['.cursor__follow', '.cursor__dot'], { xPercent: -50, yPercent: -50 });
+    followX = gsap.quickTo('.cursor__follow', 'x', { duration: 0.55, ease: 'power3' });
+    followY = gsap.quickTo('.cursor__follow', 'y', { duration: 0.55, ease: 'power3' });
+    dotX = gsap.quickTo('.cursor__dot', 'x', { duration: 0.1, ease: 'power3' });
+    dotY = gsap.quickTo('.cursor__dot', 'y', { duration: 0.1, ease: 'power3' });
+  }, root.value);
+  window.addEventListener('pointermove', onMove, { passive: true });
+  window.addEventListener('pointerover', onOver, { passive: true });
+  window.addEventListener('pointerdown', onDown, { passive: true });
+  window.addEventListener('pointerup', onUp, { passive: true });
+  document.documentElement.addEventListener('pointerleave', onLeaveWindow);
 });
 
 onUnmounted(() => {
-  window.removeEventListener('mousemove', moveCursor);
-  window.removeEventListener('mouseover', checkHover);
-  window.removeEventListener('mousedown', mouseDown);
-  window.removeEventListener('mouseup', mouseUp);
+  window.removeEventListener('pointermove', onMove);
+  window.removeEventListener('pointerover', onOver);
+  window.removeEventListener('pointerdown', onDown);
+  window.removeEventListener('pointerup', onUp);
+  document.documentElement.removeEventListener('pointerleave', onLeaveWindow);
+  ctx?.revert();
 });
 </script>
 
 <style scoped>
-.cursor-wrapper {
-  pointer-events: none;
-  z-index: 10000;
+.cursor { position: fixed; z-index: 10030; inset: 0; pointer-events: none; }
+
+.cursor__follow,
+.cursor__dot {
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
 }
 
-.custom-cursor {
-  position: fixed;
-  width: 10px;
-  height: 10px;
-  background-color: var(--md-primary);
+.cursor__follow { display: grid; width: 38px; height: 38px; place-items: center; }
+
+.cursor__ring {
+  position: absolute;
+  inset: 0;
+  border: 1.5px solid rgba(255, 252, 225, 0.5);
   border-radius: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  z-index: 10002;
-  transition: width 0.25s var(--md-ease-spring),
-              height 0.25s var(--md-ease-spring),
-              background-color 0.25s,
-              transform 0.1s;
-  box-shadow: 0 0 8px rgba(187, 134, 252, 0.4);
+  transition: background-color 0.3s var(--ease-out), border-color 0.3s var(--ease-out);
+}
+.cursor__ring.is-link { border-color: var(--c-green); background: rgba(10, 228, 72, 0.08); }
+.cursor__ring.has-label { border-color: transparent; background: var(--c-cream); }
+
+.cursor__label {
+  position: relative;
+  color: var(--c-bg);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
 }
 
-.custom-cursor.hovering {
-  width: 36px;
-  height: 36px;
-  background-color: rgba(187, 134, 252, 0.15);
-  border: 1.5px solid var(--md-primary);
-  box-shadow: 0 0 16px rgba(187, 134, 252, 0.25);
-}
-
-.custom-cursor.clicking {
-  transform: translate(-50%, -50%) scale(0.7);
-}
-
-.cursor-trail {
-  position: fixed;
-  width: 4px;
-  height: 4px;
-  background-color: var(--md-primary);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 10001;
-  transition: opacity 0.1s;
-  opacity: 0.4;
-}
+.cursor__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--c-green); }
 </style>

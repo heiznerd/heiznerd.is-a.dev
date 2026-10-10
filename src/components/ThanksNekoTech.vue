@@ -1,127 +1,98 @@
 <template>
-  <section class="nekotech-banner drift">
-    <button
-      type="button"
-      class="banner-button"
-      :class="{ 'is-open': isOpen }"
-      :aria-expanded="isOpen"
-      aria-controls="nekotech-thanks"
-      @click="isOpen = !isOpen"
-    >
-      <img src="/heiznerd_backgroundv2.png" alt="Banner cộng đồng NekoTech" class="banner-img" />
-      <span class="banner-shade" aria-hidden="true"></span>
-
-      <span id="nekotech-thanks" class="banner-box">
-        <span class="banner-tag">✦ NekoTech Community</span>
-        <span class="banner-message">
-          Cảm ơn tất cả người bạn thân của tôi tại <strong>NekoTech</strong> đã giúp tôi có được như ngày hôm nay,
-          cảm ơn <em>@maiminhdung</em>, <em>@ssdarealest</em> đã giúp tôi rất nhiều.
-          Dù sao cũng cảm ơn <em>@ssdarealest</em> vì tấm banner tuyệt đẹp này nhoa!
-        </span>
-      </span>
-    </button>
+  <section ref="root" class="thanks" aria-labelledby="thanks-title">
+    <div class="container">
+      <figure class="thanks__figure">
+        <div class="thanks__frame">
+          <img src="/heiznerd_backgroundv2.png" :alt="t.alt" class="thanks__img" loading="lazy" decoding="async" />
+        </div>
+        <figcaption class="thanks__card">
+          <h2 id="thanks-title" class="thanks__tag">
+            <span class="thanks__tag-shape" aria-hidden="true"><Shape name="star" palette="green" /></span>
+            {{ t.tag }}
+          </h2>
+          <p class="thanks__msg">
+            {{ t.before }} <strong>NekoTech</strong> {{ t.middle }}
+            <em>@maiminhdung</em>{{ t.and }} <em>@ssdarealest</em> {{ t.after }}
+            <em>@ssdarealest</em> {{ t.end }}
+          </p>
+        </figcaption>
+      </figure>
+    </div>
   </section>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { computed, inject, ref } from 'vue';
+import { gsap } from '@/lib/gsap';
+import { useGsap, MEDIA } from '@/composables/useGsap';
+import Shape from './ui/Shape.vue';
 
-const isOpen = ref(false);
+const lang = inject('lang');
+const translations = inject('translations');
+const t = computed(() => translations[lang.value].thanks);
+const root = ref(null);
+
+useGsap(root, ({ mm }) => {
+  mm.add(MEDIA, context => {
+    if (!context.conditions.motion) return;
+    // Banner unmasks from a pill into the full frame, image drifts inside it.
+    gsap.timeline({ scrollTrigger: { trigger: '.thanks__figure', start: 'top 90%', end: 'top 25%', scrub: 1 } })
+      .fromTo('.thanks__frame', { clipPath: 'inset(18% 26% 18% 26% round 999px)' }, { clipPath: 'inset(0% 0% 0% 0% round 36px)', ease: 'none' }, 0)
+      .fromTo('.thanks__img', { scale: 1.35 }, { scale: 1.05, ease: 'none' }, 0);
+    gsap.fromTo('.thanks__img', { yPercent: -4 }, {
+      yPercent: 4,
+      ease: 'none',
+      scrollTrigger: { trigger: '.thanks__figure', start: 'top 25%', end: 'bottom top', scrub: true },
+    });
+    gsap.from('.thanks__card', {
+      y: 100,
+      rotate: -3,
+      autoAlpha: 0,
+      duration: 1.2,
+      scrollTrigger: { trigger: '.thanks__figure', start: 'top 45%', once: true },
+    });
+    gsap.to('.thanks__tag-shape', { rotate: 360, duration: 10, ease: 'none', repeat: -1 });
+  });
+});
 </script>
 
 <style scoped>
-.nekotech-banner {
-  width: 100%;
-  height: clamp(250px, 30vw, 390px);
-  padding: 0;
+.thanks { padding-block: clamp(40px, 6vw, 100px); }
+.thanks__figure { position: relative; }
+.thanks__frame {
   overflow: hidden;
+  aspect-ratio: 16 / 7;
+  border-radius: var(--radius-xl);
+  background: var(--c-bg-2);
 }
+.thanks__img { width: 100%; height: 100%; object-fit: cover; will-change: transform; }
 
-.banner-button {
+.thanks__card {
   position: relative;
-  display: block;
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  overflow: hidden;
-  border: 0;
-  color: inherit;
-  background: transparent;
-  cursor: pointer;
-  text-align: left;
-}
-
-.banner-button:focus-visible {
-  outline: 2px solid var(--md-primary);
-  outline-offset: -4px;
-}
-
-.banner-img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  transition: transform 700ms var(--md-ease-spring), filter 500ms ease;
-}
-
-.banner-shade {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, rgba(9, 8, 12, 0.88), rgba(9, 8, 12, 0.3) 60%, rgba(9, 8, 12, 0.08));
-  opacity: 0;
-  transition: opacity 420ms ease;
-}
-
-.banner-box {
-  position: absolute;
   z-index: 1;
-  bottom: clamp(22px, 4vw, 48px);
-  left: max(22px, calc((100vw - var(--max-width)) / 2));
-  display: flex;
-  width: min(620px, calc(100% - 44px));
-  flex-direction: column;
-  gap: 12px;
-  padding: 22px 24px;
-  border: 1px solid rgba(187, 134, 252, 0.22);
-  border-radius: var(--md-radius-lg);
-  color: var(--md-on-surface);
-  background: rgba(13, 12, 16, 0.76);
-  box-shadow: var(--md-shadow-3);
-  backdrop-filter: blur(16px);
-  opacity: 0;
-  transform: translateY(18px) scale(0.98);
-  transition: opacity 380ms ease, transform 500ms var(--md-ease-spring);
-  pointer-events: none;
+  width: min(640px, calc(100% - 32px));
+  margin: -12% 0 0 clamp(16px, 4vw, 56px);
+  padding: clamp(22px, 2.6vw, 34px);
+  border-radius: var(--radius-lg);
+  color: var(--c-bg);
+  background: var(--c-cream);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
 }
-
-.banner-button:hover .banner-img,
-.banner-button:focus-visible .banner-img,
-.banner-button.is-open .banner-img { transform: scale(1.025); filter: saturate(0.88) brightness(0.72); }
-.banner-button:hover .banner-shade,
-.banner-button:focus-visible .banner-shade,
-.banner-button.is-open .banner-shade { opacity: 1; }
-.banner-button:hover .banner-box,
-.banner-button:focus-visible .banner-box,
-.banner-button.is-open .banner-box { opacity: 1; transform: none; }
-
-.banner-tag { color: var(--md-primary); font-family: var(--font-mono); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; }
-.banner-message { color: rgba(255,255,255,.84); font-size: clamp(.88rem, 1.35vw, 1.02rem); line-height: 1.72; }
-.banner-message strong,
-.banner-message em { color: var(--md-primary); font-style: normal; font-weight: 600; }
-
-@media (max-width: 600px) {
-  .nekotech-banner { height: 340px; }
-  .banner-img { object-position: center; }
-  .banner-box { bottom: 18px; left: 16px; width: calc(100% - 32px); padding: 18px; }
+.thanks__tag { display: flex; align-items: center; gap: 10px; color: var(--c-bg); font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.thanks__tag-shape { width: 26px; }
+.thanks__msg { margin-top: 14px; font-size: clamp(1.05rem, 1.5vw, 1.3rem); font-weight: 500; line-height: 1.5; }
+.thanks__msg strong,
+.thanks__msg em {
+  padding: 0 0.25em;
+  border-radius: 0.25em;
+  font-style: normal;
+  font-weight: 700;
+  background: var(--c-lime);
 }
+.thanks__msg em { background: var(--c-pink); }
 
-@media (prefers-reduced-motion: reduce) {
-  .banner-img,
-  .banner-shade,
-  .banner-box { transition: none; }
-  .banner-button:hover .banner-img,
-  .banner-button:focus-visible .banner-img,
-  .banner-button.is-open .banner-img { transform: none; }
+@media (max-width: 899px) {
+  .thanks__frame { aspect-ratio: 4 / 3; }
+  .thanks__card { width: auto; margin: -18% 12px 0; }
 }
 </style>

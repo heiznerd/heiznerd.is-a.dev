@@ -1,498 +1,267 @@
 <template>
-  <section id="skills" class="skills">
+  <section id="skills" ref="root" class="stack section" aria-labelledby="stack-title">
     <div class="container">
-      <div class="drift from-top">
-        <span class="section-eyebrow">{{ t.label }}</span>
-        <h2 class="section-title">{{ t.title }}</h2>
+      <!-- Intro: stacked role labels + playful composition -->
+      <div class="stack__intro">
+        <div class="stack__intro-copy">
+          <span class="mono stack__eyebrow">02 — {{ t.stackLabel }}</span>
+          <ul class="roles" :aria-label="s.rolesLabel">
+            <li v-for="(role, i) in heroT.roles" :key="role" class="roles__item" :style="{ '--mark': roleColors[i % roleColors.length], '--shift': `${i * 1.1}em` }">
+              <span class="mark-box roles__box">{{ role }}</span>
+            </li>
+          </ul>
+          <p class="stack__desc lead">{{ t.stackDescription }}</p>
+        </div>
+
+        <div class="compo" aria-hidden="true">
+          <span class="compo__dome"><Shape name="dome" palette="emerald" :angle="200" /></span>
+          <span class="compo__flower"><Shape name="flower" palette="candy" :angle="200" /></span>
+          <span class="compo__ring"><Shape name="ring" palette="summer" :angle="45" /></span>
+          <span class="compo__hourglass"><Shape name="hourglass" palette="lilac" /></span>
+          <span class="compo__diamond"><Shape name="diamond" palette="orange" /></span>
+        </div>
       </div>
 
-      <div class="skills-layout">
-        <!-- Left: Progress bars -->
-        <div class="skills-left drift from-left">
-          <h3 class="col-heading">{{ t.languages }}</h3>
-          <div class="skill-bars" ref="barsRef">
-            <div class="skill-bar-item" v-for="skill in languages" :key="skill.name">
-              <div class="skill-meta">
-                <span class="skill-name">
-                  <i :class="skill.icon" :style="{ color: skill.color }"></i>
-                  {{ skill.name }}
-                </span>
-                <span class="skill-pct" :ref="el => pctRefs[skill.name] = el">0%</span>
-              </div>
-              <div class="progress-track">
-                <div
-                  class="progress-fill"
-                  :ref="el => barRefs[skill.name] = el"
-                  :data-level="skill.level"
-                  :style="{ '--bar-color': skill.color }"
-                ></div>
-                <div class="progress-shimmer"></div>
-              </div>
-            </div>
+      <!-- Category rows -->
+      <header class="stack__head">
+        <BraceLabel size="sm">{{ s.headerSubtitle || s.title }}</BraceLabel>
+        <h2 id="stack-title" class="section-title stack__title">{{ t.stackTitle }}</h2>
+      </header>
+
+      <ol class="rows">
+        <li v-for="(cat, index) in categories" :key="cat.key" class="row" :style="{ '--tone': cat.color }">
+          <div class="row__art" aria-hidden="true">
+            <svg class="row__svg" viewBox="0 0 100 100" overflow="visible">
+              <defs>
+                <linearGradient :id="`row-grad-${cat.key}`" x1="10" y1="0" x2="90" y2="100" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" :stop-color="cat.gradient[0]" />
+                  <stop offset="1" :stop-color="cat.gradient[1]" />
+                </linearGradient>
+              </defs>
+              <path class="row__path" :d="SHAPES[cat.shape].d" :fill="`url(#row-grad-${cat.key})`" />
+            </svg>
           </div>
-        </div>
-
-        <!-- Right: Creative Bento Tech Board -->
-        <div class="skills-right">
-          <h3 class="col-heading drift from-right">{{ t.tools }}</h3>
-          <div class="bento-board drift-stagger">
-            <!-- Category cards -->
-            <div
-              v-for="(cat, ci) in techCategories"
-              :key="cat.label"
-              class="bento-cat drift from-bottom"
-              :class="cat.size"
-              :style="{ '--cat-color': cat.color }"
-            >
-              <!-- Category header -->
-              <div class="bcat-head">
-                <span class="bcat-icon"><i :class="cat.headIcon"></i></span>
-                <span class="bcat-label">{{ cat.label }}</span>
-              </div>
-
-              <!-- Tech items inside this category -->
-              <div class="bcat-items">
-                <div
-                  v-for="tech in cat.items"
-                  :key="tech.name"
-                  class="bcat-item"
-                  :title="tech.name"
-                  :style="{ '--tc': tech.color }"
-                >
-                  <i :class="tech.icon"></i>
-                  <span>{{ tech.name }}</span>
-                </div>
-              </div>
+          <div class="row__body">
+            <div class="row__top">
+              <h3 class="row__name">{{ cat.label }}</h3>
+              <span class="row__count mono">{{ String(index + 1).padStart(2, '0') }} / {{ String(cat.items.length).padStart(2, '0') }}</span>
             </div>
-
-            <!-- Experience bar at bottom -->
-            <div class="bento-exp drift from-bottom" style="transition-delay:400ms">
-              <div class="exp-line" v-for="y in expYears" :key="y.label" :style="{ '--ec': y.color }">
-                <span class="exp-num">{{ y.val }}</span>
-                <span class="exp-bar-wrap"><span class="exp-bar" :style="{ width: y.pct }"></span></span>
-                <span class="exp-label">{{ y.label }}</span>
-              </div>
-            </div>
+            <ul class="row__items" :aria-label="`${s.itemsLabel}: ${cat.label}`">
+              <li v-for="item in cat.items" :key="item.name" class="row__item">
+                <i :class="item.icon" aria-hidden="true"></i>
+                <span>{{ item.name }}</span>
+              </li>
+            </ul>
           </div>
-        </div>
+        </li>
+      </ol>
+
+      <!-- Experience -->
+      <div class="exp">
+        <header class="exp__head">
+          <h3 class="exp__title">{{ t.experienceTitle }}</h3>
+          <p class="muted">{{ t.experienceSubtitle }}</p>
+        </header>
+        <ol class="exp__list">
+          <li v-for="(item, i) in t.experience" :key="item.years" class="exp__item" :style="{ '--grad': expGrads[i % expGrads.length] }">
+            <span class="exp__line" aria-hidden="true"></span>
+            <span class="mono exp__index">0{{ i + 1 }}</span>
+            <strong class="exp__years">{{ item.years }}</strong>
+            <p class="exp__desc">{{ item.description }}</p>
+          </li>
+        </ol>
       </div>
     </div>
   </section>
 </template>
 
 <script setup>
-import { ref, inject, onMounted } from 'vue';
+import { computed, inject, ref } from 'vue';
+import { gsap } from '@/lib/gsap';
+import { useGsap, MEDIA } from '@/composables/useGsap';
+import { useGate } from '@/composables/useGate';
+import Shape from './ui/Shape.vue';
+import BraceLabel from './ui/BraceLabel.vue';
+import { SHAPES } from './ui/shapes.js';
+
 const lang = inject('lang');
-const t = inject('translations')[lang.value].skills;
+const translations = inject('translations');
+const t = computed(() => translations[lang.value].about);
+const s = computed(() => translations[lang.value].skills);
+const heroT = computed(() => translations[lang.value].hero);
 
-const barsRef = ref(null);
-const barRefs = ref({});
-const pctRefs = ref({});
-let barsAnimated = false;
-
-const languages = [
-  { name: 'Vue.js',      level: 70, icon: 'fab fa-vuejs',   color: '#42b883' },
-  { name: 'JavaScript',  level: 65, icon: 'fab fa-js',       color: '#f7df1e' },
-  { name: 'Node.js',     level: 55, icon: 'fab fa-node-js',  color: '#68a063' },
-  { name: 'Discord.js',  level: 50, icon: 'fab fa-discord',  color: '#5865f2' },
-  { name: 'C++',         level: 30, icon: 'fas fa-code',     color: '#00599c' },
-  { name: 'Rust',        level: 10, icon: 'fas fa-cog',      color: '#ce422b' },
+const root = ref(null);
+useGate(root, { target: '.stack__intro' });
+const roleColors = ['#fec5fb', '#ff8709', '#9d95ff'];
+const expGrads = [
+  'linear-gradient(120deg, #0ae448, #abff84)',
+  'linear-gradient(120deg, #fec5fb, #f100cb)',
+  'linear-gradient(120deg, #bef3fe, #00bae2)',
 ];
 
-// Tech grouped into categories for bento board
-const techCategories = [
+const icon = (name, iconClass) => ({ name, icon: iconClass });
+const categories = computed(() => [
   {
-    label: 'Frontend',
-    headIcon: 'fas fa-layer-group',
-    color: '#42b883',
-    size: 'bcat-md',
-    items: [
-      { name: 'Vue.js',  icon: 'fab fa-vuejs',    color: '#42b883' },
-      { name: 'React',   icon: 'fab fa-react',    color: '#61dafb' },
-      { name: 'HTML5',   icon: 'fab fa-html5',    color: '#e34f26' },
-      { name: 'CSS3',    icon: 'fab fa-css3-alt', color: '#1572B6' },
-      { name: 'Vite',    icon: 'fas fa-bolt',     color: '#646cff' },
-    ],
+    key: 'frontend', label: t.value.categories.frontend, color: '#fec5fb', shape: 'flower', gradient: ['#fec5fb', '#f100cb'],
+    items: [icon('Vue', 'fab fa-vuejs'), icon('Vite', 'fas fa-bolt'), icon('CSS3', 'fab fa-css3-alt'), icon('HTML5', 'fab fa-html5'), icon('NuxtJS', 'fab fa-vuejs'), icon('ReactJS', 'fab fa-react')],
   },
   {
-    label: 'Backend',
-    headIcon: 'fas fa-server',
-    color: '#CC0000',
-    size: 'bcat-md',
-    items: [
-      { name: 'Node.js',       icon: 'fab fa-node-js', color: '#68a063' },
-      { name: 'Ruby on Rails', icon: 'fas fa-gem',     color: '#CC0000' },
-      { name: 'Python',        icon: 'fab fa-python',  color: '#3776AB' },
-    ],
+    key: 'backend', label: t.value.categories.backend, color: '#ff8709', shape: 'arch', gradient: ['#ffd9b0', '#ff8709'],
+    items: [icon('NodeJS', 'fab fa-node-js'), icon('Fastify', 'fas fa-gauge-high'), icon('ExpressJS', 'fas fa-code-branch'), icon('Ruby on Rails', 'fas fa-gem'), icon('Rust', 'fab fa-rust'), icon('Java', 'fab fa-java')],
   },
   {
-    label: 'Database',
-    headIcon: 'fas fa-database',
-    color: '#336791',
-    size: 'bcat-sm',
-    items: [
-      { name: 'PostgreSQL', icon: 'fas fa-database', color: '#336791' },
-      { name: 'Redis',      icon: 'fas fa-server',   color: '#D82C20' },
-    ],
+    key: 'database', label: t.value.categories.database, color: '#9d95ff', shape: 'hourglass', gradient: ['#e0dcff', '#6f66ff'],
+    items: [icon('MySQL', 'fas fa-database'), icon('SQLite', 'fas fa-table'), icon('PostgreSQL', 'fas fa-database'), icon('Redis', 'fas fa-layer-group')],
   },
   {
-    label: 'DevOps & Tools',
-    headIcon: 'fab fa-git-alt',
-    color: '#f05032',
-    size: 'bcat-md',
-    items: [
-      { name: 'Git',    icon: 'fab fa-git-alt', color: '#f05032' },
-      { name: 'GitHub', icon: 'fab fa-github',  color: '#a0a0a0' },
-      { name: 'Linux',  icon: 'fab fa-linux',   color: '#fcc624' },
-    ],
+    key: 'devops', label: t.value.categories.devops, color: '#00bae2', shape: 'diamond', gradient: ['#bef3fe', '#00bae2'],
+    items: [icon('Git', 'fab fa-git-alt'), icon('GitHub', 'fab fa-github'), icon('Linux', 'fab fa-linux'), icon('WSL', 'fas fa-terminal')],
   },
   {
-    label: 'Community',
-    headIcon: 'fab fa-discord',
-    color: '#5865f2',
-    size: 'bcat-sm',
-    items: [
-      { name: 'Discord.js', icon: 'fab fa-discord', color: '#5865f2' },
-    ],
+    key: 'experimental', label: t.value.categories.experimental, color: '#0ae448', shape: 'star', gradient: ['#abff84', '#0ae448'],
+    items: [icon('JavaScript', 'fab fa-js'), icon('Vue', 'fab fa-vuejs'), icon('TypeScript', 'fas fa-code'), icon('C++', 'fas fa-microchip')],
   },
-];
+]);
 
-// Experience indicators for the bottom bar
-const expYears = [
-  { val: '2y+', label: 'Web Dev',     pct: '70%', color: '#BB86FC' },
-  { val: '1y+', label: 'Backend',     pct: '45%', color: '#42b883' },
-  { val: '6m',  label: 'DevOps',      pct: '25%', color: '#f05032' },
-];
+useGsap(root, ({ root: el, mm }) => {
+  mm.add(MEDIA, context => {
+    if (!context.conditions.motion) return;
 
-const animateBars = () => {
-  if (barsAnimated) return;
-  barsAnimated = true;
-  languages.forEach((skill, idx) => {
-    setTimeout(() => {
-      const bar = barRefs.value[skill.name];
-      const pct = pctRefs.value[skill.name];
-      if (bar) bar.style.width = skill.level + '%';
-      if (pct) {
-        let count = 0;
-        const target = skill.level;
-        const step = () => {
-          count = Math.min(count + 2, target);
-          pct.textContent = count + '%';
-          if (count < target) requestAnimationFrame(step);
-        };
-        requestAnimationFrame(step);
-      }
-    }, idx * 120);
+    /* Intro: label boxes swing in like stickers */
+    gsap.timeline({ scrollTrigger: { trigger: '.stack__intro', start: 'top 75%', once: true } })
+      .from('.roles__box', { xPercent: -40, yPercent: 60, rotate: i => [-10, 7, -5][i] || 0, autoAlpha: 0, duration: 1, stagger: 0.14, ease: 'back.out(1.6)' })
+      .from('.stack__eyebrow, .stack__desc', { y: 40, autoAlpha: 0, duration: 1, stagger: 0.1 }, 0.2);
+
+    /* Composition builds itself, then parallaxes */
+    gsap.timeline({ scrollTrigger: { trigger: '.compo', start: 'top 80%', once: true } })
+      .from('.compo__dome', { scaleY: 0, transformOrigin: '50% 100%', duration: 1.1, ease: 'expo.out' })
+      .from('.compo__flower', { y: -360, rotate: -120, duration: 1.3, ease: 'bounce.out' }, 0.3)
+      .from('.compo__ring, .compo__hourglass, .compo__diamond', { scale: 0, rotate: -160, duration: 1, stagger: 0.1, ease: 'back.out(2.4)' }, 0.5);
+    gsap.to('.compo__flower .shape', { rotate: 360, duration: 12, ease: 'none', repeat: -1 });
+    gsap.timeline({ scrollTrigger: { trigger: '.compo', start: 'top bottom', end: 'bottom top', scrub: 1 } })
+      .to('.compo__ring', { y: -120, rotate: 140, ease: 'none' }, 0)
+      .to('.compo__hourglass', { y: -60, rotate: -90, ease: 'none' }, 0)
+      .to('.compo__diamond', { y: -180, rotate: 220, ease: 'none' }, 0);
+
+    /* Section title */
+    gsap.from('.stack__title', { yPercent: 40, autoAlpha: 0, duration: 1.2, scrollTrigger: { trigger: '.stack__head', start: 'top 85%', once: true } });
+
+    /* Rows: hairline grows, shape morphs circle → category shape while scrolling */
+    gsap.utils.toArray('.row', el).forEach(row => {
+      const path = row.querySelector('.row__path');
+      gsap.timeline({ scrollTrigger: { trigger: row, start: 'top 85%', end: 'center 45%', scrub: 0.8 } })
+        .from(path, { morphSVG: SHAPES.circle.d, ease: 'none' }, 0)
+        .fromTo(row.querySelector('.row__svg'), { rotate: -90, scale: 0.7 }, { rotate: 0, scale: 1, ease: 'none' }, 0);
+      gsap.timeline({ scrollTrigger: { trigger: row, start: 'top 85%', once: true } })
+        .from(row, { '--line': 0, duration: 1.2, ease: 'expo.out' })
+        .from(row.querySelector('.row__name'), { y: 50, autoAlpha: 0, duration: 0.9 }, 0.1)
+        .from(row.querySelectorAll('.row__item'), { y: 40, autoAlpha: 0, duration: 0.8, stagger: 0.05 }, 0.2);
+    });
+
+    /* Experience */
+    gsap.from('.exp__head > *', { y: 40, autoAlpha: 0, stagger: 0.1, scrollTrigger: { trigger: '.exp', start: 'top 85%', once: true } });
+    gsap.utils.toArray('.exp__item', el).forEach((item, i) => {
+      gsap.timeline({ scrollTrigger: { trigger: item, start: 'top 90%', once: true }, delay: i * 0.12 })
+        .from(item.querySelector('.exp__line'), { scaleX: 0, transformOrigin: 'left', duration: 1.2, ease: 'expo.out' })
+        .from(item.querySelectorAll('.exp__index, .exp__years, .exp__desc'), { y: 50, autoAlpha: 0, stagger: 0.08, duration: 1 }, 0.1);
+    });
   });
-};
-
-onMounted(() => {
-  const observer = new IntersectionObserver(([entry]) => {
-    if (entry.isIntersecting) {
-      animateBars();
-      // Also animate experience bars
-      document.querySelectorAll('.exp-bar').forEach(el => {
-        const target = el.dataset.pct;
-        if (target) el.style.width = target;
-      });
-      observer.disconnect();
-    }
-  }, { threshold: 0.3 });
-  if (barsRef.value) observer.observe(barsRef.value);
 });
 </script>
 
 <style scoped>
-.skills { background: transparent; }
-
-.skills-layout {
+/* Intro */
+.stack__intro {
   display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: 48px;
-  margin-top: 52px;
-  align-items: start;
-}
-
-.col-heading {
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--md-on-surface-var);
-  margin-bottom: 28px;
-}
-
-/* ===============================
-   Progress Bars
-   =============================== */
-.skill-bars {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.skill-bar-item { display: flex; flex-direction: column; gap: 8px; }
-
-.skill-meta {
-  display: flex;
-  justify-content: space-between;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
+  gap: clamp(40px, 6vw, 100px);
 }
+.stack__eyebrow { color: var(--c-green); }
+.roles { display: grid; gap: 0.2em; margin-top: 28px; font-size: clamp(2rem, 4.2vw, 4.2rem); font-weight: 500; line-height: 1.05; letter-spacing: -0.04em; }
+.roles__item { padding-left: var(--shift); }
+.roles__box { box-shadow: 0 0.12em 0 rgba(0, 0, 0, 0.35); }
+.stack__desc { max-width: 30ch; margin-top: 34px; color: var(--c-cream); font-size: clamp(1.3rem, 2.2vw, 2rem); line-height: 1.25; }
 
-.skill-name {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--md-on-surface);
-}
+.compo { position: relative; aspect-ratio: 1 / 0.9; }
+.compo > span { position: absolute; display: block; }
+.compo__dome { left: 12%; right: 4%; bottom: 0; }
+.compo__flower { left: 38%; bottom: 38%; width: 36%; }
+.compo__ring { left: 0; top: 10%; width: 22%; }
+.compo__hourglass { left: 4%; bottom: 14%; width: 11%; }
+.compo__diamond { right: 2%; top: 6%; width: 9%; }
 
-.skill-name i { font-size: 1rem; }
-
-.skill-pct {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--md-primary);
-  min-width: 36px;
-  text-align: right;
-}
-
-.progress-track {
-  height: 5px;
-  background: var(--md-surface-container);
-  border-radius: 6px;
-  overflow: hidden;
+/* Rows */
+.stack__head { margin-top: clamp(120px, 14vw, 220px); }
+.stack__title { margin-top: 18px; }
+.rows { margin-top: clamp(40px, 6vw, 80px); }
+.row {
+  --line: 1;
   position: relative;
-}
-
-.progress-fill {
-  height: 100%;
-  width: 0%;
-  border-radius: 6px;
-  background: var(--bar-color, var(--md-primary));
-  transition: width 1s var(--md-ease-decel);
-}
-
-.progress-shimmer {
-  position: absolute;
-  top: 0; left: -100%;
-  width: 60%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
-  animation: shimmer 2.5s ease-in-out infinite 1.2s;
-}
-
-@keyframes shimmer {
-  0%   { left: -60%; }
-  100% { left: 120%; }
-}
-
-/* ===============================
-   Bento Board
-   =============================== */
-/* ===============================
-   Bento Board
-   =============================== */
-.bento-board {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto;
-  gap: 0;
-  border: 1px solid var(--md-outline-var);
-  border-radius: var(--md-radius-xl);
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.015);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: var(--md-shadow-2);
+  grid-template-columns: clamp(110px, 18vw, 280px) minmax(0, 1fr);
+  gap: clamp(24px, 5vw, 90px);
+  padding-block: clamp(36px, 5vw, 64px);
 }
-
-/* Category cards */
-.bento-cat {
-  background: transparent;
-  border: none;
-  border-radius: 0;
-  padding: 20px 24px;
-  transition: background 0.3s var(--md-ease-standard);
-  position: relative;
-  overflow: hidden;
-  box-shadow: none;
-}
-
-.bento-cat::before {
+.row::after {
   content: '';
   position: absolute;
-  top: 0;
   left: 0;
-  width: 2.5px;
-  height: 100%;
-  background: var(--cat-color, var(--md-primary));
-  opacity: 0.35;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--c-line);
+  transform: scaleX(var(--line));
+  transform-origin: left;
 }
-
-.bento-cat:hover {
-  background: rgba(255, 255, 255, 0.02);
-  transform: none;
-}
-
-/* Inside grid borders */
-/* Vertical divider between left and right column */
-.bento-cat:nth-child(2),
-.bento-cat:nth-child(4) {
-  border-right: 1px solid var(--md-outline-var);
-}
-
-/* Horizontal dividers */
-.bento-cat:nth-child(1),
-.bento-cat:nth-child(2),
-.bento-cat:nth-child(3),
-.bento-cat:nth-child(4),
-.bento-cat:nth-child(5) {
-  border-bottom: 1px solid var(--md-outline-var);
-}
-
-/* Sizes */
-.bcat-md { grid-column: span 1; }
-.bcat-sm { grid-column: span 1; }
-
-/* Frontend spans 2 cols to be featured */
-.bento-cat:first-child { grid-column: span 2; }
-
-/* Category header */
-.bcat-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.bcat-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-  color: var(--cat-color, var(--md-primary));
-}
-
-.bcat-label {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--md-on-surface);
-}
-
-/* Items row */
-.bcat-items {
+.row__art { align-self: center; }
+.row__svg { width: 100%; height: auto; overflow: visible; }
+.row__top { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+.row__name { color: var(--tone); font-size: clamp(1.8rem, 3.2vw, 3rem); font-weight: 600; letter-spacing: -0.04em; }
+.row__count { color: var(--c-cream-75); }
+.row__items {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 0.1em 0.7em;
+  margin-top: 18px;
+  font-size: clamp(1.6rem, 3.4vw, 3.3rem);
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: -0.04em;
 }
+.row__item { display: inline-flex; align-items: center; gap: 0.3em; transition: color 0.3s var(--ease-out); }
+.row__item i { color: var(--tone); font-size: 0.5em; transition: transform 0.4s var(--ease-out); }
+.row__item:hover i { transform: rotate(-14deg) scale(1.25); }
 
-.bcat-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  background: rgba(255, 255, 255, 0.015);
-  border: 1px solid var(--md-outline-var);
-  border-radius: 100px;
-  font-size: 0.77rem;
-  font-weight: 500;
-  color: var(--md-on-surface-var);
-  transition: all 0.22s var(--md-ease-spring);
-  cursor: default;
-}
-
-.bcat-item i {
-  font-size: 0.85rem;
-  color: var(--tc, var(--md-primary));
-}
-
-.bcat-item:hover {
-  border-color: rgba(255, 255, 255, 0.15);
-  color: var(--md-on-surface);
-  background: rgba(255, 255, 255, 0.05);
-  transform: translateY(-2px);
-}
-
-/* ===============================
-   Experience bar block (spans full width)
-   =============================== */
-.bento-exp {
-  grid-column: span 2;
-  background: transparent;
-  border: none;
-  border-radius: 0;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  box-shadow: none;
-}
-
-.exp-line {
-  display: grid;
-  grid-template-columns: 40px 1fr 90px;
-  align-items: center;
-  gap: 16px;
-}
-
-.exp-num {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--ec, var(--md-primary));
-  white-space: nowrap;
-}
-
-.exp-bar-wrap {
-  height: 5px;
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.exp-bar {
+/* Experience */
+.exp { margin-top: clamp(100px, 12vw, 180px); }
+.exp__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px 32px; }
+.exp__title { font-size: var(--fs-h3); }
+.exp__head p { max-width: 42ch; }
+.exp__list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(20px, 3vw, 48px); margin-top: clamp(36px, 5vw, 64px); }
+.exp__item { position: relative; padding-top: 28px; }
+.exp__line { position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--grad); }
+.exp__index { color: var(--c-cream-75); }
+.exp__years {
   display: block;
-  height: 100%;
-  background: var(--ec, var(--md-primary));
-  border-radius: 4px;
-  opacity: 0.75;
-  width: 0;
-  transition: width 1.4s var(--md-ease-decel) 0.5s;
+  margin-top: 18px;
+  background: var(--grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: clamp(3.2rem, 6vw, 6rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.055em;
+  padding-bottom: 0.08em;
 }
+.exp__desc { margin-top: 14px; color: var(--c-cream-75); font-size: 1.1rem; line-height: 1.5; }
 
-.exp-label {
-  font-size: 0.75rem;
-  color: var(--md-on-surface-var);
-  text-align: right;
-  white-space: nowrap;
-}
-
-/* ===============================
-   Responsive
-   =============================== */
-@media (max-width: 900px) {
-  .skills-layout { grid-template-columns: 1fr; }
-  .bento-board { grid-template-columns: 1fr 1fr; }
-  .bento-cat:first-child { grid-column: span 2; }
-}
-
-@media (max-width: 480px) {
-  .bento-board { grid-template-columns: 1fr; }
-  .bento-cat:first-child { grid-column: span 1; }
-  .bento-exp { grid-column: span 1; }
-  .bento-cat {
-    border-right: none !important;
-    border-bottom: 1px solid var(--md-outline-var) !important;
-  }
+@media (max-width: 899px) {
+  .stack__intro { grid-template-columns: 1fr; }
+  .compo { width: min(100%, 460px); margin-inline: auto; }
+  .row { grid-template-columns: 76px minmax(0, 1fr); gap: 20px; }
+  .row__art { align-self: start; padding-top: 6px; }
+  .exp__list { grid-template-columns: 1fr; }
 }
 </style>

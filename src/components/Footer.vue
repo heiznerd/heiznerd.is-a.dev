@@ -1,128 +1,144 @@
 <template>
-  <footer class="footer">
+  <footer ref="root" class="footer">
     <div class="container">
-      <div class="footer-inner">
-        <!-- Logo + tagline -->
-        <div class="footer-brand">
-          <div class="logo-icon">
-            <i class="fas fa-code"></i>
-          </div>
-          <div>
-            <p class="footer-name">Heiznerd</p>
-            <p class="footer-sub">{{ t.designedBy }} Heiznerd · 2026</p>
-          </div>
-        </div>
-
-        <!-- Social icons -->
-        <div class="footer-socials">
-          <a href="https://github.com/captainnhwuy" target="_blank" class="footer-icon" title="GitHub">
-            <i class="fab fa-github"></i>
-          </a>
-          <a href="https://discord.com/users/1316287191634149377" target="_blank" class="footer-icon" title="Discord">
-            <i class="fab fa-discord"></i>
-          </a>
-          <a href="https://www.facebook.com/nguyen.huu.quy.906170" target="_blank" class="footer-icon" title="Facebook">
-            <i class="fab fa-facebook"></i>
+      <div class="footer__top">
+        <blockquote v-if="quote" class="footer__quote">
+          <BraceLabel size="lg"><span>“{{ quote.content }}”</span></BraceLabel>
+          <cite class="mono">— {{ quote.author }}</cite>
+        </blockquote>
+        <div class="footer__side">
+          <nav class="footer__socials" aria-label="Social">
+            <a v-for="s in socials" :key="s.label" v-magnetic="0.4" :href="s.href" target="_blank" rel="noopener noreferrer" class="icon-btn" :aria-label="s.label">
+              <i :class="s.icon" aria-hidden="true"></i>
+            </a>
+          </nav>
+          <a href="#home" class="pill pill--sm footer__top-link" @click="toTop">
+            <i class="fas fa-arrow-up" aria-hidden="true"></i>
+            <span>{{ t.backToTop }}</span>
           </a>
         </div>
       </div>
 
-      <!-- Built with -->
-      <div class="footer-bottom">
-        <span>Built with</span>
-        <i class="fab fa-vuejs" style="color:#42b883"></i>
-        <span>Vue.js · {{ t.rights }}</span>
+      <div class="footer__mark" aria-hidden="true">
+        <span v-for="(ch, i) in 'heiznerd'" :key="i" class="footer__char">{{ ch }}</span>
+        <span class="footer__mark-dot"><Shape name="square" palette="green" /></span>
+      </div>
+
+      <div class="footer__bottom">
+        <p>© 2026 Heiznerd · {{ t.designedBy }} Heiznerd. {{ t.rights }}</p>
+        <p class="footer__built">
+          {{ t.builtWith }}
+          <span><i class="fab fa-vuejs" aria-hidden="true"></i> Vue.js</span>
+          <span>+</span>
+          <span class="footer__gsap">GSAP</span>
+        </p>
       </div>
     </div>
   </footer>
 </template>
 
 <script setup>
-import { inject } from 'vue';
+import { computed, inject, ref } from 'vue';
+import { useRoute } from 'vue-router';
+import { gsap } from '@/lib/gsap';
+import { useGsap, MEDIA } from '@/composables/useGsap';
+import Shape from './ui/Shape.vue';
+import BraceLabel from './ui/BraceLabel.vue';
+
 const lang = inject('lang');
-const t = inject('translations')[lang.value].footer;
+const translations = inject('translations');
+const t = computed(() => translations[lang.value].footer);
+const route = useRoute();
+
+const QUOTES = [
+  { content: 'Any fool can write code that a computer can understand. Good programmers write code that humans can understand.', author: 'Martin Fowler' },
+  { content: 'First, solve the problem. Then, write the code.', author: 'John Johnson' },
+  { content: 'Simplicity is the soul of efficiency.', author: 'Austin Freeman' },
+  { content: 'Make it work, make it right, make it fast.', author: 'Kent Beck' },
+];
+const quote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+
+const socials = [
+  { label: 'GitHub', icon: 'fab fa-github', href: 'https://github.com/heiznerd' },
+  { label: 'Discord', icon: 'fab fa-discord', href: 'https://discord.com/users/1316287191634149377' },
+  { label: 'Facebook', icon: 'fab fa-facebook-f', href: 'https://www.facebook.com/nguyen.huu.quy.906170' },
+];
+
+// On routes without a #home section, the link falls back to normal navigation.
+const toTop = event => {
+  if (route.path !== '/') {
+    event.preventDefault();
+    window.location.href = '/';
+  }
+};
+
+const root = ref(null);
+
+useGsap(root, ({ root: el, mm }) => {
+  mm.add(MEDIA, context => {
+    if (!context.conditions.motion) return;
+    gsap.from('.footer__char', {
+      yPercent: 100,
+      rotate: i => (i % 2 ? 8 : -8),
+      stagger: 0.06,
+      ease: 'none',
+      scrollTrigger: { trigger: '.footer__mark', start: 'top bottom', end: 'bottom bottom', scrub: 0.6 },
+    });
+    gsap.from('.footer__mark-dot', {
+      scale: 0,
+      rotate: -180,
+      ease: 'none',
+      scrollTrigger: { trigger: '.footer__mark', start: 'center bottom', end: 'bottom bottom', scrub: 0.6 },
+    });
+    gsap.from('.footer__top > *', {
+      y: 50,
+      autoAlpha: 0,
+      stagger: 0.1,
+      duration: 1,
+      scrollTrigger: { trigger: el, start: 'top 95%', once: true },
+    });
+  });
+});
 </script>
 
 <style scoped>
-.footer {
-  padding: 40px 0 28px;
-  border-top: 1px solid var(--md-outline-var);
-  background: var(--md-surface);
-}
+.footer { position: relative; padding-top: clamp(80px, 10vw, 140px); border-top: 1px solid var(--c-line); overflow: hidden; }
 
-.footer-inner {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 24px;
-  flex-wrap: wrap;
-  margin-bottom: 24px;
-}
+.footer__top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 32px; }
+.footer__quote { display: grid; gap: 14px; max-width: 720px; }
+.footer__quote :deep(.brace__body) { max-width: 40ch; }
+.footer__quote cite { color: var(--c-green); font-style: normal; }
+.footer__side { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+.footer__socials { display: flex; gap: 8px; }
 
-.footer-brand {
+.footer__mark {
+  position: relative;
   display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.logo-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--md-primary), var(--md-primary-dim));
-  display: flex;
-  align-items: center;
   justify-content: center;
-  color: var(--md-on-primary);
+  margin-top: clamp(48px, 7vw, 100px);
+  overflow: hidden;
+  font-size: clamp(5rem, 23.5vw, 23rem);
+  font-weight: 600;
+  line-height: 0.8;
+  letter-spacing: -0.07em;
+  padding-bottom: 0.04em;
+  user-select: none;
+}
+.footer__char { display: inline-block; will-change: transform; }
+.footer__mark-dot { align-self: flex-end; width: 0.17em; margin: 0 0 0.04em 0.04em; }
+
+.footer__bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  padding-block: 24px calc(28px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--c-line);
+  color: var(--c-cream-75);
   font-size: 0.9rem;
 }
-
-.footer-name {
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: var(--md-on-surface);
-}
-
-.footer-sub {
-  font-size: 0.75rem;
-  color: var(--md-on-surface-var);
-  margin-top: 2px;
-}
-
-.footer-socials {
-  display: flex;
-  gap: 8px;
-}
-
-.footer-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: var(--md-radius-md);
-  background: var(--md-surface-container);
-  border: 1px solid var(--md-outline-var);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--md-on-surface-var);
-  font-size: 0.95rem;
-  text-decoration: none;
-  transition: all 0.25s var(--md-ease-spring);
-}
-
-.footer-icon:hover {
-  background: rgba(187,134,252,0.1);
-  border-color: var(--md-primary);
-  color: var(--md-primary);
-  transform: translateY(-3px);
-}
-
-.footer-bottom {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.78rem;
-  color: var(--md-on-surface-var);
-  border-top: 1px solid var(--md-outline-var);
-  padding-top: 20px;
-}
+.footer__built { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.footer__built .fa-vuejs { color: #42b883; }
+.footer__gsap { color: var(--c-green); font-weight: 700; }
 </style>

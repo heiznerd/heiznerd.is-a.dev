@@ -1,467 +1,339 @@
 <template>
-  <section id="home" class="hero">
-    <div class="hero-inner container">
-      <header class="hero-meta hero-reveal hero-reveal--one">
-        <span class="hero-kicker">HEIZNERD / 2026—PRESENT</span>
-        <span class="hero-availability">
-          <span class="availability-dot"></span>
+  <section id="home" ref="root" class="hero">
+    <div class="hero__inner container">
+      <div class="hero__top" data-hero-fade>
+        <p class="hero__greeting">
+          <span class="hero__prompt" aria-hidden="true">&gt;</span>
+          <span>{{ t.greeting }}</span>
+          <span ref="roleEl" class="hero__role">{{ t.roles[0] }}</span><span class="hero__caret" aria-hidden="true">_</span>
+          <span class="sr-only">{{ t.roles.join(', ') }}</span>
+        </p>
+        <p class="hero__status">
+          <span class="hero__status-dot" aria-hidden="true"></span>
           {{ t.available }}
+        </p>
+      </div>
+
+      <h1 class="hero__title" aria-label="Heiznerd">
+        <span class="hero__line hero__line--1" aria-hidden="true">
+          <span class="hero__char-wrap"><span class="hero__mask"><span class="hero__char">H</span></span></span>
+          <span class="hero__char-wrap"><span class="hero__mask"><span class="hero__char">e</span></span></span>
+          <span class="hero__char-wrap hero__char-wrap--i">
+            <span class="hero__mask"><span class="hero__char">ı</span></span>
+            <span class="hero__tittle"><Shape name="circle" palette="violet" :angle="200" /></span>
+          </span>
+          <span class="hero__char-wrap"><span class="hero__mask"><span class="hero__char">z</span></span></span>
         </span>
-      </header>
+        <span class="hero__line hero__line--2" aria-hidden="true">
+          <span class="hero__char-wrap"><span class="hero__mask"><span class="hero__char">n</span></span></span>
+          <span class="hero__char-wrap"><span class="hero__mask"><span class="hero__char">e</span></span></span>
+          <span class="hero__char-wrap"><span class="hero__mask"><span class="hero__char">r</span></span></span>
+          <span class="hero__char-wrap"><span class="hero__mask"><span class="hero__char">d</span></span></span>
+          <span class="hero__char-wrap hero__char-wrap--dot">
+            <span class="hero__period"><Shape name="square" palette="green" :angle="160" /></span>
+          </span>
+        </span>
 
-      <div class="hero-main">
-        <div class="hero-copy">
-          <p class="hero-greeting hero-reveal hero-reveal--two">{{ t.greeting }}</p>
-          <h1 class="hero-name hero-reveal hero-reveal--three">
-            <span class="hero-name-text">Heiznerd<span class="hero-name-mark">.</span></span>
-            <svg class="hero-wordmark" viewBox="0 0 760 210" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false">
-              <text class="wordmark-fill" x="8" y="150">Heiznerd.</text>
-              <text class="wordmark-outline" x="8" y="150">Heiznerd.</text>
-              <path class="wordmark-flourish" pathLength="1" d="M44 174C146 190 288 186 390 166 486 148 580 150 710 176" />
-              <path class="wordmark-accent" pathLength="1" d="M585 166C638 144 690 142 738 156" />
-            </svg>
-          </h1>
-          <div class="hero-rule hero-reveal hero-reveal--four" aria-hidden="true">
-            <span></span>
-            <span></span>
-          </div>
-          <h2 class="hero-role hero-reveal hero-reveal--four">
-            {{ typedRole }}<span class="cursor-blink" aria-hidden="true">_</span>
-          </h2>
-          <p class="hero-description hero-reveal hero-reveal--five">{{ t.description }}</p>
-          <div class="hero-actions hero-reveal hero-reveal--six">
-            <a href="#projects" class="md-btn md-btn-filled">
-              <i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i>
-              <span>{{ t.viewWork }}</span>
-            </a>
-            <a href="#contact" class="md-btn md-btn-outlined">
-              <i class="fas fa-paper-plane" aria-hidden="true"></i>
-              <span>{{ t.contact }}</span>
-            </a>
-          </div>
-        </div>
+        <span
+          v-for="shape in shapes"
+          :key="shape.key"
+          class="hero__shape"
+          :class="`hero__shape--${shape.key}`"
+          :data-depth="shape.depth"
+          aria-hidden="true"
+        >
+          <span class="hero__shape-mouse"><Shape class="hero__shape-svg" :name="shape.name" :palette="shape.palette" :angle="shape.angle" /></span>
+        </span>
+      </h1>
 
-        <div class="hero-visual hero-reveal hero-reveal--three">
-          <div class="portrait-wrap">
-            <div class="portrait-index" aria-hidden="true">01</div>
-            <div class="portrait-frame">
-              <div class="portrait-wash" aria-hidden="true"></div>
-              <img src="/stickers/misc/evernight-dancing.gif" alt="Heiznerd" class="portrait" />
-            </div>
-            <span class="portrait-caption">MADE WITH CURIOSITY<br />FROM VIETNAM <span aria-hidden="true">↗</span></span>
-          </div>
-          <div class="visual-note" aria-hidden="true">
-            <span>VUE</span><span>NODE</span><span>DESIGN</span>
-          </div>
-          <div class="hero-tech-orbit" aria-hidden="true">
-            <span class="hero-tech hero-tech--vue"><i class="fab fa-vuejs"></i></span>
-            <span class="hero-tech hero-tech--node"><i class="fab fa-node-js"></i></span>
-            <span class="hero-tech hero-tech--ts">TS</span>
-            <span class="hero-tech hero-tech--git"><i class="fab fa-git-alt"></i></span>
-          </div>
+      <div class="hero__bottom" data-hero-fade>
+        <BraceLabel size="lg" class="hero__desc"><span>{{ t.description }}</span></BraceLabel>
+        <div class="hero__ctas">
+          <a v-magnetic="0.25" href="#projects" class="pill pill--lg pill--glow" data-cursor="↓">
+            <span>{{ t.viewWork }}</span>
+            <span class="pill__icon"><i class="fas fa-arrow-down" aria-hidden="true"></i></span>
+          </a>
+          <a v-magnetic="0.25" href="#contact" class="pill pill--lg">{{ t.contact }}</a>
         </div>
       </div>
 
-      <footer class="hero-footer hero-reveal hero-reveal--six">
-        <blockquote v-if="quote.content" class="hero-quote">
-          <p>“{{ quote.content }}”</p>
-          <cite>— {{ quote.author }}</cite>
-        </blockquote>
-        <div class="hero-footer-side">
-          <a v-if="githubData.name" href="https://github.com/captainnhwuy" target="_blank" rel="noopener noreferrer" class="github-chip">
-            <img :src="githubData.avatar" :alt="githubData.name" />
-            <span><strong>{{ githubData.name }}</strong><small>@captainnhwuy</small></span>
+      <div class="hero__meta" data-hero-fade>
+        <nav class="hero__socials" :aria-label="t.socials">
+          <a v-for="s in socials" :key="s.label" v-magnetic="0.4" :href="s.href" target="_blank" rel="noopener noreferrer" class="icon-btn" :aria-label="s.label">
+            <i :class="s.icon" aria-hidden="true"></i>
           </a>
-          <nav class="social-row" aria-label="Social links">
-            <a href="https://github.com/captainnhwuy" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="GitHub">
-              <i class="fab fa-github" aria-hidden="true"></i>
-            </a>
-            <a href="https://discord.com/users/1316287191634149377" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Discord">
-              <i class="fab fa-discord" aria-hidden="true"></i>
-            </a>
-            <a href="https://www.facebook.com/nguyen.huu.quy.906170" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Facebook">
-              <i class="fab fa-facebook" aria-hidden="true"></i>
-            </a>
-          </nav>
-        </div>
-      </footer>
-    </div>
-
-    <div class="hero-marquee" aria-hidden="true">
-      <span>BUILD WITH INTENTION · LEARN IN PUBLIC · SHIP SOMETHING KIND · </span>
-      <span>BUILD WITH INTENTION · LEARN IN PUBLIC · SHIP SOMETHING KIND · </span>
+        </nav>
+        <a href="#about" class="hero__scroll">
+          <span>{{ t.scroll }}</span>
+          <span class="hero__scroll-track" aria-hidden="true"><span class="hero__scroll-thumb"></span></span>
+        </a>
+      </div>
     </div>
   </section>
 </template>
 
 <script setup>
-import { computed, inject, onMounted, onUnmounted, ref } from 'vue';
+import { computed, inject, ref, watch } from 'vue';
+import { gsap } from '@/lib/gsap';
+import { useGsap, MEDIA } from '@/composables/useGsap';
+import Shape from './ui/Shape.vue';
+import BraceLabel from './ui/BraceLabel.vue';
 
 const lang = inject('lang');
 const translations = inject('translations');
+const introDone = inject('introDone', ref(true));
 const t = computed(() => translations[lang.value].hero);
 
-const githubData = ref({});
-const quote = ref({});
-const typedRole = ref('');
-const QUOTES = [
-  { content: 'Any fool can write code that a computer can understand. Good programmers write code that humans can understand.', author: 'Martin Fowler' },
-  { content: 'First, solve the problem. Then, write the code.', author: 'John Johnson' },
-  { content: 'Simplicity is the soul of efficiency.', author: 'Austin Freeman' },
-  { content: 'Make it work, make it right, make it fast.', author: 'Kent Beck' },
+const root = ref(null);
+const roleEl = ref(null);
+
+const shapes = [
+  { key: 'star', name: 'star', palette: 'orange', angle: 140, depth: 1.4 },
+  { key: 'pill', name: 'pill', palette: 'green', angle: 120, depth: 0.8 },
+  { key: 'ring', name: 'ring', palette: 'summer', angle: 60, depth: 1.1 },
+  { key: 'flower', name: 'flower', palette: 'candy', angle: 170, depth: 0.6 },
+  { key: 'squiggle', name: 'squiggle', palette: 'violet', angle: 90, depth: 1.8 },
 ];
 
-let typedTimer;
-let githubController;
-let reducedMotion = false;
+const socials = [
+  { label: 'GitHub', icon: 'fab fa-github', href: 'https://github.com/heiznerd' },
+  { label: 'Discord', icon: 'fab fa-discord', href: 'https://discord.com/users/1316287191634149377' },
+  { label: 'Facebook', icon: 'fab fa-facebook-f', href: 'https://www.facebook.com/nguyen.huu.quy.906170' },
+];
 
-const typeNextRole = (roles, roleIndex = 0, charIndex = 0, deleting = false) => {
-  const role = roles[roleIndex];
-  typedRole.value = deleting ? role.slice(0, charIndex) : role.slice(0, charIndex + 1);
-  const nextCharIndex = deleting ? charIndex - 1 : charIndex + 1;
-  let delay = deleting ? 42 : 78;
+let introTl;
 
-  if (!deleting && nextCharIndex >= role.length) {
-    delay = 1500;
-    deleting = true;
-  } else if (deleting && nextCharIndex < 0) {
-    delay = 280;
-    roleIndex = (roleIndex + 1) % roles.length;
-    charIndex = 0;
-    deleting = false;
-  } else {
-    charIndex = nextCharIndex;
-  }
+useGsap(root, ({ root: el, mm }) => {
+  mm.add(MEDIA, context => {
+    const { motion, fine } = context.conditions;
+    if (!motion) return; // reduced motion: everything stays static and visible
 
-  typedTimer = window.setTimeout(() => typeNextRole(roles, roleIndex, charIndex, deleting), delay);
-};
+    const chars = gsap.utils.toArray('.hero__char', el);
+    const shapeSvgs = gsap.utils.toArray('.hero__shape-svg', el);
+    const squiggle = el.querySelector('.hero__shape--squiggle .shape-path');
+    const squiggleShine = el.querySelector('.hero__shape--squiggle .shape-shine');
 
-const fetchGitHub = async () => {
-  githubController = new AbortController();
-  try {
-    const res = await fetch('https://api.github.com/users/captainnhwuy', { signal: githubController.signal });
-    if (!res.ok) return;
-    const data = await res.json();
-    githubData.value = { name: data.name || 'Heiznerd', avatar: data.avatar_url };
-  } catch (error) {
-    if (error.name !== 'AbortError') githubData.value = {};
-  }
-};
+    /* ---- Intro (paused until the curtain lifts) ---- */
+    introTl = gsap.timeline({ paused: true, defaults: { ease: 'expo.out' } })
+      .from(chars, { yPercent: 115, rotate: 8, duration: 1.25, stagger: 0.055 })
+      .from('.hero__tittle', { y: () => -window.innerHeight * 0.6, duration: 1.1, ease: 'bounce.out' }, 0.45)
+      .from('.hero__period', { scale: 0, rotate: -180, duration: 1.1, ease: 'elastic.out(1, 0.45)' }, 0.75)
+      .from(shapeSvgs, { scale: 0, rotate: () => gsap.utils.random(-140, 140), duration: 1.1, stagger: 0.08, ease: 'back.out(1.8)' }, 0.35)
+      .from([squiggle, squiggleShine], { drawSVG: '0%', duration: 1.3, ease: 'power3.inOut' }, 0.6)
+      .from('[data-hero-fade]', { y: 40, autoAlpha: 0, duration: 1, stagger: 0.12 }, 0.55);
 
-onMounted(() => {
-  reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  quote.value = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+    /* ---- Idle loops: start once the intro settles so they never fight it ---- */
+    context.add('startLoops', () => {
+      gsap.to('.hero__shape--star .hero__shape-svg', { rotate: '+=360', duration: 14, ease: 'none', repeat: -1 });
+      gsap.to('.hero__shape--flower .hero__shape-svg', { rotate: '-=360', duration: 22, ease: 'none', repeat: -1 });
+      gsap.to('.hero__shape--pill .hero__shape-svg', { y: -14, rotate: '+=12', duration: 2.4, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+      gsap.to('.hero__shape--ring .hero__shape-svg', { scale: 1.08, duration: 1.8, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+      gsap.timeline({ repeat: -1, repeatDelay: 2.6, delay: 0.8 })
+        .to('.hero__tittle .shape', { y: '-0.5em', duration: 0.42, ease: 'power2.out' })
+        .to('.hero__tittle .shape', { y: 0, duration: 0.7, ease: 'bounce.out' })
+        .to('.hero__period .shape', { rotate: '+=90', duration: 0.6, ease: 'back.inOut(2)' }, '-=0.6');
+    });
+    introTl.call(() => context.startLoops());
 
-  const roles = t.value.roles;
-  typedRole.value = roles[0];
-  if (!reducedMotion) typeNextRole(roles);
-  fetchGitHub();
-});
+    if (introDone.value) introTl.play();
+    else {
+      const stop = watch(introDone, value => { if (value) { introTl.play(); stop(); } });
+    }
 
-onUnmounted(() => {
-  window.clearTimeout(typedTimer);
-  githubController?.abort();
+    /* ---- Rotating role (ScrambleText) ---- */
+    if (roleEl.value) {
+      const roles = t.value.roles;
+      const roleTl = gsap.timeline({ repeat: -1, delay: 2.4 });
+      roles.forEach((_, i) => {
+        const next = roles[(i + 1) % roles.length];
+        roleTl.to(roleEl.value, { duration: 1, scrambleText: { text: next, chars: 'lowerCase', speed: 0.5, revealDelay: 0.2 }, ease: 'none' }, '+=2');
+      });
+    }
+
+    /* ---- Scroll: lines drift apart, shapes parallax ---- */
+    const scrollTl = gsap.timeline({
+      scrollTrigger: { trigger: el, start: 'top top', end: 'bottom top', scrub: 0.6 },
+      defaults: { ease: 'none' },
+    });
+    scrollTl
+      .to('.hero__line--1', { xPercent: -16 }, 0)
+      .to('.hero__line--2', { xPercent: 12 }, 0)
+      .to('[data-hero-fade]', { y: -60, autoAlpha: 0, stagger: 0.05 }, 0);
+    gsap.utils.toArray('.hero__shape', el).forEach(shape => {
+      const depth = Number(shape.dataset.depth) || 1;
+      scrollTl.to(shape, { y: -220 * depth, rotate: `+=${40 * depth}`, ease: 'none' }, 0);
+    });
+
+    /* ---- Pointer parallax ---- */
+    if (fine) {
+      const movers = gsap.utils.toArray('.hero__shape', el).map(shape => ({
+        depth: Number(shape.dataset.depth) || 1,
+        x: gsap.quickTo(shape.querySelector('.hero__shape-mouse'), 'x', { duration: 1.2, ease: 'power3' }),
+        y: gsap.quickTo(shape.querySelector('.hero__shape-mouse'), 'y', { duration: 1.2, ease: 'power3' }),
+      }));
+      const onMove = event => {
+        const nx = event.clientX / window.innerWidth - 0.5;
+        const ny = event.clientY / window.innerHeight - 0.5;
+        movers.forEach(m => { m.x(nx * 70 * m.depth); m.y(ny * 50 * m.depth); });
+      };
+      el.addEventListener('pointermove', onMove);
+      return () => el.removeEventListener('pointermove', onMove);
+    }
+    return undefined;
+  });
 });
 </script>
 
 <style scoped>
 .hero {
-  min-height: 100vh;
   position: relative;
   display: flex;
-  align-items: flex-start;
+  min-height: 100svh;
+  padding: calc(var(--header-h) + clamp(18px, 3vh, 36px)) 0 clamp(24px, 4vh, 40px);
   overflow: hidden;
-  padding: clamp(76px, 8vh, 104px) 0 128px;
-  background: transparent;
 }
 
-.hero-inner {
-  position: relative;
-  z-index: 1;
-  width: 100%;
+.hero__inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: clamp(18px, 3vh, 32px);
 }
 
-.hero-meta,
-.hero-footer {
+/* Top row */
+.hero__top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-}
-
-.hero-kicker,
-.portrait-caption,
-.visual-note,
-.hero-availability {
+  gap: 16px;
+  color: var(--c-cream-75);
   font-family: var(--font-mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-size: 0.85rem;
+}
+.hero__greeting { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5em; }
+.hero__prompt { color: var(--c-green); font-weight: 700; }
+.hero__role { color: var(--c-cream); }
+.hero__caret { margin-left: -0.35em; color: var(--c-green); animation: caret 1s steps(1) infinite; }
+.hero__status { display: inline-flex; align-items: center; gap: 10px; color: var(--c-cream); }
+.hero__status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--c-green);
+  box-shadow: 0 0 0 0 rgba(10, 228, 72, 0.5);
+  animation: ping 2.2s var(--ease-out) infinite;
 }
 
-.hero-kicker { color: var(--md-on-surface-var); }
+/* Wordmark */
+.hero__title {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin-block: auto;
+  padding-inline: clamp(0px, 2vw, 32px);
+  font-size: min(22vw, 36vh);
+  font-weight: 500;
+  line-height: 0.84;
+  letter-spacing: -0.065em;
+  user-select: none;
+}
 
-.hero-availability {
+.hero__line { position: relative; z-index: 1; display: flex; width: max-content; will-change: transform; }
+.hero__line--2 { align-self: flex-end; margin-right: clamp(0px, 3vw, 48px); }
+
+.hero__char-wrap { position: relative; display: inline-block; }
+.hero__mask {
+  display: inline-block;
+  overflow: clip;
+  padding: 0.06em 0.02em 0.14em;
+  margin: -0.06em -0.02em -0.14em;
+}
+.hero__char { display: inline-block; will-change: transform; }
+
+/* custom i tittle sits above the dotless ı */
+.hero__tittle {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 0.02em;
+  width: 0.19em;
+  margin-left: -0.095em;
+}
+.hero__tittle :deep(.shape) { will-change: transform; }
+
+/* custom period */
+.hero__char-wrap--dot { width: 0.3em; }
+.hero__period {
+  position: absolute;
+  left: 0.06em;
+  bottom: 0.13em;
+  width: 0.19em;
+}
+
+/* Decorative shapes */
+.hero__shape { position: absolute; z-index: 2; pointer-events: none; }
+.hero__shape-mouse { display: block; }
+.hero__shape--star { top: -4%; left: 45%; width: clamp(56px, 8vw, 128px); }
+.hero__shape--pill { top: 6%; right: 6%; width: clamp(36px, 4.6vw, 74px); transform: rotate(32deg); }
+.hero__shape--ring { top: 58%; left: 6%; width: clamp(54px, 7.4vw, 120px); }
+.hero__shape--flower { top: 30%; right: -1%; width: clamp(40px, 5vw, 84px); z-index: 0; }
+.hero__shape--squiggle { right: 22%; bottom: -10%; width: clamp(90px, 13vw, 210px); z-index: 3; }
+
+/* Bottom row */
+.hero__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  padding-inline: clamp(0px, 2vw, 32px);
+}
+.hero__desc { color: var(--c-cream); }
+.hero__ctas { display: flex; flex-wrap: wrap; gap: 12px; }
+
+.hero__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 18px;
+  border-top: 1px solid var(--c-line);
+}
+.hero__socials { display: flex; gap: 8px; }
+.hero__scroll {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  color: var(--md-primary);
-}
-
-.availability-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--md-secondary);
-  box-shadow: 0 0 0 5px rgba(3, 218, 198, 0.08);
-  animation: availabilityPulse 2.4s ease-in-out infinite;
-}
-
-.hero-main {
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
-  align-items: center;
-  gap: clamp(44px, 9vw, 140px);
-  padding: clamp(48px, 7vh, 82px) 5vw clamp(48px, 6vh, 72px);
-}
-
-.hero-copy { max-width: 720px; }
-.hero-greeting {
-  margin-bottom: 18px;
-  color: var(--md-secondary);
+  gap: 14px;
+  color: var(--c-cream-75);
   font-family: var(--font-mono);
-  font-size: 0.82rem;
+  font-size: var(--fs-micro);
   letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.hero__scroll:hover { color: var(--c-cream); }
+.hero__scroll-track { position: relative; width: 2px; height: 34px; overflow: hidden; border-radius: 2px; background: var(--c-line); }
+.hero__scroll-thumb { position: absolute; inset: 0; background: var(--c-green); animation: scrollThumb 2s var(--ease-in-out) infinite; }
+
+@keyframes caret { 50% { opacity: 0; } }
+@keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(10, 228, 72, 0.5); } 80%, 100% { box-shadow: 0 0 0 12px rgba(10, 228, 72, 0); } }
+@keyframes scrollThumb { 0% { transform: translateY(-100%); } 60%, 100% { transform: translateY(100%); } }
+
+@media (max-width: 899px) {
+  .hero__title { font-size: 31vw; margin-block: 8vh 6vh; padding-inline: 0; }
+  .hero__line--2 { margin-right: 0; }
+  .hero__bottom { flex-direction: column; align-items: flex-start; padding-inline: 0; }
+  .hero__ctas { width: 100%; }
+  .hero__ctas .pill { flex: 1 1 auto; }
+  .hero__shape--star { left: 52%; top: -10%; }
+  .hero__shape--squiggle { right: 30%; bottom: -16%; }
+  .hero__shape--flower { top: 34%; right: 2%; }
 }
 
-.hero-name {
-  position: relative;
-  width: min(100%, 760px);
-  min-height: clamp(112px, 16vw, 190px);
-  color: var(--md-on-surface);
-  font-family: 'Marck Script', 'Segoe Script', 'Brush Script MT', cursive;
-  font-size: clamp(5.4rem, 13vw, 11.5rem);
-  font-weight: 400;
-  line-height: 0.9;
-  letter-spacing: -0.035em;
-}
-
-.hero-name-text {
-  position: relative;
-  z-index: 1;
-  display: inline-block;
-  opacity: 1;
-}
-.hero-name-mark { color: var(--md-primary); }
-.hero-wordmark {
-  position: absolute;
-  z-index: 2;
-  inset: -14% auto auto -1%;
-  width: 103%;
-  height: 128%;
-  overflow: visible;
-  pointer-events: none;
-}
-.wordmark-fill,
-.wordmark-outline {
-  font-family: 'Marck Script', 'Segoe Script', 'Brush Script MT', cursive;
-  font-size: 172px;
-  letter-spacing: 0;
-}
-.wordmark-fill {
-  fill: var(--md-on-surface);
-  stroke: none;
-  opacity: 0;
-}
-.wordmark-outline {
-  fill: transparent;
-  stroke: var(--md-on-surface);
-  stroke-width: 1.6;
-  paint-order: stroke;
-  stroke-dasharray: 980;
-  stroke-dashoffset: 980;
-}
-.wordmark-flourish,
-.wordmark-accent {
-  fill: none;
-  stroke: var(--md-primary);
-  stroke-linecap: round;
-  stroke-width: 3;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-}
-.wordmark-accent { stroke-width: 1.8; opacity: 0.48; }
-.intro-done .hero-name-text { visibility: hidden; }
-.intro-done .wordmark-outline { animation: wordmarkOutline 1.45s var(--md-ease-decel) 140ms forwards; }
-.intro-done .wordmark-fill { animation: wordmarkFill 520ms ease 1.35s forwards; }
-.intro-done .wordmark-flourish { animation: wordmarkDraw 780ms var(--md-ease-decel) 1.05s forwards; }
-.intro-done .wordmark-accent { animation: wordmarkDraw 620ms var(--md-ease-decel) 1.35s forwards; }
-
-@keyframes wordmarkOutline { to { stroke-dashoffset: 0; } }
-@keyframes wordmarkDraw { to { stroke-dashoffset: 0; } }
-@keyframes wordmarkFill {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.hero-rule {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: min(100%, 430px);
-  margin: 38px 0 22px;
-}
-.hero-rule span:first-child { flex: 1; height: 1px; background: var(--md-primary); }
-.hero-rule span:last-child { width: 10px; height: 10px; border: 1px solid var(--md-primary); transform: rotate(45deg); }
-
-.hero-role {
-  min-height: 1.6em;
-  color: var(--md-secondary);
-  font-size: clamp(1.25rem, 2.3vw, 1.8rem);
-  font-weight: 600;
-  letter-spacing: -0.03em;
-}
-.cursor-blink { color: var(--md-primary); animation: cursorBlink 1s step-end infinite; }
-.hero-description {
-  max-width: 520px;
-  margin-top: 14px;
-  color: var(--md-on-surface-var);
-  font-size: clamp(1rem, 1.35vw, 1.12rem);
-  line-height: 1.75;
-}
-.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
-
-.hero-visual { justify-self: end; width: min(100%, 430px); }
-.portrait-wrap { position: relative; padding: 32px 34px 62px 0; }
-.portrait-frame {
-  position: relative;
-  aspect-ratio: 0.86;
-  overflow: hidden;
-  background: var(--md-surface-container);
-  border-radius: 48% 48% 12px 12px;
-  transform: rotate(3deg);
-  box-shadow: 24px 30px 0 rgba(187, 134, 252, 0.12);
-  animation: portraitFloat 7s ease-in-out infinite;
-}
-.portrait-wash {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(145deg, rgba(3, 218, 198, 0.18), transparent 45%, rgba(187, 134, 252, 0.2));
-  mix-blend-mode: screen;
-  z-index: 1;
-  pointer-events: none;
-}
-.portrait {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  filter: saturate(0.9) contrast(1.04);
-}
-.portrait-index {
-  position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 2;
-  color: var(--md-primary);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-}
-.portrait-caption {
-  position: absolute;
-  right: 0;
-  bottom: 8px;
-  color: var(--md-on-surface-var);
-  line-height: 1.6;
-  text-align: right;
-}
-.portrait-caption span { color: var(--md-primary); font-size: 1rem; }
-.visual-note {
-  display: flex;
-  justify-content: space-between;
-  color: var(--md-on-surface-var);
-  border-top: 1px solid var(--md-outline-var);
-  padding-top: 12px;
-  opacity: 0.65;
-}
-.hero-tech-orbit { position: relative; height: 42px; margin-top: 12px; }
-.hero-tech { position: absolute; display: grid; width: 28px; height: 28px; place-items: center; border: 1px solid rgba(187, 134, 252, 0.28); border-radius: 50%; color: var(--md-primary); background: rgba(15, 15, 18, 0.8); font-family: var(--font-mono); font-size: 0.58rem; animation: techFloat 4.8s ease-in-out infinite; }
-.hero-tech--vue { left: 12%; color: #42b883; animation-delay: -0.3s; }
-.hero-tech--node { left: 38%; color: #68a063; animation-delay: -1.5s; }
-.hero-tech--ts { left: 64%; color: #5995d4; animation-delay: -2.6s; }
-.hero-tech--git { left: 86%; color: #e17859; animation-delay: -3.7s; }
-@keyframes techFloat { 50% { transform: translateY(-5px); } }
-
-.hero-footer {
-  align-items: flex-end;
-  border-top: 1px solid var(--md-outline-var);
-  padding-top: 24px;
-}
-.hero-quote { max-width: 510px; color: var(--md-on-surface-var); }
-.hero-quote p { font-family: Georgia, serif; font-size: 1rem; font-style: italic; line-height: 1.55; }
-.hero-quote cite { display: block; margin-top: 8px; color: var(--md-primary); font-family: var(--font-mono); font-size: 0.67rem; font-style: normal; letter-spacing: 0.08em; text-transform: uppercase; }
-.hero-footer-side { display: flex; align-items: center; gap: 22px; }
-.github-chip { display: flex; align-items: center; gap: 9px; color: var(--md-on-surface); text-decoration: none; }
-.github-chip img { width: 32px; height: 32px; border: 1px solid var(--md-outline); border-radius: 50%; }
-.github-chip span { display: flex; flex-direction: column; gap: 1px; }
-.github-chip strong { font-size: 0.75rem; }
-.github-chip small { color: var(--md-on-surface-var); font-size: 0.65rem; }
-.social-row { display: flex; gap: 7px; }
-.social-link { display: grid; place-items: center; width: 34px; height: 34px; color: var(--md-on-surface-var); border: 1px solid var(--md-outline-var); border-radius: 50%; text-decoration: none; transition: transform 220ms var(--md-ease-spring), color 220ms ease, border-color 220ms ease; }
-.social-link:hover { color: var(--md-primary); border-color: var(--md-primary); transform: translateY(-4px) rotate(-8deg); }
-
-.hero-marquee { position: absolute; right: 0; bottom: 16px; left: 0; display: flex; overflow: hidden; color: var(--md-on-surface-var); font-family: var(--font-mono); font-size: 0.59rem; letter-spacing: 0.18em; opacity: 0.28; white-space: nowrap; }
-.hero-marquee span { flex: 0 0 auto; min-width: 100%; animation: marquee 28s linear infinite; }
-
-.hero-reveal { opacity: 0; transform: translateY(22px); }
-.intro-done .hero-reveal { animation: reveal 800ms var(--md-ease-decel) forwards; }
-.hero-reveal--one { animation-delay: 100ms; }
-.hero-reveal--two { animation-delay: 180ms; }
-.hero-reveal--three { animation-delay: 260ms; }
-.hero-reveal--four { animation-delay: 360ms; }
-.hero-reveal--five { animation-delay: 440ms; }
-.hero-reveal--six { animation-delay: 520ms; }
-
-@keyframes reveal { to { opacity: 1; transform: translateY(0); } }
-@keyframes portraitFloat { 0%, 100% { transform: rotate(3deg) translateY(0); } 50% { transform: rotate(1deg) translateY(-10px); } }
-@keyframes availabilityPulse { 50% { box-shadow: 0 0 0 8px rgba(3, 218, 198, 0.02); opacity: 0.55; } }
-@keyframes cursorBlink { 50% { opacity: 0; } }
-@keyframes marquee { to { transform: translateX(-100%); } }
-
-@media (max-width: 800px) {
-  .hero { padding: 88px 0 128px; }
-  .hero-main { grid-template-columns: 1fr; gap: 44px; padding: 56px 0 64px; }
-  .hero-visual { justify-self: center; width: min(100%, 390px); }
-  .hero-footer { align-items: flex-start; flex-direction: column; }
-  .hero-footer-side { width: 100%; justify-content: space-between; }
-}
-
-@media (max-width: 480px) {
-  .hero { min-height: auto; padding: 92px 0 70px; }
-  .hero-meta { align-items: flex-start; flex-direction: column; gap: 10px; }
-  .hero-main { padding: 64px 0 68px; }
-  .hero-name { font-size: clamp(3.8rem, 20vw, 6rem); }
-  .portrait-wrap { padding-right: 20px; }
-  .hero-footer-side { align-items: flex-start; flex-direction: column; gap: 16px; }
+@media (max-width: 560px) {
+  .hero__top { flex-direction: column; align-items: flex-start; gap: 8px; font-size: 0.8rem; }
+  .hero__scroll span:first-child { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-reveal,
-  .hero-name,
-  .portrait-frame,
-  .availability-dot,
-  .cursor-blink,
-  .hero-marquee span,
-  .hero-tech,
-  .wordmark-outline,
-  .wordmark-flourish,
-  .wordmark-accent,
-  .hero-name-text { animation: none; transition: none; }
-  .hero-reveal { opacity: 1; transform: none; }
-  .hero-name-text { visibility: visible; }
-  .wordmark-fill { opacity: 0; }
-  .wordmark-outline { stroke-dashoffset: 0; }
-  .wordmark-flourish,
-  .wordmark-accent { stroke-dashoffset: 0; }
+  .hero__caret, .hero__status-dot, .hero__scroll-thumb { animation: none; }
 }
 </style>

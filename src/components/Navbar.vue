@@ -1,303 +1,518 @@
 <template>
-  <div>
-    <nav class="nav-dock" :class="{ 'is-ready': introComplete }" :aria-label="lang === 'vi' ? 'Điều hướng chính' : 'Main navigation'">
-      <a :href="isPomodoroPage ? '/' : '#home'" class="dock-logo dock-control" :aria-label="t.home">
-        <img src="/heiznerd-logo.png" alt="" class="logo-img" />
-        <span class="dock-tooltip">{{ t.home }}</span>
+  <header ref="root" class="site-header" :class="{ 'is-scrolled': scrolled, 'is-menu-open': menuOpen }">
+    <div class="site-header__bar container">
+      <a :href="isPomodoroPage ? '/' : '#home'" class="brand" :aria-label="isPomodoroPage ? t.backHome : t.home" @click="onBrandClick">
+        <img src="/heiznerd-logo.png" alt="" class="brand__logo" width="34" height="34" />
+        <span class="brand__word" aria-hidden="true">heiznerd</span>
       </a>
 
-      <span class="dock-separator" aria-hidden="true"></span>
+      <nav v-if="!isPomodoroPage" class="site-nav" :aria-label="t.mainNav">
+        <ul>
+          <li v-for="link in navLinks" :key="link.id">
+            <a :href="`#${link.id}`" class="site-nav__link" :class="{ 'is-active': activeId === link.id }" :aria-current="activeId === link.id ? 'true' : undefined">
+              {{ t[link.key] }}
+            </a>
+          </li>
+        </ul>
+      </nav>
 
-      <div v-if="!isPomodoroPage" ref="dockLinksRef" class="dock-links" role="group" :aria-label="lang === 'vi' ? 'Các mục' : 'Sections'">
-        <a
-          v-for="link in navLinks"
-          :key="link.id"
-          :href="`#${link.id}`"
-          class="nav-link dock-control"
-          :aria-label="t[link.key]"
-        >
-          <i :class="link.icon" class="dock-icon" aria-hidden="true"></i>
-          <span class="dock-tooltip">{{ t[link.key] }}</span>
-        </a>
-        <span class="dock-active-indicator" :style="indicatorStyle" aria-hidden="true"></span>
-      </div>
-
-      <span v-if="!isPomodoroPage" class="dock-separator" aria-hidden="true"></span>
-
-      <div class="dock-actions" role="group" :aria-label="lang === 'vi' ? 'Thao tác nhanh' : 'Quick actions'">
-        <button class="dock-action-btn dock-control" type="button" @click="cmdOpen = true" :aria-label="lang === 'vi' ? 'Mở bảng lệnh' : 'Open command palette'">
-          <i class="fas fa-terminal" aria-hidden="true"></i>
-          <span class="dock-tooltip">{{ lang === 'vi' ? 'Lệnh' : 'Commands' }} <kbd>Ctrl K</kbd></span>
-        </button>
-        <button class="dock-action-btn dock-control dock-language" type="button" @click="toggleLanguage" :aria-label="t.switchLang">
-          <span>{{ currentLang === 'vi' ? 'VN' : 'EN' }}</span>
-          <span class="dock-tooltip">{{ t.switchLang }}</span>
-        </button>
-      </div>
-
-      <span class="dock-separator" aria-hidden="true"></span>
-
-      <div ref="statusWrapRef" class="dock-status-wrap">
-        <button
-          type="button"
-          class="dock-status-widget dock-control"
-          :aria-expanded="showCalendar"
-          aria-haspopup="dialog"
-          aria-controls="dock-calendar"
-          :aria-label="lang === 'vi' ? 'Xem lịch' : 'Show calendar'"
-          @click="showCalendar = !showCalendar"
-        >
-          <i class="far fa-clock clock-icon-widget" aria-hidden="true"></i>
-          <span class="status-time-wrap">
-            <strong class="status-time">{{ currentTime }}</strong>
-            <small class="status-date">{{ currentDate }}</small>
-          </span>
-          <span class="dock-tooltip">{{ lang === 'vi' ? 'Lịch' : 'Calendar' }}</span>
-        </button>
-
-        <Transition name="cal-slide">
-          <div v-if="showCalendar" id="dock-calendar" class="calendar-popover" role="dialog" :aria-label="currentMonthYearLabel">
-            <div class="cal-header"><span class="cal-month">{{ currentMonthYearLabel }}</span></div>
-            <div class="cal-weekdays"><span v-for="d in weekdaysLabel" :key="d" class="cal-wd">{{ d }}</span></div>
-            <div class="cal-grid">
-              <span v-for="(dayObj, idx) in calendarDays" :key="idx" class="cal-day" :class="{ 'other-month': !dayObj.isCurrentMonth, today: dayObj.isToday }">{{ dayObj.day }}</span>
+      <div class="site-header__actions">
+        <div ref="clockWrap" class="clock">
+          <button
+            type="button"
+            class="clock__btn"
+            :aria-expanded="showCalendar"
+            aria-controls="header-calendar"
+            :aria-label="`${t.calendar} — ${currentTime}`"
+            @click="showCalendar = !showCalendar"
+          >
+            <span class="clock__dot" aria-hidden="true"></span>
+            <span class="clock__time">{{ currentTime }}</span>
+          </button>
+          <Transition name="pop">
+            <div v-if="showCalendar" id="header-calendar" class="calendar" role="dialog" :aria-label="monthLabel">
+              <p class="calendar__month">{{ monthLabel }}</p>
+              <p class="calendar__date">{{ currentDate }}</p>
+              <div class="calendar__grid calendar__grid--head" aria-hidden="true">
+                <span v-for="d in weekdays" :key="d">{{ d }}</span>
+              </div>
+              <div class="calendar__grid">
+                <span
+                  v-for="(day, idx) in calendarDays"
+                  :key="idx"
+                  class="calendar__day"
+                  :class="{ 'is-muted': !day.current, 'is-today': day.today }"
+                  :aria-current="day.today ? 'date' : undefined"
+                >{{ day.day }}</span>
+              </div>
             </div>
-          </div>
-        </Transition>
-      </div>
-    </nav>
+          </Transition>
+        </div>
 
-    <CommandPalette :modelValue="cmdOpen" @close="cmdOpen = false" />
+        <button type="button" class="icon-btn icon-btn--sm hide-mobile" :aria-label="t.commands" title="Ctrl + K" @click="cmdOpen = true">
+          <i class="fas fa-terminal" aria-hidden="true"></i>
+        </button>
+
+        <button type="button" class="lang-toggle" :aria-label="t.switchLang" @click="toggleLanguage">
+          <span :class="{ 'is-on': currentLang === 'vi' }">VI</span>
+          <span :class="{ 'is-on': currentLang === 'en' }">EN</span>
+        </button>
+
+        <a v-if="!isPomodoroPage" v-magnetic="0.3" href="#contact" class="pill pill--sm hide-mobile">{{ t.contact }}</a>
+
+        <button
+          ref="menuBtn"
+          type="button"
+          class="menu-btn show-mobile"
+          :aria-expanded="menuOpen"
+          aria-controls="mobile-menu"
+          :aria-label="menuOpen ? t.closeMenu : t.menu"
+          @click="toggleMenu"
+        >
+          <span></span><span></span>
+        </button>
+      </div>
+    </div>
+    <div class="site-header__rule container" aria-hidden="true"><span></span></div>
+  </header>
+
+  <div
+    v-show="menuOpen"
+    id="mobile-menu"
+    ref="menuEl"
+    class="mobile-menu"
+    role="dialog"
+    aria-modal="true"
+    :aria-label="t.mainNav"
+    @keydown.esc="closeMenu"
+  >
+    <nav class="mobile-menu__nav">
+      <a
+        v-for="(link, index) in mobileLinks"
+        :key="link.id"
+        :href="isPomodoroPage ? '/' : `#${link.id}`"
+        class="mobile-menu__link"
+        @click="closeMenu"
+      >
+        <span class="mobile-menu__index mono">0{{ index + 1 }}</span>
+        <span>{{ t[link.key] }}</span>
+      </a>
+    </nav>
+    <div class="mobile-menu__foot">
+      <button type="button" class="pill pill--sm" @click="openPaletteFromMenu">
+        <i class="fas fa-terminal" aria-hidden="true"></i>
+        <span>{{ currentLang === 'vi' ? 'Bảng lệnh' : 'Commands' }}</span>
+      </button>
+      <div class="mobile-menu__shapes" aria-hidden="true">
+        <Shape name="flower" palette="pink" />
+        <Shape name="star" palette="orange" />
+        <Shape name="ring" palette="blue" />
+      </div>
+    </div>
   </div>
+
+  <CommandPalette :model-value="cmdOpen" @close="cmdOpen = false" />
 </template>
 
 <script setup>
-import { computed, inject, nextTick, onMounted, onUnmounted, ref } from 'vue';
+import { computed, inject, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import CommandPalette from './CommandPalette.vue';
+import Shape from './ui/Shape.vue';
+import { gsap, ScrollTrigger, prefersReducedMotion, setScrollLocked } from '@/lib/gsap';
 
-const props = defineProps({ introComplete: { type: Boolean, default: false } });
+const props = defineProps({ introComplete: { type: Boolean, default: true } });
+
 const route = useRoute();
 const isPomodoroPage = computed(() => route.path.includes('/pomodoro'));
 const currentLang = inject('currentLang');
 const lang = inject('lang');
 const translations = inject('translations');
 const t = computed(() => translations[lang.value].navbar);
+
+const root = ref(null);
+const menuEl = ref(null);
+const menuBtn = ref(null);
+const clockWrap = ref(null);
 const cmdOpen = ref(false);
 const showCalendar = ref(false);
+const menuOpen = ref(false);
+const scrolled = ref(false);
+const activeId = ref('home');
 const currentTime = ref('');
 const currentDate = ref('');
-const dockLinksRef = ref(null);
-const statusWrapRef = ref(null);
-const indicatorStyle = ref({ '--indicator-x': '20px', '--indicator-w': '18px', opacity: 0 });
 
 const navLinks = [
-  { id: 'home', key: 'home', icon: 'fas fa-home' },
-  { id: 'about', key: 'about', icon: 'fas fa-user-astronaut' },
-  { id: 'timeline', key: 'timeline', icon: 'fas fa-history' },
-  { id: 'projects', key: 'projects', icon: 'fas fa-rocket' },
-  { id: 'contact', key: 'contact', icon: 'fas fa-paper-plane' },
+  { id: 'about', key: 'about' },
+  { id: 'skills', key: 'skills' },
+  { id: 'timeline', key: 'timeline' },
+  { id: 'projects', key: 'projects' },
+  { id: 'contact', key: 'contact' },
 ];
+const mobileLinks = computed(() => (isPomodoroPage.value ? [{ id: 'home', key: 'backHome' }] : [{ id: 'home', key: 'home' }, ...navLinks]));
+
+const locale = computed(() => (lang.value === 'vi' ? 'vi-VN' : 'en-US'));
+const weekdays = computed(() => (lang.value === 'vi' ? ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'] : ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']));
+const monthLabel = computed(() => new Date().toLocaleDateString(locale.value, { month: 'long', year: 'numeric' }));
+const calendarDays = computed(() => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const firstDay = new Date(year, month, 1).getDay();
+  const total = new Date(year, month + 1, 0).getDate();
+  const prevTotal = new Date(year, month, 0).getDate();
+  const days = [];
+  for (let i = firstDay - 1; i >= 0; i -= 1) days.push({ day: prevTotal - i, current: false });
+  for (let d = 1; d <= total; d += 1) days.push({ day: d, current: true, today: d === now.getDate() });
+  for (let d = 1; days.length < 42; d += 1) days.push({ day: d, current: false });
+  return days;
+});
+
+const updateClock = () => {
+  const now = new Date();
+  currentTime.value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  currentDate.value = now.toLocaleDateString(locale.value, { weekday: 'long', day: 'numeric', month: 'long' });
+};
 
 const toggleLanguage = () => {
   localStorage.setItem('preferred-lang', lang.value === 'vi' ? 'en' : 'vi');
   window.location.reload();
 };
 
-const handleGlobalKeys = event => {
+// The global anchor handler (App.vue) performs the scroll to #home.
+const onBrandClick = () => {
+  if (menuOpen.value) closeMenu();
+};
+
+/* ---------- Mobile menu ---------- */
+let menuTl;
+const buildMenuTimeline = () => {
+  if (!menuEl.value || prefersReducedMotion()) return null;
+  return gsap.timeline({ paused: true })
+    .fromTo(menuEl.value, { clipPath: 'circle(0% at 92% 4%)' }, { clipPath: 'circle(150% at 92% 4%)', duration: 0.7, ease: 'hz.inOut' })
+    .from(menuEl.value.querySelectorAll('.mobile-menu__link'), { yPercent: 120, autoAlpha: 0, stagger: 0.06, duration: 0.6 }, 0.25)
+    .from(menuEl.value.querySelectorAll('.mobile-menu__foot > *'), { y: 30, autoAlpha: 0, stagger: 0.08, duration: 0.5 }, 0.4)
+    .from(menuEl.value.querySelectorAll('.mobile-menu__shapes svg'), { scale: 0, rotate: -120, stagger: 0.06, ease: 'back.out(2)' }, 0.45);
+};
+
+const toggleMenu = () => (menuOpen.value ? closeMenu() : openMenu());
+
+const openMenu = async () => {
+  menuOpen.value = true;
+  setScrollLocked(true);
+  await nextTick();
+  menuTl ??= buildMenuTimeline();
+  menuTl?.timeScale(1).play(0);
+  menuEl.value?.querySelector('a')?.focus({ preventScroll: true });
+};
+
+function closeMenu() {
+  if (!menuOpen.value) return;
+  const done = () => {
+    menuOpen.value = false;
+    setScrollLocked(false);
+    menuBtn.value?.focus({ preventScroll: true });
+  };
+  if (menuTl) {
+    menuTl.eventCallback('onReverseComplete', done);
+    menuTl.timeScale(1.6).reverse();
+  } else done();
+}
+
+const openPaletteFromMenu = () => {
+  closeMenu();
+  window.setTimeout(() => { cmdOpen.value = true; }, 350);
+};
+
+/* ---------- Keyboard + outside click ---------- */
+const handleKeys = event => {
   if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
     event.preventDefault();
     cmdOpen.value = !cmdOpen.value;
   }
-  if (event.key === 'Escape') showCalendar.value = false;
-};
-
-const updateClock = () => {
-  const now = new Date();
-  currentTime.value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-  currentDate.value = now.toLocaleDateString(lang.value === 'vi' ? 'vi-VN' : 'en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-};
-
-const weekdaysLabel = computed(() => lang.value === 'vi' ? ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'] : ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']);
-const calendarDays = computed(() => {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
-  const firstDay = new Date(year, month, 1).getDay();
-  const totalDays = new Date(year, month + 1, 0).getDate();
-  const previousDays = new Date(year, month, 0).getDate();
-  const days = [];
-  for (let index = firstDay - 1; index >= 0; index -= 1) days.push({ day: previousDays - index, isCurrentMonth: false });
-  for (let day = 1; day <= totalDays; day += 1) days.push({ day, isCurrentMonth: true, isToday: day === now.getDate() });
-  for (let day = 1; days.length < 42; day += 1) days.push({ day, isCurrentMonth: false });
-  return days;
-});
-const currentMonthYearLabel = computed(() => new Date().toLocaleDateString(lang.value === 'vi' ? 'vi-VN' : 'en-US', { month: 'long', year: 'numeric' }));
-
-const syncIndicator = () => {
-  const root = dockLinksRef.value;
-  const active = root?.querySelector('.nav-link.active');
-  if (!root || !active) return;
-  indicatorStyle.value = {
-    '--indicator-x': `${active.offsetLeft + active.offsetWidth / 2}px`,
-    '--indicator-w': `${Math.max(18, Math.min(28, active.offsetWidth * 0.5))}px`,
-    opacity: 1,
-  };
-};
-
-const handleOutsideClick = event => {
-  if (statusWrapRef.value && !statusWrapRef.value.contains(event.target)) showCalendar.value = false;
-};
-
-let clockInterval;
-let mutationObserver;
-let resizeObserver;
-
-onMounted(async () => {
-  window.addEventListener('keydown', handleGlobalKeys);
-  window.addEventListener('click', handleOutsideClick);
-  window.addEventListener('resize', syncIndicator);
-  updateClock();
-  clockInterval = window.setInterval(updateClock, 30000);
-  await nextTick();
-  if (dockLinksRef.value) {
-    mutationObserver = new MutationObserver(syncIndicator);
-    mutationObserver.observe(dockLinksRef.value, { attributes: true, subtree: true, attributeFilter: ['class'] });
-    resizeObserver = new ResizeObserver(syncIndicator);
-    resizeObserver.observe(dockLinksRef.value);
-    syncIndicator();
+  if (event.key === 'Escape') {
+    showCalendar.value = false;
+    if (menuOpen.value) closeMenu();
   }
+};
+
+const handleOutside = event => {
+  if (clockWrap.value && !clockWrap.value.contains(event.target)) showCalendar.value = false;
+};
+
+/* ---------- Scroll behaviour: hide on scroll down, active section ---------- */
+let ctx;
+let clockTimer;
+let rafId = 0;
+
+const updateActive = () => {
+  rafId = 0;
+  // Only sections that have a nav link (plus home) can be "active"; extras like the
+  // Rom-com corner keep the previous link highlighted instead of clearing it.
+  const known = new Set(['home', ...navLinks.map(link => link.id)]);
+  const sections = document.querySelectorAll('main section[id]');
+  const probe = window.innerHeight * 0.4;
+  let current = 'home';
+  sections.forEach(section => {
+    if (known.has(section.id) && section.getBoundingClientRect().top <= probe) current = section.id;
+  });
+  activeId.value = current;
+};
+const requestActive = () => { if (!rafId) rafId = requestAnimationFrame(updateActive); };
+
+watch(() => props.introComplete, value => {
+  if (!value || !root.value) return;
+  if (prefersReducedMotion()) return;
+  ctx?.add(() => gsap.from(root.value.querySelectorAll('.site-header__bar > *, .site-header__rule span'), {
+    yPercent: -120,
+    autoAlpha: 0,
+    duration: 0.9,
+    stagger: 0.08,
+    ease: 'expo.out',
+    clearProps: 'transform,opacity,visibility',
+  }));
+});
+
+onMounted(() => {
+  updateClock();
+  clockTimer = window.setInterval(updateClock, 15000);
+  window.addEventListener('keydown', handleKeys);
+  window.addEventListener('click', handleOutside);
+  window.addEventListener('scroll', requestActive, { passive: true });
+
+  ctx = gsap.context(() => {
+    let hidden = false;
+    ScrollTrigger.create({
+      start: 0,
+      end: 'max',
+      onUpdate: self => {
+        const y = self.scroll();
+        scrolled.value = y > 40;
+        requestActive();
+        if (menuOpen.value || cmdOpen.value || prefersReducedMotion()) return;
+        const shouldHide = self.direction === 1 && y > 260;
+        if (shouldHide !== hidden) {
+          hidden = shouldHide;
+          gsap.to(root.value, { yPercent: hidden ? -110 : 0, duration: 0.5, ease: hidden ? 'power3.in' : 'expo.out', overwrite: true });
+        }
+      },
+    });
+    // keep the header visible whenever something inside it has focus
+    root.value.addEventListener('focusin', () => {
+      hidden = false;
+      gsap.to(root.value, { yPercent: 0, duration: 0.3, overwrite: true });
+    });
+  }, root.value);
 });
 
 onUnmounted(() => {
-  window.removeEventListener('keydown', handleGlobalKeys);
-  window.removeEventListener('click', handleOutsideClick);
-  window.removeEventListener('resize', syncIndicator);
-  window.clearInterval(clockInterval);
-  mutationObserver?.disconnect();
-  resizeObserver?.disconnect();
+  window.clearInterval(clockTimer);
+  cancelAnimationFrame(rafId);
+  window.removeEventListener('keydown', handleKeys);
+  window.removeEventListener('click', handleOutside);
+  window.removeEventListener('scroll', requestActive);
+  menuTl?.kill();
+  ctx?.revert();
 });
 </script>
 
 <style scoped>
-.nav-dock {
+.site-header {
   position: fixed;
-  z-index: 999;
-  bottom: calc(18px + env(safe-area-inset-bottom));
-  left: 50%;
+  z-index: 1000;
+  top: 0;
+  right: 0;
+  left: 0;
+  color: var(--c-cream);
+  transition: background-color 0.4s var(--ease-out);
+}
+
+.site-header.is-scrolled { background: rgba(14, 16, 15, 0.86); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+.site-header.is-menu-open { background: transparent; backdrop-filter: none; }
+
+.site-header__bar {
   display: flex;
-  width: max-content;
-  max-width: calc(100vw - 24px);
-  min-height: 58px;
+  height: var(--header-h);
   align-items: center;
-  gap: 9px;
-  padding: 8px 10px;
-  border: 1px solid rgba(255,255,255,.1);
-  border-radius: 20px;
-  color: var(--md-on-surface-var);
-  background: color-mix(in srgb, var(--md-surface) 82%, transparent);
-  box-shadow: 0 18px 55px rgba(0,0,0,.52), inset 0 1px rgba(255,255,255,.035);
-  backdrop-filter: blur(24px) saturate(125%);
-  transform: translate3d(-50%, 28px, 0) scale(.96);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 500ms ease, transform 650ms var(--md-ease-spring), border-color 300ms ease, background 300ms ease;
+  gap: clamp(16px, 2.6vw, 40px);
 }
-.nav-dock.is-ready { opacity: 1; pointer-events: auto; transform: translate3d(-50%,0,0) scale(1); }
-.nav-dock:hover { border-color: rgba(187,134,252,.2); background: color-mix(in srgb, var(--md-surface) 88%, transparent); }
-.nav-dock::before { content:''; position:absolute; inset:0; border-radius:inherit; pointer-events:none; background:linear-gradient(105deg,rgba(187,134,252,.08),transparent 36%,rgba(3,218,198,.035)); }
 
-.dock-separator { position:relative; z-index:1; width:1px; height:26px; flex:0 0 auto; background:var(--md-outline-var); }
-.dock-logo,
-.dock-control { position:relative; z-index:2; }
-.dock-logo { display:grid; width:40px; height:40px; flex:0 0 auto; place-items:center; overflow:hidden; border:1px solid rgba(187,134,252,.24); border-radius:13px; background:var(--md-surface-high); text-decoration:none; transition:transform 280ms var(--md-ease-spring),border-color 220ms ease; }
-.logo-img { display:block; width:100%; height:100%; object-fit:cover; }
-.dock-logo:hover { border-color:var(--md-primary); transform:translateY(-3px) rotate(-4deg); }
+.site-header__rule span { display: block; height: 1px; background: var(--c-line); }
 
-.dock-links { position:relative; z-index:2; display:flex; min-width:0; align-items:center; gap:3px; }
-.nav-link,
-.dock-action-btn { display:grid; width:39px; height:39px; flex:0 0 39px; place-items:center; border:1px solid transparent; border-radius:12px; color:var(--md-on-surface-var); background:transparent; text-decoration:none; cursor:pointer; transition:color 220ms ease,background 220ms ease,border-color 220ms ease,transform 330ms var(--md-ease-spring); }
-.dock-icon { font-size:.9rem; transition:transform 330ms var(--md-ease-spring); }
-.nav-link:hover,
-.nav-link:focus-visible,
-.dock-action-btn:hover,
-.dock-action-btn:focus-visible { color:var(--md-primary); border-color:rgba(187,134,252,.18); background:rgba(187,134,252,.065); outline:none; transform:translateY(-3px); }
-.nav-link:hover .dock-icon,
-.nav-link:focus-visible .dock-icon { transform:scale(1.12); }
-.nav-link.active { color:var(--md-primary); background:rgba(187,134,252,.055); }
-.dock-active-indicator { position:absolute; bottom:-5px; left:var(--indicator-x); width:var(--indicator-w); height:2px; border-radius:2px; background:linear-gradient(90deg,var(--md-primary),var(--md-secondary)); transform:translateX(-50%); box-shadow:0 0 9px rgba(187,134,252,.42); transition:left 480ms var(--md-ease-spring),width 480ms var(--md-ease-spring),opacity 200ms ease; }
-
-.dock-actions { position:relative; z-index:2; display:flex; gap:3px; }
-.dock-language { font-family:var(--font-mono); font-size:.61rem; font-weight:700; letter-spacing:.05em; }
-.dock-tooltip { position:absolute; bottom:calc(100% + 12px); left:50%; width:max-content; max-width:190px; padding:6px 9px; border:1px solid var(--md-outline-var); border-radius:8px; color:var(--md-on-surface); background:rgba(20,19,23,.94); box-shadow:var(--md-shadow-2); font-family:var(--font-mono); font-size:.58rem; line-height:1.25; opacity:0; pointer-events:none; transform:translate(-50%,6px); transition:opacity 180ms ease,transform 240ms var(--md-ease-spring); }
-.dock-control:hover .dock-tooltip,
-.dock-control:focus-visible .dock-tooltip { opacity:1; transform:translate(-50%,0); }
-.dock-tooltip kbd { margin-left:4px; color:var(--md-primary); font-size:.54rem; }
-
-.dock-status-wrap { position:relative; z-index:3; }
-.dock-status-widget { position:relative; display:flex; height:40px; align-items:center; gap:8px; padding:0 11px; border:1px solid rgba(255,255,255,.06); border-radius:12px; color:var(--md-on-surface-var); background:rgba(255,255,255,.025); cursor:pointer; transition:color 220ms ease,border-color 220ms ease,background 220ms ease,transform 300ms var(--md-ease-spring); }
-.dock-status-widget:hover,
-.dock-status-widget:focus-visible { color:var(--md-primary); border-color:rgba(187,134,252,.22); background:rgba(187,134,252,.06); outline:none; transform:translateY(-2px); }
-.clock-icon-widget { color:var(--md-primary); font-size:.86rem; }
-.status-time-wrap { display:flex; flex-direction:column; align-items:flex-start; }
-.status-time { color:var(--md-on-surface); font-family:var(--font-mono); font-size:.72rem; line-height:1.05; }
-.status-date { margin-top:2px; color:var(--md-on-surface-var); font-size:.55rem; line-height:1; }
-
-.calendar-popover { position:absolute; right:0; bottom:54px; width:252px; padding:16px; border:1px solid rgba(255,255,255,.1); border-radius:16px; color:var(--md-on-surface); background:rgba(18,17,22,.94); box-shadow:0 18px 56px rgba(0,0,0,.65); backdrop-filter:blur(22px); }
-.cal-header { margin-bottom:12px; padding-bottom:9px; border-bottom:1px solid var(--md-outline-var); text-align:center; }
-.cal-month { font-family:var(--font-display); font-size:.86rem; font-weight:700; text-transform:capitalize; }
-.cal-weekdays,
-.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; text-align:center; }
-.cal-weekdays { margin-bottom:6px; }
-.cal-wd { color:var(--md-secondary); font-size:.61rem; font-weight:700; }
-.cal-day { display:grid; height:26px; place-items:center; border-radius:6px; font-family:var(--font-mono); font-size:.7rem; }
-.cal-day.other-month { color:rgba(255,255,255,.2); }
-.cal-day.today { color:var(--md-on-primary); background:var(--md-primary); font-weight:700; }
-.cal-slide-enter-active { transition:opacity 220ms ease,transform 330ms var(--md-ease-spring); }
-.cal-slide-leave-active { transition:opacity 160ms ease,transform 180ms ease; }
-.cal-slide-enter-from,
-.cal-slide-leave-to { opacity:0; transform:translateY(9px) scale(.97); }
-
-@media (hover:hover) and (pointer:fine) {
-  .dock-links:hover .nav-link:not(:hover) { transform:scale(.95); opacity:.72; }
+/* Brand */
+.brand { display: inline-flex; align-items: center; gap: 10px; flex: 0 0 auto; border-radius: 12px; }
+.brand__logo { width: 34px; height: 34px; border-radius: 10px; object-fit: cover; }
+.brand__word {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: -0.06em;
+  line-height: 1;
 }
-@media (max-width:768px) {
-  .nav-dock { right:12px; bottom:calc(12px + env(safe-area-inset-bottom)); left:12px; width:auto; max-width:none; min-height:54px; gap:6px; padding:7px 8px; transform:translate3d(0,24px,0) scale(.97); }
-  .nav-dock.is-ready { transform:none; }
-  .dock-links { flex:1; overflow-x:auto; scrollbar-width:none; }
-  .dock-links::-webkit-scrollbar { display:none; }
-  .nav-link,
-  .dock-action-btn { width:36px; height:36px; flex-basis:36px; }
-  .dock-logo { width:37px; height:37px; }
-  .dock-separator { height:22px; }
-  .dock-tooltip,
-  .status-date { display:none; }
-  .dock-status-widget { height:36px; padding:0 8px; }
-  .calendar-popover { right:-2px; bottom:48px; width:min(244px,calc(100vw - 28px)); }
+
+/* Nav */
+.site-nav ul { display: flex; gap: clamp(14px, 1.8vw, 28px); }
+.site-nav__link {
+  position: relative;
+  color: var(--c-cream-75);
+  font-size: 1.05rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  transition: color 0.25s var(--ease-out);
 }
-@media (max-width:390px) {
-  .nav-dock { gap:4px; padding-inline:6px; }
-  .dock-actions { gap:1px; }
-  .dock-separator { display:none; }
-  .dock-status-widget { gap:5px; padding-inline:7px; }
-  .status-time { font-size:.66rem; }
+.site-nav__link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--g-green);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.45s var(--ease-out);
 }
-@media (prefers-reduced-motion:reduce) {
-  .nav-dock,
-  .nav-link,
-  .dock-action-btn,
-  .dock-logo,
-  .dock-icon,
-  .dock-active-indicator,
-  .dock-status-widget,
-  .dock-tooltip,
-  .cal-slide-enter-active,
-  .cal-slide-leave-active { transition:none; }
-  .nav-dock.is-ready { opacity:1; }
-  .nav-link:hover,
-  .dock-action-btn:hover,
-  .dock-logo:hover,
-  .dock-status-widget:hover,
-  .dock-links:hover .nav-link:not(:hover) { transform:none; }
+.site-nav__link:hover,
+.site-nav__link.is-active { color: var(--c-cream); }
+.site-nav__link:hover::after,
+.site-nav__link.is-active::after { transform: scaleX(1); transform-origin: left; }
+
+.site-header__actions { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+
+/* Clock */
+.clock { position: relative; }
+.clock__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 14px;
+  border: 1.5px solid var(--c-line);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  transition: border-color 0.25s var(--ease-out);
+}
+.clock__btn:hover { border-color: var(--c-cream); }
+.clock__dot { width: 7px; height: 7px; border-radius: 50%; background: var(--c-green); box-shadow: 0 0 0 4px rgba(10, 228, 72, 0.18); }
+
+.calendar {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 272px;
+  padding: 18px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius-lg);
+  background: var(--c-bg-2);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+}
+.calendar__month { font-size: 1.15rem; font-weight: 600; letter-spacing: -0.03em; text-transform: capitalize; }
+.calendar__date { margin: 2px 0 14px; color: var(--c-cream-75); font-size: 0.82rem; text-transform: capitalize; }
+.calendar__grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; text-align: center; }
+.calendar__grid--head { margin-bottom: 6px; color: var(--c-green); font-family: var(--font-mono); font-size: 0.66rem; }
+.calendar__day { display: grid; height: 30px; place-items: center; border-radius: 50%; font-family: var(--font-mono); font-size: 0.75rem; }
+.calendar__day.is-muted { color: var(--c-cream-25); }
+.calendar__day.is-today { color: var(--c-bg); background: var(--c-green); font-weight: 700; }
+
+.pop-enter-active, .pop-leave-active { transition: opacity 0.25s var(--ease-out), transform 0.35s var(--ease-out); }
+.pop-enter-from, .pop-leave-to { opacity: 0; transform: translateY(-8px) scale(0.97); }
+
+.icon-btn--sm { width: 38px; height: 38px; font-size: 0.85rem; }
+
+/* Language */
+.lang-toggle {
+  display: inline-flex;
+  height: 38px;
+  align-items: center;
+  padding: 3px;
+  border: 1.5px solid var(--c-line);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.lang-toggle span {
+  display: grid;
+  height: 100%;
+  min-width: 34px;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  color: var(--c-cream-75);
+  transition: background 0.3s var(--ease-out), color 0.3s var(--ease-out);
+}
+.lang-toggle span.is-on { color: var(--c-bg); background: var(--c-cream); }
+
+/* Burger */
+.menu-btn {
+  position: relative;
+  display: none;
+  width: 44px;
+  height: 44px;
+  border: 1.5px solid var(--c-line);
+  border-radius: 50%;
+}
+.menu-btn span {
+  position: absolute;
+  left: 13px;
+  right: 13px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--c-cream);
+  transition: transform 0.45s var(--ease-out), top 0.45s var(--ease-out);
+}
+.menu-btn span:first-child { top: 17px; }
+.menu-btn span:last-child { top: 24px; }
+.menu-btn[aria-expanded='true'] span:first-child { top: 20.5px; transform: rotate(45deg); }
+.menu-btn[aria-expanded='true'] span:last-child { top: 20.5px; transform: rotate(-45deg); }
+
+/* Mobile menu */
+.mobile-menu {
+  position: fixed;
+  z-index: 990;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: calc(var(--header-h) + 28px) var(--gutter) calc(28px + env(safe-area-inset-bottom));
+  background: var(--c-bg);
+  overflow-y: auto;
+}
+.mobile-menu__nav { display: grid; gap: 4px; }
+.mobile-menu__link {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding-block: 4px;
+  overflow: hidden;
+  font-size: clamp(2.6rem, 12vw, 4.5rem);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.045em;
+}
+.mobile-menu__index { color: var(--c-green); }
+.mobile-menu__foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 28px; }
+.mobile-menu__shapes { display: flex; gap: 10px; }
+.mobile-menu__shapes svg { width: 40px; }
+
+.show-mobile { display: none; }
+
+@media (max-width: 1100px) {
+  .site-nav ul { gap: 16px; }
+  .site-nav__link { font-size: 0.95rem; }
+}
+
+@media (max-width: 899px) {
+  .site-nav,
+  .hide-mobile { display: none !important; }
+  .show-mobile { display: inline-block; }
+  .brand__word { font-size: 1.3rem; }
+  .site-header__actions { gap: 8px; }
+}
+
+@media (max-width: 380px) {
+  .clock__btn { padding: 0 10px; }
+  .clock__dot { display: none; }
 }
 </style>
