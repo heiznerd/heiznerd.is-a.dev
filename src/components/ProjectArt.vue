@@ -3,28 +3,28 @@
     <!-- Danshi: osu!-style hit circles, slider and a render progress bar -->
     <svg v-if="kind === 'danshi'" class="art__svg" viewBox="0 0 400 300">
       <defs>
-        <linearGradient id="dz-a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fec5fb" /><stop offset="1" stop-color="#f100cb" /></linearGradient>
-        <linearGradient id="dz-b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e0dcff" /><stop offset="1" stop-color="#6f66ff" /></linearGradient>
-        <linearGradient id="dz-c" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#bef3fe" /><stop offset="1" stop-color="#00bae2" /></linearGradient>
+        <linearGradient id="dz-a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffc2e2" /><stop offset="1" stop-color="#ff3d8b" /></linearGradient>
+        <linearGradient id="dz-b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ece0ff" /><stop offset="1" stop-color="#8a5cff" /></linearGradient>
+        <linearGradient id="dz-c" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#cdeeff" /><stop offset="1" stop-color="#6ad0ff" /></linearGradient>
       </defs>
-      <path class="dz-slider" d="M92 196C140 120 220 112 300 90" fill="none" stroke="#fffce1" stroke-opacity="0.18" stroke-width="44" stroke-linecap="round" />
-      <path class="dz-slider-line" d="M92 196C140 120 220 112 300 90" fill="none" stroke="#fec5fb" stroke-width="4" stroke-linecap="round" stroke-dasharray="1 12" />
+      <path class="dz-slider" d="M92 196C140 120 220 112 300 90" fill="none" stroke="#fff1ea" stroke-opacity="0.18" stroke-width="44" stroke-linecap="round" />
+      <path class="dz-slider-line" d="M92 196C140 120 220 112 300 90" fill="none" stroke="#ffc2e2" stroke-width="4" stroke-linecap="round" stroke-dasharray="1 12" />
       <g v-for="(c, i) in hitCircles" :key="i" class="dz-hit" :transform="`translate(${c.x} ${c.y})`">
         <circle class="dz-approach" r="30" fill="none" :stroke="c.stroke" stroke-width="3" />
-        <circle class="dz-circle" r="30" :fill="`url(#${c.grad})`" stroke="#fffce1" stroke-width="4" />
-        <text class="dz-num" y="9" text-anchor="middle" fill="#0e100f">{{ i + 1 }}</text>
+        <circle class="dz-circle" r="30" :fill="`url(#${c.grad})`" stroke="#fff1ea" stroke-width="4" />
+        <text class="dz-num" y="9" text-anchor="middle" fill="#0f0b13">{{ i + 1 }}</text>
         <text class="dz-score" y="-46" text-anchor="middle" :fill="c.stroke">300</text>
       </g>
       <g class="dz-rec" transform="translate(24 28)">
-        <rect width="86" height="30" rx="15" fill="#fffce1" />
-        <circle class="dz-rec-dot" cx="18" cy="15" r="6" fill="#f100cb" />
-        <text x="32" y="20" fill="#0e100f" class="dz-label">REC</text>
+        <rect width="86" height="30" rx="15" fill="#fff1ea" />
+        <circle class="dz-rec-dot" cx="18" cy="15" r="6" fill="#ff3d8b" />
+        <text x="32" y="20" fill="#0f0b13" class="dz-label">REC</text>
       </g>
-      <text x="376" y="48" text-anchor="end" fill="#fffce1" class="dz-combo">x<tspan class="dz-combo-num">128</tspan></text>
+      <text x="376" y="48" text-anchor="end" fill="#fff1ea" class="dz-combo">x<tspan class="dz-combo-num">128</tspan></text>
       <g transform="translate(24 252)">
-        <rect width="352" height="12" rx="6" fill="#fffce1" fill-opacity="0.12" />
+        <rect width="352" height="12" rx="6" fill="#fff1ea" fill-opacity="0.12" />
         <rect class="dz-progress" width="352" height="12" rx="6" fill="url(#dz-a)" />
-        <text x="0" y="-10" class="dz-small" fill="#bbbaa6">replay.osr → video.mp4</text>
+        <text x="0" y="-10" class="dz-small" fill="#c9b8bf">replay.osr → video.mp4</text>
       </g>
     </svg>
 
@@ -37,21 +37,21 @@
       </div>
       <svg class="ai__buddy" viewBox="0 0 200 190">
         <defs>
-          <linearGradient id="ai-body" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e0dcff" /><stop offset="1" stop-color="#9d95ff" /></linearGradient>
+          <linearGradient id="ai-body" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ece0ff" /><stop offset="1" stop-color="#a78bff" /></linearGradient>
         </defs>
         <g class="ai__head">
           <path class="ai__ear ai__ear--l" d="M46 70L52 12L94 46Z" fill="url(#ai-body)" />
           <path class="ai__ear ai__ear--r" d="M154 70L148 12L106 46Z" fill="url(#ai-body)" />
           <rect x="24" y="36" width="152" height="136" rx="64" fill="url(#ai-body)" />
           <g class="ai__eyes">
-            <ellipse class="ai__eye" cx="72" cy="104" rx="11" ry="15" fill="#0e100f" />
-            <ellipse class="ai__eye" cx="128" cy="104" rx="11" ry="15" fill="#0e100f" />
-            <circle cx="76" cy="98" r="4" fill="#fffce1" class="ai__shine" />
-            <circle cx="132" cy="98" r="4" fill="#fffce1" class="ai__shine" />
+            <ellipse class="ai__eye" cx="72" cy="104" rx="11" ry="15" fill="#0f0b13" />
+            <ellipse class="ai__eye" cx="128" cy="104" rx="11" ry="15" fill="#0f0b13" />
+            <circle cx="76" cy="98" r="4" fill="#fff1ea" class="ai__shine" />
+            <circle cx="132" cy="98" r="4" fill="#fff1ea" class="ai__shine" />
           </g>
-          <circle cx="54" cy="128" r="9" fill="#fec5fb" />
-          <circle cx="146" cy="128" r="9" fill="#fec5fb" />
-          <path class="ai__mouth" d="M90 130Q100 140 110 130" fill="none" stroke="#0e100f" stroke-width="4" stroke-linecap="round" />
+          <circle cx="54" cy="128" r="9" fill="#ffc2e2" />
+          <circle cx="146" cy="128" r="9" fill="#ffc2e2" />
+          <path class="ai__mouth" d="M90 130Q100 140 110 130" fill="none" stroke="#0f0b13" stroke-width="4" stroke-linecap="round" />
         </g>
       </svg>
       <div class="ai__moods">
@@ -69,7 +69,7 @@
         <span class="cx__panel cx__panel--e"><Shape name="ring" palette="blue" /></span>
       </div>
       <span class="cx__burst">
-        <svg viewBox="0 0 120 120"><path d="M60 4l10 26 26-14-8 28 28 6-24 16 18 22-28-2 2 28-24-16-24 16 2-28-28 2 18-22L4 70l28-6-8-28 26 14Z" fill="#fffce1" /></svg>
+        <svg viewBox="0 0 120 120"><path d="M60 4l10 26 26-14-8 28 28 6-24 16 18 22-28-2 2 28-24-16-24 16 2-28-28 2 18-22L4 70l28-6-8-28 26 14Z" fill="#fff1ea" /></svg>
         <b>V2!</b>
       </span>
       <span class="cx__pager mono">p. <b class="cx__page-num">01</b></span>
@@ -100,9 +100,9 @@ const props = defineProps({ kind: { type: String, required: true } });
 const root = ref(null);
 
 const hitCircles = [
-  { x: 92, y: 196, grad: 'dz-a', stroke: '#fec5fb' },
-  { x: 196, y: 128, grad: 'dz-b', stroke: '#9d95ff' },
-  { x: 300, y: 90, grad: 'dz-c', stroke: '#00bae2' },
+  { x: 92, y: 196, grad: 'dz-a', stroke: '#ffc2e2' },
+  { x: 196, y: 128, grad: 'dz-b', stroke: '#a78bff' },
+  { x: 300, y: 90, grad: 'dz-c', stroke: '#6ad0ff' },
 ];
 
 const builders = {
@@ -131,7 +131,7 @@ const builders = {
       .to('.ai__ear--l', { rotate: -10, transformOrigin: '80% 90%', duration: 0.25, yoyo: true, repeat: 3 }, 1.1)
       .to('.ai__head', { y: -8, duration: 0.6, yoyo: true, repeat: 3, ease: 'sine.inOut', transformOrigin: 'center' }, 0)
       .to('.ai__eye', { scaleY: 0.1, transformOrigin: 'center', duration: 0.09, yoyo: true, repeat: 1 }, 2.8)
-      .fromTo('.ai__moods span', { backgroundColor: 'rgba(255,252,225,0)', color: '#fffce1' }, { backgroundColor: '#fffce1', color: '#0e100f', duration: 0.3, stagger: { each: 1, yoyo: true, repeat: 1, repeatDelay: 0.6 } }, 0.2)
+      .fromTo('.ai__moods span', { backgroundColor: 'rgba(255,241,234,0)', color: '#fff1ea' }, { backgroundColor: '#fff1ea', color: '#0f0b13', duration: 0.3, stagger: { each: 1, yoyo: true, repeat: 1, repeatDelay: 0.6 } }, 0.2)
       .to('.ai__bubble', { autoAlpha: 0, y: -10, duration: 0.4, stagger: 0.1 }, 3.6);
 
     // pupils follow the pointer on fine pointers
@@ -229,9 +229,9 @@ useGsap(root, ({ root: el, mm }) => {
 }
 .cx__panel { display: grid; place-items: center; border: 3px solid var(--c-bg); border-radius: 8px; background: var(--c-bg-3); overflow: hidden; }
 .cx__panel .shape { width: 52%; }
-.cx__panel--a { grid-column: 1 / -1; background: #2a2620; }
+.cx__panel--a { grid-column: 1 / -1; background: #2a2024; }
 .cx__panel--c { background: var(--c-pink); }
-.cx__panel--d { grid-row: span 2; background: #1c2a20; }
+.cx__panel--d { grid-row: span 2; background: #2a1c2a; }
 .cx__speech { color: var(--c-bg); font-size: 2.2rem; font-weight: 800; letter-spacing: -0.04em; }
 .cx__burst { position: absolute; top: 6%; right: 6%; display: grid; width: 26%; place-items: center; }
 .cx__burst svg { width: 100%; }
@@ -243,17 +243,17 @@ useGsap(root, ({ root: el, mm }) => {
 .term { width: 88%; overflow: hidden; border: 1.5px solid var(--c-line); border-radius: 16px; background: #090a09; font-family: var(--font-mono); }
 .term__bar { display: flex; align-items: center; gap: 7px; padding: 12px 14px; border-bottom: 1px solid var(--c-line); }
 .term__bar i { width: 11px; height: 11px; border-radius: 50%; background: var(--c-orange); }
-.term__bar i:nth-child(2) { background: var(--c-lime); }
+.term__bar i:nth-child(2) { background: var(--c-peach); }
 .term__bar i:nth-child(3) { background: var(--c-blue); }
 .term__bar span { margin-left: auto; color: var(--c-cream-75); }
 .term__body { display: grid; gap: 10px; padding: 18px; color: var(--c-cream); font-size: clamp(0.78rem, 1.05vw, 0.95rem); }
-.term__ps { color: var(--c-green); }
-.term__caret { color: var(--c-green); animation: blink 1s steps(1) infinite; }
-.term__ok { color: var(--c-lime); }
+.term__ps { color: var(--c-accent); }
+.term__caret { color: var(--c-accent); animation: blink 1s steps(1) infinite; }
+.term__ok { color: var(--c-peach); }
 .term__dim { color: var(--c-cream-75); }
 .term__hl { color: var(--c-pink); }
 .term__track { height: 8px; border-radius: 4px; background: var(--c-line); overflow: hidden; }
-.term__fill { display: block; height: 100%; background: var(--g-green); transform: scaleX(0.4); transform-origin: left; }
+.term__fill { display: block; height: 100%; background: var(--g-accent); transform: scaleX(0.4); transform-origin: left; }
 
 @keyframes blink { 50% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .term__caret { animation: none; } }

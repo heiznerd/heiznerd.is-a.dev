@@ -94,7 +94,7 @@ const t = computed(() => translations[lang.value].quintet);
 const sisters = computed(() => t.value.sisters);
 
 // Index = birth order (Ichika, Nino, Miku, Yotsuba, Itsuki).
-const TONES = ['#f7bdf8', '#ff7aa8', '#00bae2', '#ff8709', '#ff5a4a'];
+const TONES = ['#e9b8ff', '#ff7aa8', '#6ad0ff', '#ff9a5c', '#ff5a4a'];
 const WEDDING = [
   { src: '/quintet/wedding-ichika.jpg', h: 920 },
   { src: '/quintet/wedding-nino.jpg', h: 1308 },
@@ -108,9 +108,9 @@ const DISPLAY = [1, 3, 2, 0, 4];
 // Pastel brush strokes that sweep across the paper.
 const STROKES = [
   { color: '#c4b2ff', w: 44, d: 'M-40 330C150 260 220 110 430 190S640 430 780 300' },
-  { color: '#c5e11a', w: 40, d: 'M300 -20C430 140 350 300 520 380S800 520 1010 470' },
+  { color: '#ffb27a', w: 40, d: 'M300 -20C430 140 350 300 520 380S800 520 1010 470' },
   { color: '#ff8fa3', w: 38, d: 'M-40 520C160 610 300 520 370 430' },
-  { color: '#0bb5a7', w: 36, d: 'M830 -30C760 120 900 160 960 300S1080 520 1240 560' },
+  { color: '#6ad0ff', w: 36, d: 'M830 -30C760 120 900 160 960 300S1080 520 1240 560' },
   { color: '#44b0ff', w: 32, d: 'M600 600C700 500 880 600 1000 470' },
   { color: '#9be8a8', w: 32, d: 'M1240 60C1060 70 980 180 860 150' },
 ];
@@ -229,7 +229,7 @@ useGsap(root, ({ root: el, mm }) => {
       // Scroll-scrubbed while pinned, so the opening can't be outrun.
       const tl = gsap.timeline({
         defaults: { ease: 'none' },
-        scrollTrigger: { trigger: '.qt__pin', start: 'top top', end: () => `+=${Math.round(window.innerHeight * 1.8)}`, pin: true, scrub: 0.8 },
+        scrollTrigger: { trigger: '.qt__pin', start: 'top top', end: () => `+=${Math.round(window.innerHeight * 1.8)}`, pin: true, scrub: 0.3 },
       });
       tl.fromTo(head, { y: 60, autoAlpha: 0 }, { y: 0, autoAlpha: 1, stagger: 0.08, duration: 0.8 }, 0)
         .fromTo('.paper', { clipPath: 'inset(22% 34% 22% 34% round 999px)' }, { clipPath: 'inset(0% 0% 0% 0% round 36px)', duration: 1.1 }, 0)
@@ -255,7 +255,7 @@ useGsap(root, ({ root: el, mm }) => {
     } else {
       gsap.timeline({
         defaults: { ease: 'none' },
-        scrollTrigger: { trigger: '.qt__stage', start: 'top 88%', end: 'top 35%', scrub: 0.6 },
+        scrollTrigger: { trigger: '.qt__stage', start: 'top 96%', end: 'top 35%', scrub: 0.25 },
       })
         .fromTo(head, { y: 50, autoAlpha: 0 }, { y: 0, autoAlpha: 1, stagger: 0.08 }, 0)
         .fromTo(items, { y: 90, rotate: i => [-6, 5, -4, 6, -5][i % 5], autoAlpha: 0 }, { y: 0, rotate: 0, autoAlpha: 1, stagger: 0.12 }, 0.1)
@@ -270,9 +270,9 @@ useGsap(root, ({ root: el, mm }) => {
       stagger: 0.12,
       duration: 1.3,
       ease: 'expo.out',
-      scrollTrigger: { trigger: '.moments', start: 'top 85%', once: true },
+      scrollTrigger: { trigger: '.moments', start: 'top 95%', once: true },
     });
-    gsap.from('.moments__title', { y: 30, autoAlpha: 0, scrollTrigger: { trigger: '.moments', start: 'top 90%', once: true } });
+    gsap.from('.moments__title', { y: 30, autoAlpha: 0, scrollTrigger: { trigger: '.moments', start: 'top 97%', once: true } });
     if (desktop) {
       gsap.utils.toArray('.moment__float', el).forEach((float, i) => {
         gsap.fromTo(float, { y: i % 2 ? 50 : -30 }, {
@@ -282,7 +282,7 @@ useGsap(root, ({ root: el, mm }) => {
         });
       });
     }
-    gsap.from('.qt__credit', { autoAlpha: 0, y: 20, scrollTrigger: { trigger: '.qt__credit', start: 'top 98%', once: true } });
+    gsap.from('.qt__credit', { autoAlpha: 0, y: 20, scrollTrigger: { trigger: '.qt__credit', start: 'top 99%', once: true } });
 
     return () => petals.forEach(petal => { petal.style.display = ''; });
   });
@@ -301,7 +301,7 @@ useGsap(root, ({ root: el, mm }) => {
   width: var(--s);
   height: calc(var(--s) * 0.72);
   border-radius: 85% 0 85% 0;
-  background: linear-gradient(135deg, #fec5fb, #f48fc4);
+  background: linear-gradient(135deg, #ffc2e2, #f48fc4);
   opacity: 0;
   will-change: transform;
 }
@@ -357,7 +357,7 @@ useGsap(root, ({ root: el, mm }) => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #d3141b;
+  color: #e0306f;
   font-family: Georgia, 'Times New Roman', serif;
   font-size: clamp(2.4rem, 6.6vw, 6.4rem);
   font-weight: 700;
@@ -379,7 +379,7 @@ useGsap(root, ({ root: el, mm }) => {
   height: 100%;
   padding: 0;
   border: 0;
-  color: #fffce1;
+  color: #fff1ea;
   text-align: left;
   background: none;
   cursor: pointer;
@@ -397,7 +397,7 @@ useGsap(root, ({ root: el, mm }) => {
 .wd:first-child .wd__img { -webkit-mask-image: linear-gradient(90deg, #000 0, #000 83%, transparent 100%); mask-image: linear-gradient(90deg, #000 0, #000 83%, transparent 100%); }
 .wd:last-child .wd__img { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 17%, #000 100%); mask-image: linear-gradient(90deg, transparent 0, #000 17%, #000 100%); }
 .wd__img img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 10%; user-select: none; -webkit-user-drag: none; }
-.wd__shade { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, rgba(14, 16, 15, 0.72) 100%); }
+.wd__shade { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, rgba(15, 11, 19, 0.72) 100%); }
 
 .wd__num { position: absolute; top: 16px; left: 19%; font-weight: 700; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55); }
 .wd__kanji { position: absolute; top: 14px; right: 17%; color: var(--tone); font-size: clamp(1.2rem, 1.9vw, 1.9rem); font-weight: 700; line-height: 1.1; letter-spacing: 0.05em; writing-mode: vertical-rl; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6); }
@@ -408,7 +408,7 @@ useGsap(root, ({ root: el, mm }) => {
 .strokes { position: absolute; inset: 0; z-index: 4; width: 100%; height: 100%; opacity: 0.86; pointer-events: none; }
 
 .qt__hint { margin-top: 16px; color: var(--c-cream-75); }
-.qt__hint i { margin-right: 6px; color: var(--c-green); }
+.qt__hint i { margin-right: 6px; color: var(--c-accent); }
 
 /* ---- Moments ---- */
 .qt__lower { position: relative; z-index: 1; margin-top: clamp(60px, 9vw, 140px); }

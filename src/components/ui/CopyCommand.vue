@@ -125,13 +125,13 @@ onUnmounted(() => {
   padding: 8px 8px 8px 18px;
   border: 1.5px solid var(--c-line);
   border-radius: var(--radius-pill);
-  background: rgba(14, 16, 15, 0.72);
+  background: rgba(15, 11, 19, 0.72);
   transition: border-color 0.3s var(--ease-out);
 }
 
-.copy-cmd.is-done .copy-cmd__row { border-color: var(--c-green); }
+.copy-cmd.is-done .copy-cmd__row { border-color: var(--c-accent); }
 
-.copy-cmd__prompt { color: var(--c-green); font-family: var(--font-mono); font-weight: 700; }
+.copy-cmd__prompt { color: var(--c-accent); font-family: var(--font-mono); font-weight: 700; }
 
 .copy-cmd__code {
   flex: 1;
@@ -156,9 +156,9 @@ onUnmounted(() => {
   background: var(--c-cream);
   transition: background 0.3s var(--ease-out), transform 0.3s var(--ease-out);
 }
-.copy-cmd__btn:hover { background: var(--c-lime); }
+.copy-cmd__btn:hover { background: var(--c-peach); }
 .copy-cmd__btn:active { transform: scale(0.92); }
-.copy-cmd.is-done .copy-cmd__btn { background: var(--c-green); }
+.copy-cmd.is-done .copy-cmd__btn { background: var(--c-accent); }
 
 .copy-cmd__toast {
   position: absolute;
@@ -167,7 +167,7 @@ onUnmounted(() => {
   padding: 6px 12px;
   border-radius: var(--radius-pill);
   color: var(--c-bg);
-  background: var(--c-green);
+  background: var(--c-accent);
   font-size: var(--fs-micro);
   font-weight: 700;
   opacity: 0;

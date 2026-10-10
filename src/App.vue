@@ -3,7 +3,9 @@
   <Teleport to="body">
     <a class="skip-link" href="#main">{{ translations[lang].navbar.skip }}</a>
     <IntroScreen v-if="showIntro" @done="onIntroDone" />
+    <AmbientBackground />
     <Navbar :intro-complete="introDone" />
+    <SideRails />
     <ScrollProgress />
     <CustomCursor />
   </Teleport>
@@ -22,6 +24,8 @@ import Navbar from './components/Navbar.vue';
 import IntroScreen from './components/IntroScreen.vue';
 import ScrollProgress from './components/ScrollProgress.vue';
 import CustomCursor from './components/CustomCursor.vue';
+import AmbientBackground from './components/AmbientBackground.vue';
+import SideRails from './components/SideRails.vue';
 import Footer from './components/Footer.vue';
 import { translations as dictionary } from './translations.js';
 import { ScrollTrigger, getSmoother, prefersReducedMotion, scrollToTarget, setScrollLocked } from './lib/gsap';

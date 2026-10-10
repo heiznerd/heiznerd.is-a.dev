@@ -57,8 +57,8 @@ const finish = () => {
 const exit = () => {
   // Wipe the curtain up and hand control to the hero.
   return gsap.timeline({ onComplete: finish })
-    .to('.intro__stage, .intro__foot, .intro__bar', { yPercent: -30, autoAlpha: 0, duration: 0.5, ease: 'power3.in' })
-    .to(root.value, { clipPath: 'inset(0% 0% 100% 0%)', duration: 0.75, ease: 'hz.inOut' }, '-=0.2');
+    .to('.intro__stage, .intro__foot, .intro__bar', { yPercent: -30, autoAlpha: 0, duration: 0.3, ease: 'power3.in' })
+    .to(root.value, { clipPath: 'inset(0% 0% 100% 0%)', duration: 0.55, ease: 'hz.inOut' }, '-=0.15');
 };
 
 function skip() {
@@ -76,7 +76,7 @@ onMounted(async () => {
     const counter = { v: 0 };
 
     tl = gsap.timeline({ onComplete: () => ctx.add(exit) });
-    tl.from(split.chars, { yPercent: 110, duration: 0.9, stagger: 0.045, ease: 'expo.out' })
+    tl.from(split.chars, { yPercent: 110, duration: 0.7, stagger: 0.035, ease: 'expo.out' })
       .from('.intro__shape', {
         scale: 0,
         rotate: () => gsap.utils.random(-180, 180),
@@ -86,12 +86,12 @@ onMounted(async () => {
       }, 0.15)
       .to(counter, {
         v: 100,
-        duration: 1.25,
+        duration: 0.9,
         ease: 'power2.inOut',
         onUpdate: () => { if (countEl.value) countEl.value.textContent = String(Math.round(counter.v)).padStart(3, '0'); },
       }, 0)
-      .fromTo(barEl.value, { scaleX: 0 }, { scaleX: 1, duration: 1.25, ease: 'power2.inOut' }, 0)
-      .to('.intro__shape', { y: -18, duration: 0.35, stagger: 0.05, ease: 'power2.out', yoyo: true, repeat: 1 }, 0.85);
+      .fromTo(barEl.value, { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: 'power2.inOut' }, 0)
+      .to('.intro__shape', { y: -18, duration: 0.28, stagger: 0.04, ease: 'power2.out', yoyo: true, repeat: 1 }, 0.85);
   }, root.value);
 });
 
@@ -154,7 +154,7 @@ onUnmounted(() => {
 .intro__bar span {
   display: block;
   height: 100%;
-  background: var(--g-green);
+  background: var(--g-accent);
   transform: scaleX(0);
   transform-origin: left;
 }

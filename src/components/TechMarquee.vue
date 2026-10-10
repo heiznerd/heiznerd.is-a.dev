@@ -85,12 +85,18 @@ useGsap(root, ({ root: el, mm }) => {
 
     // Scroll velocity speeds the lanes up and flips direction with the scroll.
     let base = 1;
+    let skewTimer;
+    const skewTo = gsap.quickTo('.tm__lane', 'skewX', { duration: 0.45, ease: 'power3' });
     ScrollTrigger.create({
       trigger: el,
       start: 'top bottom',
       end: 'bottom top',
       onUpdate: self => {
         const velocity = self.getVelocity();
+        // Lanes lean into the scroll direction and snap back when you stop.
+        skewTo(gsap.utils.clamp(-14, 14, velocity / -140));
+        window.clearTimeout(skewTimer);
+        skewTimer = window.setTimeout(() => skewTo(0), 120);
         const sign = self.direction === 1 ? 1 : -1;
         if (sign !== Math.sign(base)) base = sign;
         const boost = gsap.utils.clamp(1, 7, 1 + Math.abs(velocity) / 260);
@@ -106,7 +112,7 @@ useGsap(root, ({ root: el, mm }) => {
       autoAlpha: 0,
       duration: 1.4,
       stagger: 0.15,
-      scrollTrigger: { trigger: el, start: 'top 85%', once: true },
+      scrollTrigger: { trigger: el, start: 'top 95%', once: true },
     });
 
     if (!fine) return undefined;

@@ -115,9 +115,9 @@ useGsap(root, ({ root: el, mm }) => {
 
     /* ---- Intro (paused until the curtain lifts) ---- */
     introTl = gsap.timeline({ paused: true, defaults: { ease: 'expo.out' } })
-      .from(chars, { yPercent: 115, rotate: 8, duration: 1.25, stagger: 0.055 })
-      .from('.hero__tittle', { y: () => -window.innerHeight * 0.6, duration: 1.1, ease: 'bounce.out' }, 0.45)
-      .from('.hero__period', { scale: 0, rotate: -180, duration: 1.1, ease: 'elastic.out(1, 0.45)' }, 0.75)
+      .from(chars, { yPercent: 115, rotate: 8, duration: 0.95, stagger: 0.045 })
+      .from('.hero__tittle', { y: () => -window.innerHeight * 0.6, duration: 0.9, ease: 'bounce.out' }, 0.3)
+      .from('.hero__period', { scale: 0, rotate: -180, duration: 0.9, ease: 'elastic.out(1, 0.45)' }, 0.5)
       .from(shapeSvgs, { scale: 0, rotate: () => gsap.utils.random(-140, 140), duration: 1.1, stagger: 0.08, ease: 'back.out(1.8)' }, 0.35)
       .from([squiggle, squiggleShine], { drawSVG: '0%', duration: 1.3, ease: 'power3.inOut' }, 0.6)
       .from('[data-hero-fade]', { y: 40, autoAlpha: 0, duration: 1, stagger: 0.12 }, 0.55);
@@ -152,7 +152,7 @@ useGsap(root, ({ root: el, mm }) => {
 
     /* ---- Scroll: lines drift apart, shapes parallax ---- */
     const scrollTl = gsap.timeline({
-      scrollTrigger: { trigger: el, start: 'top top', end: 'bottom top', scrub: 0.6 },
+      scrollTrigger: { trigger: el, start: 'top top', end: 'bottom top', scrub: 0.25 },
       defaults: { ease: 'none' },
     });
     scrollTl
@@ -211,16 +211,16 @@ useGsap(root, ({ root: el, mm }) => {
   font-size: 0.85rem;
 }
 .hero__greeting { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5em; }
-.hero__prompt { color: var(--c-green); font-weight: 700; }
+.hero__prompt { color: var(--c-accent); font-weight: 700; }
 .hero__role { color: var(--c-cream); }
-.hero__caret { margin-left: -0.35em; color: var(--c-green); animation: caret 1s steps(1) infinite; }
+.hero__caret { margin-left: -0.35em; color: var(--c-accent); animation: caret 1s steps(1) infinite; }
 .hero__status { display: inline-flex; align-items: center; gap: 10px; color: var(--c-cream); }
 .hero__status-dot {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: var(--c-green);
-  box-shadow: 0 0 0 0 rgba(10, 228, 72, 0.5);
+  background: var(--c-mint);
+  box-shadow: 0 0 0 0 rgba(123, 227, 184, 0.5);
   animation: ping 2.2s var(--ease-out) infinite;
 }
 
@@ -311,10 +311,10 @@ useGsap(root, ({ root: el, mm }) => {
 }
 .hero__scroll:hover { color: var(--c-cream); }
 .hero__scroll-track { position: relative; width: 2px; height: 34px; overflow: hidden; border-radius: 2px; background: var(--c-line); }
-.hero__scroll-thumb { position: absolute; inset: 0; background: var(--c-green); animation: scrollThumb 2s var(--ease-in-out) infinite; }
+.hero__scroll-thumb { position: absolute; inset: 0; background: var(--c-accent); animation: scrollThumb 2s var(--ease-in-out) infinite; }
 
 @keyframes caret { 50% { opacity: 0; } }
-@keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(10, 228, 72, 0.5); } 80%, 100% { box-shadow: 0 0 0 12px rgba(10, 228, 72, 0); } }
+@keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(123, 227, 184, 0.5); } 80%, 100% { box-shadow: 0 0 0 12px rgba(123, 227, 184, 0); } }
 @keyframes scrollThumb { 0% { transform: translateY(-100%); } 60%, 100% { transform: translateY(100%); } }
 
 @media (max-width: 899px) {

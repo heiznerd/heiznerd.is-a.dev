@@ -32,7 +32,7 @@ useGsap(root, () => {
   display: block;
   width: 100%;
   height: 100%;
-  background: var(--g-green);
+  background: var(--g-accent);
   transform: scaleX(0);
   transform-origin: left;
   transition: background 0.3s var(--ease-out);

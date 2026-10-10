@@ -68,7 +68,7 @@
 
 <script setup>
 import { computed, inject, ref } from 'vue';
-import { gsap, getSmoother, prefersReducedMotion } from '@/lib/gsap';
+import { gsap, getSmoother, prefersReducedMotion, revealTitle } from '@/lib/gsap';
 import { useGsap, MEDIA } from '@/composables/useGsap';
 import Shape from './ui/Shape.vue';
 
@@ -77,14 +77,14 @@ const translations = inject('translations');
 const t = computed(() => translations[lang.value].timeline);
 
 const palette = [
-  { bg: '#fec5fb', shape: 'flower' },
-  { bg: '#ff8709', shape: 'star' },
-  { bg: '#9d95ff', shape: 'ring' },
-  { bg: '#00bae2', shape: 'arch' },
-  { bg: '#abff84', shape: 'diamond' },
-  { bg: '#fffce1', shape: 'hourglass' },
-  { bg: '#bef3fe', shape: 'drop' },
-  { bg: '#0ae448', shape: 'spark' },
+  { bg: '#ffc2e2', shape: 'flower' },
+  { bg: '#ff9a5c', shape: 'star' },
+  { bg: '#a78bff', shape: 'ring' },
+  { bg: '#6ad0ff', shape: 'arch' },
+  { bg: '#ffb27a', shape: 'diamond' },
+  { bg: '#fff1ea', shape: 'hourglass' },
+  { bg: '#cdeeff', shape: 'drop' },
+  { bg: '#ff5c93', shape: 'spark' },
 ];
 
 const root = ref(null);
@@ -133,6 +133,7 @@ const onNativeScroll = () => {
 useGsap(root, ({ root: el, mm }) => {
   mm.add(MEDIA, context => {
     const { motion, desktop } = context.conditions;
+    if (motion) revealTitle(el.querySelector('.tl__title'), el);
 
     if (motion && desktop) {
       const track = el.querySelector('.tl__track');
@@ -152,7 +153,7 @@ useGsap(root, ({ root: el, mm }) => {
           pin: '.tl__pin',
           start: 'top top',
           end: () => `+=${distance()}`,
-          scrub: 0.8,
+          scrub: 0.25,
           invalidateOnRefresh: true,
           onUpdate: self => {
             activeIndex.value = Math.round(self.progress * (itemCount() - 1));
@@ -169,7 +170,7 @@ useGsap(root, ({ root: el, mm }) => {
           rotate: i % 2 ? -7 : 7,
           scale: 0.86,
           ease: 'none',
-          scrollTrigger: { trigger: item, containerAnimation: tl, start: 'left 105%', end: 'left 62%', scrub: 0.6 },
+          scrollTrigger: { trigger: item, containerAnimation: tl, start: 'left 105%', end: 'left 62%', scrub: 0.25 },
         });
         gsap.fromTo(item.querySelector('.tl__card-shape'), { rotate: -90 }, {
           rotate: 120,
@@ -183,7 +184,7 @@ useGsap(root, ({ root: el, mm }) => {
         autoAlpha: 0,
         stagger: 0.1,
         duration: 1.1,
-        scrollTrigger: { trigger: el, start: 'top 75%', once: true },
+        scrollTrigger: { trigger: el, start: 'top 92%', once: true },
       });
 
       return () => {
@@ -194,8 +195,8 @@ useGsap(root, ({ root: el, mm }) => {
     }
 
     if (motion) {
-      gsap.from('.tl__head-copy > *', { y: 50, autoAlpha: 0, stagger: 0.1, scrollTrigger: { trigger: el, start: 'top 80%', once: true } });
-      gsap.from('.tl__card', { y: 80, rotate: 4, autoAlpha: 0, stagger: 0.1, duration: 1, scrollTrigger: { trigger: '.tl__viewport', start: 'top 85%', once: true } });
+      gsap.from('.tl__head-copy > *', { y: 50, autoAlpha: 0, stagger: 0.1, scrollTrigger: { trigger: el, start: 'top 94%', once: true } });
+      gsap.from('.tl__card', { y: 80, rotate: 4, autoAlpha: 0, stagger: 0.1, duration: 1, scrollTrigger: { trigger: '.tl__viewport', start: 'top 95%', once: true } });
     }
     return undefined;
   });
@@ -209,7 +210,7 @@ useGsap(root, ({ root: el, mm }) => {
 .tl.is-pinned .tl__pin { height: 100svh; padding-top: calc(var(--header-h) + 8px); overflow: hidden; }
 
 .tl__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
-.tl__eyebrow { color: var(--c-green); }
+.tl__eyebrow { color: var(--c-accent); }
 .tl__title { margin-top: 14px; }
 .tl__subtitle { max-width: 46ch; margin-top: 14px; }
 .tl__controls { display: flex; align-items: center; gap: 10px; }
@@ -237,7 +238,7 @@ useGsap(root, ({ root: el, mm }) => {
 .tl__item { width: clamp(280px, 25vw, 390px); flex: 0 0 auto; scroll-snap-align: start; }
 .tl__meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 34px; margin-bottom: 12px; font-family: var(--font-mono); font-size: 0.85rem; }
 .tl__meta time { color: var(--c-cream); }
-.tl__now { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: var(--radius-pill); color: var(--c-bg); background: var(--c-green); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; }
+.tl__now { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: var(--radius-pill); color: var(--c-bg); background: var(--c-accent); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; }
 .tl__now span { width: 7px; height: 7px; border-radius: 50%; background: var(--c-bg); }
 
 .tl__card {
@@ -275,7 +276,7 @@ useGsap(root, ({ root: el, mm }) => {
 .tl__card :focus-visible { outline-color: var(--c-bg); }
 
 .tl__rail { position: relative; height: 2px; overflow: hidden; border-radius: 2px; background: var(--c-line); }
-.tl__rail-fill { position: absolute; inset: 0; background: var(--g-green); transform: scaleX(0); transform-origin: left; }
+.tl__rail-fill { position: absolute; inset: 0; background: var(--g-accent); transform: scaleX(0); transform-origin: left; }
 
 @media (max-width: 899px) {
   .tl__head { flex-direction: column; align-items: flex-start; }

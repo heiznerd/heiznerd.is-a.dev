@@ -16,15 +16,15 @@
 
 <script setup>
 import { ref } from 'vue';
-import { gsap } from '@/lib/gsap';
+import { gsap, ScrollTrigger } from '@/lib/gsap';
 import { useGsap, MEDIA } from '@/composables/useGsap';
 import Shape from './ui/Shape.vue';
 
 // The site's existing motto ("build with intention · learn in public · ship something kind").
 const phrases = [
-  { words: ['Build', 'with', 'intention'], hl: 2, grad: 'var(--g-green)', shape: 'star', palette: 'orange' },
-  { words: ['Learn', 'in', 'public'], hl: 2, grad: 'linear-gradient(120deg, #fec5fb, #f100cb)', shape: 'flower', palette: 'summer' },
-  { words: ['Ship', 'something', 'kind'], hl: 2, grad: 'linear-gradient(120deg, #ffd9b0, #ff8709)', shape: 'ring', palette: 'violet' },
+  { words: ['Build', 'with', 'intention'], hl: 2, grad: 'var(--g-accent)', shape: 'star', palette: 'orange' },
+  { words: ['Learn', 'in', 'public'], hl: 2, grad: 'linear-gradient(120deg, #ffc2e2, #ff3d8b)', shape: 'flower', palette: 'summer' },
+  { words: ['Ship', 'something', 'kind'], hl: 2, grad: 'linear-gradient(120deg, #ffd6bd, #ff9a5c)', shape: 'ring', palette: 'violet' },
 ];
 
 const root = ref(null);
@@ -41,8 +41,22 @@ useGsap(root, ({ root: el, mm }) => {
       x: () => -distance(),
       ease: 'none',
       scrollTrigger: desktop
-        ? { trigger: el, pin: '.motto__pin', start: 'top top', end: () => `+=${distance() * 0.9}`, scrub: 0.6, invalidateOnRefresh: true }
-        : { trigger: el, start: 'top bottom', end: 'bottom top', scrub: 0.4, invalidateOnRefresh: true },
+        ? { trigger: el, pin: '.motto__pin', start: 'top top', end: () => `+=${distance() * 0.9}`, scrub: 0.25, invalidateOnRefresh: true }
+        : { trigger: el, start: 'top bottom', end: 'bottom top', scrub: 0.2, invalidateOnRefresh: true },
+    });
+
+    // The whole phrase leans with scroll speed.
+    const skewTo = gsap.quickTo(track, 'skewX', { duration: 0.45, ease: 'power3' });
+    let skewTimer;
+    ScrollTrigger.create({
+      trigger: el,
+      start: 'top bottom',
+      end: 'bottom top',
+      onUpdate: self => {
+        skewTo(gsap.utils.clamp(-12, 12, self.getVelocity() / -170));
+        window.clearTimeout(skewTimer);
+        skewTimer = window.setTimeout(() => skewTo(0), 120);
+      },
     });
 
     // Letters bounce into place as each word crosses the screen.

@@ -5,34 +5,37 @@
 
 :root {
   /* Canvas + type */
-  --c-bg: #0e100f;
-  --c-bg-2: #191919;
-  --c-bg-3: #222421;
-  --c-cream: #fffce1;
-  --c-cream-75: #bbbaa6;
-  --c-cream-50: #7c7c6f;
-  --c-cream-25: #42433d;
-  --c-line: rgba(255, 252, 225, 0.16);
-  --c-line-soft: rgba(255, 252, 225, 0.08);
+  --c-bg: #0f0b13;
+  --c-bg-2: #1a1420;
+  --c-bg-3: #251c2d;
+  --c-cream: #fff1ea;
+  --c-cream-75: #c9b8bf;
+  --c-cream-50: #86747f;
+  --c-cream-25: #483b47;
+  --c-line: rgba(255, 241, 234, 0.16);
+  --c-line-soft: rgba(255, 241, 234, 0.08);
 
-  /* Accents */
-  --c-green: #0ae448;
-  --c-lime: #abff84;
-  --c-pink: #fec5fb;
-  --c-magenta: #f100cb;
-  --c-orange: #ff8709;
-  --c-lilac: #9d95ff;
-  --c-blue: #00bae2;
-  --c-sky: #bef3fe;
+  /* Accents: pink, violet, soft orange and rose lead; a little mint + sky for balance */
+  --c-accent: #ff5c93;
+  --c-rose: #e0306f;
+  --c-peach: #ffb27a;
+  --c-pink: #ffc2e2;
+  --c-magenta: #ff3d8b;
+  --c-orange: #ff9a5c;
+  --c-lilac: #a78bff;
+  --c-violet: #8a5cff;
+  --c-blue: #6ad0ff;
+  --c-sky: #cdeeff;
+  --c-mint: #7be3b8;
 
   /* Gradients */
-  --g-green: linear-gradient(114deg, #0ae448 20%, #abff84 66%);
-  --g-orange: linear-gradient(111deg, #ff8709 19%, #f7bdf8 73%);
-  --g-pink: linear-gradient(166deg, #f7bdf8 21%, #cd237f 82%);
-  --g-lilac: linear-gradient(154deg, #f7bdf8 32%, #2f3cc0 93%);
-  --g-blue: linear-gradient(132deg, #0a157a 31%, #15bfe4 82%);
-  --g-emerald: linear-gradient(167deg, #0ae448 53%, #0085d0 108%);
-  --g-summer: linear-gradient(144deg, #00bae2 5%, #fec5fb 73%);
+  --g-accent: linear-gradient(114deg, #ff5c93 8%, #b48cff 54%, #ffb27a 100%);
+  --g-orange: linear-gradient(111deg, #ff9a5c 19%, #e9b8ff 73%);
+  --g-pink: linear-gradient(166deg, #e9b8ff 21%, #e0306f 82%);
+  --g-lilac: linear-gradient(154deg, #e9b8ff 32%, #6a4bd8 93%);
+  --g-blue: linear-gradient(132deg, #2b1a6e 31%, #6ad0ff 82%);
+  --g-emerald: linear-gradient(167deg, #ff5c93 53%, #8a8cff 108%);
+  --g-summer: linear-gradient(144deg, #6ad0ff 5%, #ffc2e2 73%);
 
   /* Type */
   --font-sans: 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -83,7 +86,8 @@ body {
   font-size: var(--fs-body);
   line-height: 1.55;
   color: var(--c-cream);
-  background: var(--c-bg);
+  /* html carries the canvas colour so the fixed aurora layer can sit between the two */
+  background: transparent;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
@@ -107,10 +111,10 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 ul, ol { list-style: none; }
 code, kbd { font-family: var(--font-mono); }
 
-::selection { background: var(--c-green); color: var(--c-bg); }
+::selection { background: var(--c-accent); color: var(--c-bg); }
 
 :focus-visible {
-  outline: 2px solid var(--c-green);
+  outline: 2px solid var(--c-accent);
   outline-offset: 3px;
   border-radius: 6px;
 }
@@ -176,14 +180,14 @@ code, kbd { font-family: var(--font-mono); }
 
 .muted { color: var(--c-cream-75); }
 
-.text-green { color: var(--c-green); }
+.text-green { color: var(--c-accent); }
 .text-pink { color: var(--c-pink); }
 .text-orange { color: var(--c-orange); }
 .text-lilac { color: var(--c-lilac); }
 .text-blue { color: var(--c-blue); }
 
 .grad-text {
-  background: var(--grad, var(--g-green));
+  background: var(--grad, var(--g-accent));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -250,8 +254,8 @@ code, kbd { font-family: var(--font-mono); }
   border-color: transparent;
   background:
     linear-gradient(var(--c-bg), var(--c-bg)) padding-box,
-    var(--g-green) border-box;
-  --pill-fill: var(--g-green);
+    var(--g-accent) border-box;
+  --pill-fill: var(--g-accent);
 }
 
 .pill__icon {

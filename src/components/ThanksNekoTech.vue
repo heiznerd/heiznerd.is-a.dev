@@ -36,7 +36,7 @@ useGsap(root, ({ mm }) => {
   mm.add(MEDIA, context => {
     if (!context.conditions.motion) return;
     // Banner unmasks from a pill into the full frame, image drifts inside it.
-    gsap.timeline({ scrollTrigger: { trigger: '.thanks__figure', start: 'top 90%', end: 'top 25%', scrub: 1 } })
+    gsap.timeline({ scrollTrigger: { trigger: '.thanks__figure', start: 'top 97%', end: 'top 25%', scrub: 1 } })
       .fromTo('.thanks__frame', { clipPath: 'inset(18% 26% 18% 26% round 999px)' }, { clipPath: 'inset(0% 0% 0% 0% round 36px)', ease: 'none' }, 0)
       .fromTo('.thanks__img', { scale: 1.35 }, { scale: 1.05, ease: 'none' }, 0);
     gsap.fromTo('.thanks__img', { yPercent: -4 }, {
@@ -87,7 +87,7 @@ useGsap(root, ({ mm }) => {
   border-radius: 0.25em;
   font-style: normal;
   font-weight: 700;
-  background: var(--c-lime);
+  background: var(--c-peach);
 }
 .thanks__msg em { background: var(--c-pink); }
 

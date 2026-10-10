@@ -9,7 +9,7 @@ import { gsap, ScrollTrigger, engageGate, releaseGate, FINE_POINTER_QUERY } from
  * Options: target = selector of the element to land on (default: the section's first h2),
  *          velocity = px/s that counts as "fast", hold = seconds, trigger = ScrollTrigger start.
  */
-export function useGate(rootRef, { target = 'h2', velocity = 1500, hold = 0.95, trigger = 'top 70%' } = {}) {
+export function useGate(rootRef, { target = 'h2', velocity = 1500, hold = 0.7, trigger = 'top 80%' } = {}) {
   let mm;
 
   onMounted(() => {

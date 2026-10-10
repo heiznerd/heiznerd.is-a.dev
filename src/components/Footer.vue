@@ -82,13 +82,13 @@ useGsap(root, ({ root: el, mm }) => {
       rotate: i => (i % 2 ? 8 : -8),
       stagger: 0.06,
       ease: 'none',
-      scrollTrigger: { trigger: '.footer__mark', start: 'top bottom', end: 'bottom bottom', scrub: 0.6 },
+      scrollTrigger: { trigger: '.footer__mark', start: 'top bottom', end: 'bottom bottom', scrub: 0.25 },
     });
     gsap.from('.footer__mark-dot', {
       scale: 0,
       rotate: -180,
       ease: 'none',
-      scrollTrigger: { trigger: '.footer__mark', start: 'center bottom', end: 'bottom bottom', scrub: 0.6 },
+      scrollTrigger: { trigger: '.footer__mark', start: 'center bottom', end: 'bottom bottom', scrub: 0.25 },
     });
     gsap.from('.footer__top > *', {
       y: 50,
@@ -107,7 +107,7 @@ useGsap(root, ({ root: el, mm }) => {
 .footer__top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 32px; }
 .footer__quote { display: grid; gap: 14px; max-width: 720px; }
 .footer__quote :deep(.brace__body) { max-width: 40ch; }
-.footer__quote cite { color: var(--c-green); font-style: normal; }
+.footer__quote cite { color: var(--c-accent); font-style: normal; }
 .footer__side { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
 .footer__socials { display: flex; gap: 8px; }
 
@@ -140,5 +140,5 @@ useGsap(root, ({ root: el, mm }) => {
 }
 .footer__built { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .footer__built .fa-vuejs { color: #42b883; }
-.footer__gsap { color: var(--c-green); font-weight: 700; }
+.footer__gsap { color: var(--c-accent); font-weight: 700; }
 </style>

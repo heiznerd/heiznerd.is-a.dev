@@ -1,5 +1,6 @@
 <template>
   <section id="about" ref="root" class="about section" aria-labelledby="about-title">
+    <MarginShapes preset="about" />
     <div class="container">
       <header class="about__head" data-reveal>
         <span class="mono about__eyebrow">01 — {{ t.label }}</span>
@@ -15,7 +16,7 @@
         </p>
         <div class="about__deco" aria-hidden="true">
           <span class="about__deco-star"><Shape name="spark" palette="orange" :angle="150" /></span>
-          <svg class="about__deco-loop" viewBox="0 0 100 100" fill="none"><path class="about__loop-path" :d="loopPath" stroke="#9d95ff" stroke-width="2.2" stroke-linecap="round" /></svg>
+          <svg class="about__deco-loop" viewBox="0 0 100 100" fill="none"><path class="about__loop-path" :d="loopPath" stroke="#a78bff" stroke-width="2.2" stroke-linecap="round" /></svg>
           <span class="about__deco-dot about__deco-dot--1"></span>
           <span class="about__deco-dot about__deco-dot--2"></span>
           <span class="about__deco-diamond"><Shape name="diamond" palette="violet" /></span>
@@ -30,9 +31,9 @@
             </div>
             <svg class="profile__badge" viewBox="0 0 120 120" aria-hidden="true">
               <defs><path id="about-badge-circle" d="M60 60m-46 0a46 46 0 1 1 92 0a46 46 0 1 1-92 0" /></defs>
-              <circle cx="60" cy="60" r="58" fill="#0e100f" />
+              <circle cx="60" cy="60" r="58" fill="#0f0b13" />
               <text><textPath href="#about-badge-circle">MADE WITH CURIOSITY · FROM VIETNAM ·</textPath></text>
-              <path d="M60 46l3.6 9.4 9.4 3.6-9.4 3.6L60 72l-3.6-9.4L47 59l9.4-3.6Z" fill="#0ae448" />
+              <path d="M60 46l3.6 9.4 9.4 3.6-9.4 3.6L60 72l-3.6-9.4L47 59l9.4-3.6Z" fill="#ff5c93" />
             </svg>
             <span class="profile__blob" aria-hidden="true"><Shape name="blob" palette="green" /></span>
           </div>
@@ -83,6 +84,7 @@ import { computed, inject, onMounted, onUnmounted, ref } from 'vue';
 import { gsap } from '@/lib/gsap';
 import { useGsap, MEDIA } from '@/composables/useGsap';
 import { useGate } from '@/composables/useGate';
+import MarginShapes from './ui/MarginShapes.vue';
 import Shape from './ui/Shape.vue';
 import BraceLabel from './ui/BraceLabel.vue';
 
@@ -105,10 +107,10 @@ const statementWords = computed(() => {
 });
 
 const interests = [
-  { key: 'coding', icon: 'fas fa-code', tone: '#0ae448' },
-  { key: 'anime', icon: 'fas fa-film', tone: '#fec5fb', href: '#romcom' },
-  { key: 'romcom', icon: 'fas fa-heart', tone: '#ff8709', href: '#romcom' },
-  { key: 'gaming', icon: 'fas fa-gamepad', tone: '#9d95ff' },
+  { key: 'coding', icon: 'fas fa-code', tone: '#ff5c93' },
+  { key: 'anime', icon: 'fas fa-film', tone: '#ffc2e2', href: '#romcom' },
+  { key: 'romcom', icon: 'fas fa-heart', tone: '#ff9a5c', href: '#romcom' },
+  { key: 'gaming', icon: 'fas fa-gamepad', tone: '#a78bff' },
 ];
 
 const splitStat = value => {
@@ -117,9 +119,9 @@ const splitStat = value => {
 };
 
 const stats = computed(() => [
-  { ...splitStat(heroT.value.stats.projectsVal), label: heroT.value.projects, bg: '#fec5fb', shape: 'flower' },
-  { ...splitStat(heroT.value.stats.ageVal), label: heroT.value.age, bg: '#ff8709', shape: 'star' },
-  { ...splitStat(heroT.value.stats.techVal), label: heroT.value.technologies, bg: '#9d95ff', shape: 'ring' },
+  { ...splitStat(heroT.value.stats.projectsVal), label: heroT.value.projects, bg: '#ffc2e2', shape: 'flower' },
+  { ...splitStat(heroT.value.stats.ageVal), label: heroT.value.age, bg: '#ff9a5c', shape: 'star' },
+  { ...splitStat(heroT.value.stats.techVal), label: heroT.value.technologies, bg: '#a78bff', shape: 'ring' },
 ]);
 
 let githubController;
@@ -146,7 +148,7 @@ useGsap(root, ({ root: el, mm }) => {
         y: 60,
         autoAlpha: 0,
         duration: 1.1,
-        scrollTrigger: { trigger: node, start: 'top 88%', once: true },
+        scrollTrigger: { trigger: node, start: 'top 96%', once: true },
       });
     });
 
@@ -156,18 +158,18 @@ useGsap(root, ({ root: el, mm }) => {
       opacity: 1,
       ease: 'none',
       stagger: 0.12,
-      scrollTrigger: { trigger: '.about__statement', start: 'top 82%', end: 'bottom 48%', scrub: 0.8 },
+      scrollTrigger: { trigger: '.about__statement', start: 'top 82%', end: 'bottom 48%', scrub: 0.3 },
     });
     gsap.from('.about__word.is-hl', {
       y: 16,
       rotate: 2,
       stagger: 0.2,
       ease: 'back.out(3)',
-      scrollTrigger: { trigger: '.about__statement', start: 'top 70%', end: 'bottom 50%', scrub: 1 },
+      scrollTrigger: { trigger: '.about__statement', start: 'top 90%', end: 'bottom 50%', scrub: 1 },
     });
 
     // Decorations: loop draws itself, star spins with scroll
-    const deco = gsap.timeline({ scrollTrigger: { trigger: '.about__statement-wrap', start: 'top 85%', end: 'bottom 30%', scrub: 1 } });
+    const deco = gsap.timeline({ scrollTrigger: { trigger: '.about__statement-wrap', start: 'top 95%', end: 'bottom 30%', scrub: 1 } });
     deco.from('.about__loop-path', { drawSVG: '0%', ease: 'none' }, 0)
       .from('.about__deco-star', { scale: 0.2, rotate: -200, ease: 'none' }, 0)
       .from('.about__deco-diamond', { y: 120, rotate: 90, ease: 'none' }, 0)
@@ -189,7 +191,7 @@ useGsap(root, ({ root: el, mm }) => {
       stagger: 0.07,
       duration: 0.7,
       ease: 'back.out(2.2)',
-      scrollTrigger: { trigger: '.about__interest-list', start: 'top 90%', once: true },
+      scrollTrigger: { trigger: '.about__interest-list', start: 'top 97%', once: true },
     });
 
     // Stat cards: rise with a tilt, numbers count up
@@ -200,7 +202,7 @@ useGsap(root, ({ root: el, mm }) => {
       stagger: 0.12,
       duration: 1.2,
       ease: 'expo.out',
-      scrollTrigger: { trigger: '.stats', start: 'top 88%', once: true },
+      scrollTrigger: { trigger: '.stats', start: 'top 96%', once: true },
     });
     gsap.utils.toArray('.stat__num', el).forEach(num => {
       const target = Number(num.dataset.value);
@@ -211,7 +213,7 @@ useGsap(root, ({ root: el, mm }) => {
         duration: 1.6,
         ease: 'power3.out',
         onUpdate: () => { num.textContent = Math.round(counter.v); },
-        scrollTrigger: { trigger: num, start: 'top 92%', once: true },
+        scrollTrigger: { trigger: num, start: 'top 99%', once: true },
       });
     });
     gsap.to('.stat__shape', { rotate: 360, duration: 18, ease: 'none', repeat: -1 });
@@ -221,7 +223,7 @@ useGsap(root, ({ root: el, mm }) => {
 
 <style scoped>
 .about__head { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 22px; }
-.about__eyebrow { color: var(--c-green); }
+.about__eyebrow { color: var(--c-accent); }
 .about__sub { color: var(--c-cream-75); font-size: 1.05rem; }
 
 /* Statement */
@@ -237,10 +239,10 @@ useGsap(root, ({ root: el, mm }) => {
 }
 .about__word { display: inline-block; will-change: opacity; }
 .about__word.is-hl { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.about__word.is-green { --grad: var(--g-green); }
-.about__word.is-blue { --grad: linear-gradient(120deg, #bef3fe, #00bae2); }
-.about__word.is-pink { --grad: linear-gradient(120deg, #fec5fb, #f100cb); }
-.about__word.is-orange { --grad: linear-gradient(120deg, #ffd9b0, #ff8709); }
+.about__word.is-green { --grad: var(--g-accent); }
+.about__word.is-blue { --grad: linear-gradient(120deg, #cdeeff, #6ad0ff); }
+.about__word.is-pink { --grad: linear-gradient(120deg, #ffc2e2, #ff3d8b); }
+.about__word.is-orange { --grad: linear-gradient(120deg, #ffd6bd, #ff9a5c); }
 
 .about__deco { position: absolute; inset: 0; pointer-events: none; }
 .about__deco-star { position: absolute; top: -8%; right: 6%; width: clamp(70px, 9vw, 150px); }
@@ -266,7 +268,7 @@ useGsap(root, ({ root: el, mm }) => {
   aspect-ratio: 0.86;
   overflow: hidden;
   border-radius: 999px 999px var(--radius-lg) var(--radius-lg);
-  background: var(--g-green);
+  background: var(--g-accent);
 }
 .profile__img { width: 100%; height: 100%; object-fit: cover; mix-blend-mode: normal; }
 .profile__badge {
@@ -286,7 +288,7 @@ useGsap(root, ({ root: el, mm }) => {
 .profile__name { font-size: var(--fs-h3); letter-spacing: -0.045em; }
 .profile__handle { margin-top: 6px; color: var(--c-cream-75); }
 .profile__chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
-.chip--status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c-green); }
+.chip--status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c-mint); }
 .chip--gh { transition: border-color 0.3s var(--ease-out); }
 .chip--gh:hover { border-color: var(--c-cream); }
 .chip--gh img { width: 22px; height: 22px; border-radius: 50%; }

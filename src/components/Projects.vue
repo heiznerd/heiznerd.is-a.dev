@@ -1,5 +1,6 @@
 <template>
   <section id="projects" ref="root" class="projects section" aria-labelledby="projects-title">
+    <MarginShapes preset="projects" />
     <div class="container">
       <header class="projects__head">
         <div>
@@ -116,9 +117,10 @@
 
 <script setup>
 import { computed, inject, ref } from 'vue';
-import { gsap, ScrollTrigger } from '@/lib/gsap';
+import { gsap, ScrollTrigger, revealTitle } from '@/lib/gsap';
 import { useGsap, MEDIA } from '@/composables/useGsap';
 import { useGate } from '@/composables/useGate';
+import MarginShapes from './ui/MarginShapes.vue';
 import Shape from './ui/Shape.vue';
 import BraceLabel from './ui/BraceLabel.vue';
 import CopyCommand from './ui/CopyCommand.vue';
@@ -131,23 +133,23 @@ const t = computed(() => translations[lang.value].projects);
 const projects = [
   {
     key: 'danshi',
-    color: '#fec5fb',
-    deep: '#f7a8f2',
+    color: '#ffc2e2',
+    deep: '#ffa9d3',
     art: 'danshi',
     command: 'npm install -g danshi',
     links: [{ type: 'source', href: 'https://github.com/nekoo-moe/danshi', primary: true }],
   },
   {
     key: 'nekoai',
-    color: '#9d95ff',
-    deep: '#8a80ff',
+    color: '#a78bff',
+    deep: '#9a74ff',
     art: 'nekoai',
     links: [{ type: 'app', href: 'https://app.nekoai.is-a.dev/', primary: true }],
   },
   {
     key: 'nekocomicsV2',
-    color: '#ff8709',
-    deep: '#ff7a00',
+    color: '#ff9a5c',
+    deep: '#ff8a45',
     art: 'comics',
     links: [{ type: 'source', href: 'https://github.com/nekoo-moe/NekoComics', primary: true }],
     lineage: {
@@ -158,8 +160,8 @@ const projects = [
   },
   {
     key: 'nekostream',
-    color: '#00bae2',
-    deep: '#00a6ca',
+    color: '#6ad0ff',
+    deep: '#58bff0',
     art: 'terminal',
     roles: [],
     command: 'npm install -g nekostream',
@@ -178,12 +180,13 @@ useGsap(root, ({ root: el, mm }) => {
     const { motion, desktop } = context.conditions;
     if (!motion) return;
 
+    revealTitle(el.querySelector('.projects__title'));
     gsap.from('.projects__head > *', {
       y: 70,
       autoAlpha: 0,
       stagger: 0.12,
       duration: 1.2,
-      scrollTrigger: { trigger: '.projects__head', start: 'top 85%', once: true },
+      scrollTrigger: { trigger: '.projects__head', start: 'top 95%', once: true },
     });
 
     const cards = gsap.utils.toArray('.proj', el);
@@ -195,14 +198,14 @@ useGsap(root, ({ root: el, mm }) => {
         rotate: i % 2 ? -3 : 3,
         duration: 1.3,
         ease: 'expo.out',
-        scrollTrigger: { trigger: card, start: 'top 92%', once: true },
+        scrollTrigger: { trigger: card, start: 'top 99%', once: true },
       });
       gsap.from(card.querySelectorAll('.proj__name, .proj__roles, .proj__desc, .proj__cmd, .proj__actions, .proj__lineage, .proj__stack'), {
         y: 50,
         autoAlpha: 0,
         stagger: 0.07,
         duration: 1,
-        scrollTrigger: { trigger: card, start: 'top 75%', once: true },
+        scrollTrigger: { trigger: card, start: 'top 92%', once: true },
       });
     });
 
@@ -243,7 +246,7 @@ useGsap(root, ({ root: el, mm }) => {
       autoAlpha: 0,
       stagger: 0.1,
       duration: 1.1,
-      scrollTrigger: { trigger: '.work', start: 'top 88%', once: true },
+      scrollTrigger: { trigger: '.work', start: 'top 96%', once: true },
     });
     gsap.fromTo('.work__shape', { rotate: -45, scale: 0.6 }, {
       rotate: 25,
@@ -257,7 +260,7 @@ useGsap(root, ({ root: el, mm }) => {
 
 <style scoped>
 .projects__head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 24px 48px; }
-.projects__eyebrow { color: var(--c-green); }
+.projects__eyebrow { color: var(--c-accent); }
 .projects__title { margin-top: 14px; }
 .projects__sub { max-width: 34ch; }
 
@@ -280,7 +283,7 @@ useGsap(root, ({ root: el, mm }) => {
   transform-origin: 50% 0%;
   will-change: transform;
 }
-.proj__shade { position: absolute; inset: 0; z-index: 3; border-radius: inherit; background: #0e100f; opacity: 0; pointer-events: none; }
+.proj__shade { position: absolute; inset: 0; z-index: 3; border-radius: inherit; background: #0f0b13; opacity: 0; pointer-events: none; }
 
 .proj__content { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 22px; min-width: 0; padding: clamp(6px, 1vw, 14px); }
 .proj__top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
@@ -312,7 +315,7 @@ useGsap(root, ({ root: el, mm }) => {
 .proj__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
 .proj__meta { font-weight: 700; }
 
-.proj__lineage { display: grid; gap: 8px; padding-top: 16px; border-top: 1.5px solid rgba(14, 16, 15, 0.25); }
+.proj__lineage { display: grid; gap: 8px; padding-top: 16px; border-top: 1.5px solid rgba(15, 11, 19, 0.25); }
 .proj__lineage-label { font-weight: 700; }
 .proj__lineage-link { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 6px; font-size: 1rem; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 4px; }
 .proj__lineage-link i { font-size: 0.75em; }
@@ -330,7 +333,7 @@ useGsap(root, ({ root: el, mm }) => {
   overflow: hidden;
   border-radius: calc(var(--radius-xl) - 12px);
   background:
-    radial-gradient(80% 60% at 70% 20%, rgba(255, 252, 225, 0.06), transparent 70%),
+    radial-gradient(80% 60% at 70% 20%, rgba(255, 241, 234, 0.06), transparent 70%),
     var(--c-bg);
 }
 
@@ -352,7 +355,7 @@ useGsap(root, ({ root: el, mm }) => {
 }
 .work__shape { width: clamp(64px, 8vw, 120px); }
 .work__icon { display: grid; width: 54px; height: 54px; place-items: center; border-radius: 50%; color: var(--c-bg); background: var(--c-cream); font-size: 1.2rem; }
-.work__name { color: var(--c-green); font-size: clamp(2rem, 4.4vw, 4.2rem); font-weight: 500; letter-spacing: -0.05em; }
+.work__name { color: var(--c-accent); font-size: clamp(2rem, 4.4vw, 4.2rem); font-weight: 500; letter-spacing: -0.05em; }
 .work__desc { margin-top: 8px; color: var(--c-cream); font-size: clamp(1.1rem, 1.6vw, 1.45rem); }
 
 @media (max-width: 899px) {

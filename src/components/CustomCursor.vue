@@ -56,7 +56,38 @@ const onLeaveWindow = () => {
   visible = false;
   gsap.to(root.value, { opacity: 0, duration: 0.3 });
 };
-const onDown = () => gsap.to(ring, { scale: scaleFor(state) * 0.8, duration: 0.15, overwrite: 'auto' });
+const SPARK_COLORS = ['#ff5c93', '#a78bff', '#ffb27a', '#e0306f', '#7be3b8', '#6ad0ff'];
+
+// Every click throws a small burst of confetti dots.
+const burst = (x, y) => {
+  const parent = root.value;
+  if (!parent) return;
+  const count = 10;
+  for (let i = 0; i < count; i += 1) {
+    const dot = document.createElement('span');
+    dot.className = 'cursor__spark';
+    dot.style.background = SPARK_COLORS[i % SPARK_COLORS.length];
+    parent.appendChild(dot);
+    const angle = (i / count) * Math.PI * 2 + Math.random() * 0.6;
+    const distance = gsap.utils.random(34, 92);
+    gsap.fromTo(dot,
+      { x, y, scale: gsap.utils.random(0.8, 1.4), autoAlpha: 1 },
+      {
+        x: x + Math.cos(angle) * distance,
+        y: y + Math.sin(angle) * distance,
+        scale: 0,
+        autoAlpha: 0,
+        duration: gsap.utils.random(0.55, 0.9),
+        ease: 'power3.out',
+        onComplete: () => dot.remove(),
+      });
+  }
+};
+
+const onDown = event => {
+  gsap.to(ring, { scale: scaleFor(state) * 0.8, duration: 0.15, overwrite: 'auto' });
+  burst(event.clientX, event.clientY);
+};
 const onUp = () => gsap.to(ring, { scale: scaleFor(state), duration: 0.5, ease: 'back.out(3)', overwrite: 'auto' });
 
 onMounted(async () => {
@@ -69,8 +100,8 @@ onMounted(async () => {
     gsap.set(root.value, { opacity: 0 });
     gsap.set(labelEl, { autoAlpha: 0 });
     gsap.set(['.cursor__follow', '.cursor__dot'], { xPercent: -50, yPercent: -50 });
-    followX = gsap.quickTo('.cursor__follow', 'x', { duration: 0.55, ease: 'power3' });
-    followY = gsap.quickTo('.cursor__follow', 'y', { duration: 0.55, ease: 'power3' });
+    followX = gsap.quickTo('.cursor__follow', 'x', { duration: 0.32, ease: 'power3' });
+    followY = gsap.quickTo('.cursor__follow', 'y', { duration: 0.32, ease: 'power3' });
     dotX = gsap.quickTo('.cursor__dot', 'x', { duration: 0.1, ease: 'power3' });
     dotY = gsap.quickTo('.cursor__dot', 'y', { duration: 0.1, ease: 'power3' });
   }, root.value);
@@ -107,11 +138,11 @@ onUnmounted(() => {
 .cursor__ring {
   position: absolute;
   inset: 0;
-  border: 1.5px solid rgba(255, 252, 225, 0.5);
+  border: 1.5px solid rgba(255, 241, 234, 0.5);
   border-radius: 50%;
   transition: background-color 0.3s var(--ease-out), border-color 0.3s var(--ease-out);
 }
-.cursor__ring.is-link { border-color: var(--c-green); background: rgba(10, 228, 72, 0.08); }
+.cursor__ring.is-link { border-color: var(--c-accent); background: rgba(255, 92, 147, 0.08); }
 .cursor__ring.has-label { border-color: transparent; background: var(--c-cream); }
 
 .cursor__label {
@@ -123,5 +154,6 @@ onUnmounted(() => {
   white-space: nowrap;
 }
 
-.cursor__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--c-green); }
+.cursor__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--c-accent); }
+.cursor :deep(.cursor__spark) { position: fixed; top: 0; left: 0; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; pointer-events: none; }
 </style>

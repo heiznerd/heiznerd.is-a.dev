@@ -29,14 +29,14 @@ const root = ref(null);
 const events = ref([]);
 
 const EVENT_META = {
-  PushEvent: { icon: 'fas fa-code-branch', tone: '#0ae448' },
-  CreateEvent: { icon: 'fas fa-plus', tone: '#abff84' },
-  WatchEvent: { icon: 'fas fa-star', tone: '#ff8709' },
-  ForkEvent: { icon: 'fas fa-code-fork', tone: '#00bae2' },
-  IssuesEvent: { icon: 'fas fa-circle-dot', tone: '#fec5fb' },
-  PullRequestEvent: { icon: 'fas fa-code-pull-request', tone: '#9d95ff' },
-  IssueCommentEvent: { icon: 'fas fa-comment', tone: '#bef3fe' },
-  DeleteEvent: { icon: 'fas fa-trash', tone: '#bbbaa6' },
+  PushEvent: { icon: 'fas fa-code-branch', tone: '#ff5c93' },
+  CreateEvent: { icon: 'fas fa-plus', tone: '#ffb27a' },
+  WatchEvent: { icon: 'fas fa-star', tone: '#ff9a5c' },
+  ForkEvent: { icon: 'fas fa-code-fork', tone: '#6ad0ff' },
+  IssuesEvent: { icon: 'fas fa-circle-dot', tone: '#ffc2e2' },
+  PullRequestEvent: { icon: 'fas fa-code-pull-request', tone: '#a78bff' },
+  IssueCommentEvent: { icon: 'fas fa-comment', tone: '#cdeeff' },
+  DeleteEvent: { icon: 'fas fa-trash', tone: '#c9b8bf' },
 };
 
 const timeAgo = dateStr => {
@@ -84,7 +84,7 @@ onMounted(async () => {
       autoAlpha: 0,
       stagger: 0.08,
       duration: 0.9,
-      scrollTrigger: { trigger: root.value, start: 'top 92%', once: true },
+      scrollTrigger: { trigger: root.value, start: 'top 99%', once: true },
     });
   }, root.value);
 });
@@ -105,7 +105,7 @@ onUnmounted(() => {
 }
 .gha__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 22px; border-bottom: 1px solid var(--c-line); }
 .gha__title { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; }
-.gha__live { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: var(--radius-pill); color: var(--c-bg); background: var(--c-green); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+.gha__live { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: var(--radius-pill); color: var(--c-bg); background: var(--c-mint); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
 .gha__live span { width: 7px; height: 7px; border-radius: 50%; background: var(--c-bg); animation: live 1.4s ease-in-out infinite; }
 .gha__list { display: grid; }
 .gha__item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 14px 22px; border-bottom: 1px solid var(--c-line-soft); }

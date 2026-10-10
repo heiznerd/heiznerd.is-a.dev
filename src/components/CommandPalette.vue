@@ -135,15 +135,15 @@ const goSection = async id => {
 };
 
 const commands = computed(() => [
-  { id: 'home', label: t.value.gotoHome, icon: 'fas fa-house', tone: '#0ae448', action: () => goSection('home') },
-  { id: 'about', label: t.value.gotoAbout, icon: 'fas fa-user-astronaut', tone: '#fec5fb', action: () => goSection('about') },
-  { id: 'romcom', label: t.value.gotoRomcom, icon: 'fas fa-heart', tone: '#fec5fb', action: () => goSection('romcom') },
-  { id: 'skills', label: t.value.gotoSkills, icon: 'fas fa-layer-group', tone: '#ff8709', action: () => goSection('skills') },
-  { id: 'timeline', label: t.value.gotoTimeline, icon: 'fas fa-route', tone: '#9d95ff', action: () => goSection('timeline') },
-  { id: 'projects', label: t.value.gotoProjects, icon: 'fas fa-rocket', tone: '#00bae2', action: () => goSection('projects') },
-  { id: 'contact', label: t.value.gotoContact, icon: 'fas fa-paper-plane', tone: '#abff84', action: () => goSection('contact') },
-  { id: 'pomodoro', label: t.value.pomodoro, icon: 'fas fa-stopwatch', tone: '#ff8709', action: () => { close(); router.push('/pomodoro'); } },
-  { id: 'lang', label: t.value.switchLang, icon: 'fas fa-globe', tone: '#fffce1', shortcut: 'Alt L', action: switchLanguage },
+  { id: 'home', label: t.value.gotoHome, icon: 'fas fa-house', tone: '#ff5c93', action: () => goSection('home') },
+  { id: 'about', label: t.value.gotoAbout, icon: 'fas fa-user-astronaut', tone: '#ffc2e2', action: () => goSection('about') },
+  { id: 'romcom', label: t.value.gotoRomcom, icon: 'fas fa-heart', tone: '#ffc2e2', action: () => goSection('romcom') },
+  { id: 'skills', label: t.value.gotoSkills, icon: 'fas fa-layer-group', tone: '#ff9a5c', action: () => goSection('skills') },
+  { id: 'timeline', label: t.value.gotoTimeline, icon: 'fas fa-route', tone: '#a78bff', action: () => goSection('timeline') },
+  { id: 'projects', label: t.value.gotoProjects, icon: 'fas fa-rocket', tone: '#6ad0ff', action: () => goSection('projects') },
+  { id: 'contact', label: t.value.gotoContact, icon: 'fas fa-paper-plane', tone: '#ffb27a', action: () => goSection('contact') },
+  { id: 'pomodoro', label: t.value.pomodoro, icon: 'fas fa-stopwatch', tone: '#ff9a5c', action: () => { close(); router.push('/pomodoro'); } },
+  { id: 'lang', label: t.value.switchLang, icon: 'fas fa-globe', tone: '#fff1ea', shortcut: 'Alt L', action: switchLanguage },
 ]);
 
 const filtered = computed(() => {
@@ -209,7 +209,7 @@ onUnmounted(() => {
   align-items: flex-start;
   justify-content: center;
   padding: clamp(72px, 14vh, 160px) 16px 24px;
-  background: rgba(14, 16, 15, 0.72);
+  background: rgba(15, 11, 19, 0.72);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
@@ -229,7 +229,7 @@ onUnmounted(() => {
   gap: 14px;
   padding: 18px 20px;
   border-bottom: 1px solid var(--c-line);
-  color: var(--c-green);
+  color: var(--c-accent);
 }
 
 .cmd-input {
@@ -265,7 +265,7 @@ onUnmounted(() => {
   cursor: pointer;
   transition: background 0.2s var(--ease-out), color 0.2s var(--ease-out);
 }
-.cmd-item.is-active { color: var(--c-cream); background: rgba(255, 252, 225, 0.07); }
+.cmd-item.is-active { color: var(--c-cream); background: rgba(255, 241, 234, 0.07); }
 .cmd-item__icon {
   display: grid;
   width: 34px;

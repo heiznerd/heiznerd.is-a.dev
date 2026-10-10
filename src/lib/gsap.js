@@ -14,7 +14,7 @@ gsap.registerPlugin(ScrollTrigger, ScrollSmoother, SplitText, DrawSVGPlugin, Mor
 CustomEase.create('hz.out', '0.16, 1, 0.3, 1');
 CustomEase.create('hz.inOut', '0.76, 0, 0.24, 1');
 
-gsap.defaults({ ease: 'hz.out', duration: 0.9 });
+gsap.defaults({ ease: 'hz.out', duration: 0.7 });
 
 export const REDUCED_QUERY = '(prefers-reduced-motion: reduce)';
 export const DESKTOP_QUERY = '(min-width: 900px)';
@@ -34,7 +34,7 @@ export const initSmoother = () => {
   smoother = ScrollSmoother.create({
     wrapper: '#smooth-wrapper',
     content: '#smooth-content',
-    smooth: 1.1,
+    smooth: 0.6,
     effects: true,
     smoothTouch: false,
     ignoreMobileResize: true,
@@ -79,7 +79,7 @@ export const releaseGate = () => {
   setScrollLocked(false, 'gate');
 };
 
-export const engageGate = (target, { hold = 0.95, viewportOffset = 0.2 } = {}) => {
+export const engageGate = (target, { hold = 0.7, viewportOffset = 0.2 } = {}) => {
   if (!smoother || gateTimer || scrollLocks.size > 0 || !target) return false;
   const y = Math.max(0, smoother.offset(target, `top ${Math.round(viewportOffset * 100)}%`));
   document.documentElement.classList.add('is-gated');
@@ -113,6 +113,21 @@ export const scrollToTarget = (target, { offset = 0 } = {}) => {
   }
   const y = window.scrollY + el.getBoundingClientRect().top - offset;
   window.scrollTo({ top: Math.max(0, y), behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+};
+
+/** Big-title entrance: letters spring up one by one when the heading scrolls into view. */
+export const revealTitle = (el, trigger) => {
+  if (!el) return null;
+  const split = SplitText.create(el, { type: 'words,chars', charsClass: 'split-char' });
+  return gsap.from(split.chars, {
+    yPercent: 70,
+    autoAlpha: 0,
+    rotate: 8,
+    stagger: 0.028,
+    duration: 0.8,
+    ease: 'expo.out',
+    scrollTrigger: { trigger: trigger || el, start: 'top 94%', once: true },
+  });
 };
 
 /** Refresh triggers once fonts and late images have settled. */

@@ -1,5 +1,6 @@
 <template>
   <section id="skills" ref="root" class="stack section" aria-labelledby="stack-title">
+    <MarginShapes preset="skills" />
     <div class="container">
       <!-- Intro: stacked role labels + playful composition -->
       <div class="stack__intro">
@@ -77,9 +78,10 @@
 
 <script setup>
 import { computed, inject, ref } from 'vue';
-import { gsap } from '@/lib/gsap';
+import { gsap, revealTitle } from '@/lib/gsap';
 import { useGsap, MEDIA } from '@/composables/useGsap';
 import { useGate } from '@/composables/useGate';
+import MarginShapes from './ui/MarginShapes.vue';
 import Shape from './ui/Shape.vue';
 import BraceLabel from './ui/BraceLabel.vue';
 import { SHAPES } from './ui/shapes.js';
@@ -92,33 +94,33 @@ const heroT = computed(() => translations[lang.value].hero);
 
 const root = ref(null);
 useGate(root, { target: '.stack__intro' });
-const roleColors = ['#fec5fb', '#ff8709', '#9d95ff'];
+const roleColors = ['#ffc2e2', '#ff9a5c', '#a78bff'];
 const expGrads = [
-  'linear-gradient(120deg, #0ae448, #abff84)',
-  'linear-gradient(120deg, #fec5fb, #f100cb)',
-  'linear-gradient(120deg, #bef3fe, #00bae2)',
+  'linear-gradient(120deg, #ff5c93, #ffb27a)',
+  'linear-gradient(120deg, #ffc2e2, #ff3d8b)',
+  'linear-gradient(120deg, #cdeeff, #6ad0ff)',
 ];
 
 const icon = (name, iconClass) => ({ name, icon: iconClass });
 const categories = computed(() => [
   {
-    key: 'frontend', label: t.value.categories.frontend, color: '#fec5fb', shape: 'flower', gradient: ['#fec5fb', '#f100cb'],
+    key: 'frontend', label: t.value.categories.frontend, color: '#ffc2e2', shape: 'flower', gradient: ['#ffc2e2', '#ff3d8b'],
     items: [icon('Vue', 'fab fa-vuejs'), icon('Vite', 'fas fa-bolt'), icon('CSS3', 'fab fa-css3-alt'), icon('HTML5', 'fab fa-html5'), icon('NuxtJS', 'fab fa-vuejs'), icon('ReactJS', 'fab fa-react')],
   },
   {
-    key: 'backend', label: t.value.categories.backend, color: '#ff8709', shape: 'arch', gradient: ['#ffd9b0', '#ff8709'],
+    key: 'backend', label: t.value.categories.backend, color: '#ff9a5c', shape: 'arch', gradient: ['#ffd6bd', '#ff9a5c'],
     items: [icon('NodeJS', 'fab fa-node-js'), icon('Fastify', 'fas fa-gauge-high'), icon('ExpressJS', 'fas fa-code-branch'), icon('Ruby on Rails', 'fas fa-gem'), icon('Rust', 'fab fa-rust'), icon('Java', 'fab fa-java')],
   },
   {
-    key: 'database', label: t.value.categories.database, color: '#9d95ff', shape: 'hourglass', gradient: ['#e0dcff', '#6f66ff'],
+    key: 'database', label: t.value.categories.database, color: '#a78bff', shape: 'hourglass', gradient: ['#ece0ff', '#8a5cff'],
     items: [icon('MySQL', 'fas fa-database'), icon('SQLite', 'fas fa-table'), icon('PostgreSQL', 'fas fa-database'), icon('Redis', 'fas fa-layer-group')],
   },
   {
-    key: 'devops', label: t.value.categories.devops, color: '#00bae2', shape: 'diamond', gradient: ['#bef3fe', '#00bae2'],
+    key: 'devops', label: t.value.categories.devops, color: '#6ad0ff', shape: 'diamond', gradient: ['#cdeeff', '#6ad0ff'],
     items: [icon('Git', 'fab fa-git-alt'), icon('GitHub', 'fab fa-github'), icon('Linux', 'fab fa-linux'), icon('WSL', 'fas fa-terminal')],
   },
   {
-    key: 'experimental', label: t.value.categories.experimental, color: '#0ae448', shape: 'star', gradient: ['#abff84', '#0ae448'],
+    key: 'experimental', label: t.value.categories.experimental, color: '#ff5c93', shape: 'star', gradient: ['#ffb27a', '#ff5c93'],
     items: [icon('JavaScript', 'fab fa-js'), icon('Vue', 'fab fa-vuejs'), icon('TypeScript', 'fas fa-code'), icon('C++', 'fas fa-microchip')],
   },
 ]);
@@ -128,12 +130,12 @@ useGsap(root, ({ root: el, mm }) => {
     if (!context.conditions.motion) return;
 
     /* Intro: label boxes swing in like stickers */
-    gsap.timeline({ scrollTrigger: { trigger: '.stack__intro', start: 'top 75%', once: true } })
+    gsap.timeline({ scrollTrigger: { trigger: '.stack__intro', start: 'top 92%', once: true } })
       .from('.roles__box', { xPercent: -40, yPercent: 60, rotate: i => [-10, 7, -5][i] || 0, autoAlpha: 0, duration: 1, stagger: 0.14, ease: 'back.out(1.6)' })
       .from('.stack__eyebrow, .stack__desc', { y: 40, autoAlpha: 0, duration: 1, stagger: 0.1 }, 0.2);
 
     /* Composition builds itself, then parallaxes */
-    gsap.timeline({ scrollTrigger: { trigger: '.compo', start: 'top 80%', once: true } })
+    gsap.timeline({ scrollTrigger: { trigger: '.compo', start: 'top 94%', once: true } })
       .from('.compo__dome', { scaleY: 0, transformOrigin: '50% 100%', duration: 1.1, ease: 'expo.out' })
       .from('.compo__flower', { y: -360, rotate: -120, duration: 1.3, ease: 'bounce.out' }, 0.3)
       .from('.compo__ring, .compo__hourglass, .compo__diamond', { scale: 0, rotate: -160, duration: 1, stagger: 0.1, ease: 'back.out(2.4)' }, 0.5);
@@ -144,24 +146,24 @@ useGsap(root, ({ root: el, mm }) => {
       .to('.compo__diamond', { y: -180, rotate: 220, ease: 'none' }, 0);
 
     /* Section title */
-    gsap.from('.stack__title', { yPercent: 40, autoAlpha: 0, duration: 1.2, scrollTrigger: { trigger: '.stack__head', start: 'top 85%', once: true } });
+    revealTitle(el.querySelector('.stack__title'), '.stack__head');
 
     /* Rows: hairline grows, shape morphs circle → category shape while scrolling */
     gsap.utils.toArray('.row', el).forEach(row => {
       const path = row.querySelector('.row__path');
-      gsap.timeline({ scrollTrigger: { trigger: row, start: 'top 85%', end: 'center 45%', scrub: 0.8 } })
+      gsap.timeline({ scrollTrigger: { trigger: row, start: 'top 95%', end: 'center 45%', scrub: 0.3 } })
         .from(path, { morphSVG: SHAPES.circle.d, ease: 'none' }, 0)
         .fromTo(row.querySelector('.row__svg'), { rotate: -90, scale: 0.7 }, { rotate: 0, scale: 1, ease: 'none' }, 0);
-      gsap.timeline({ scrollTrigger: { trigger: row, start: 'top 85%', once: true } })
+      gsap.timeline({ scrollTrigger: { trigger: row, start: 'top 95%', once: true } })
         .from(row, { '--line': 0, duration: 1.2, ease: 'expo.out' })
         .from(row.querySelector('.row__name'), { y: 50, autoAlpha: 0, duration: 0.9 }, 0.1)
         .from(row.querySelectorAll('.row__item'), { y: 40, autoAlpha: 0, duration: 0.8, stagger: 0.05 }, 0.2);
     });
 
     /* Experience */
-    gsap.from('.exp__head > *', { y: 40, autoAlpha: 0, stagger: 0.1, scrollTrigger: { trigger: '.exp', start: 'top 85%', once: true } });
+    gsap.from('.exp__head > *', { y: 40, autoAlpha: 0, stagger: 0.1, scrollTrigger: { trigger: '.exp', start: 'top 95%', once: true } });
     gsap.utils.toArray('.exp__item', el).forEach((item, i) => {
-      gsap.timeline({ scrollTrigger: { trigger: item, start: 'top 90%', once: true }, delay: i * 0.12 })
+      gsap.timeline({ scrollTrigger: { trigger: item, start: 'top 97%', once: true }, delay: i * 0.12 })
         .from(item.querySelector('.exp__line'), { scaleX: 0, transformOrigin: 'left', duration: 1.2, ease: 'expo.out' })
         .from(item.querySelectorAll('.exp__index, .exp__years, .exp__desc'), { y: 50, autoAlpha: 0, stagger: 0.08, duration: 1 }, 0.1);
     });
@@ -177,7 +179,7 @@ useGsap(root, ({ root: el, mm }) => {
   align-items: center;
   gap: clamp(40px, 6vw, 100px);
 }
-.stack__eyebrow { color: var(--c-green); }
+.stack__eyebrow { color: var(--c-accent); }
 .roles { display: grid; gap: 0.2em; margin-top: 28px; font-size: clamp(2rem, 4.2vw, 4.2rem); font-weight: 500; line-height: 1.05; letter-spacing: -0.04em; }
 .roles__item { padding-left: var(--shift); }
 .roles__box { box-shadow: 0 0.12em 0 rgba(0, 0, 0, 0.35); }

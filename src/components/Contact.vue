@@ -1,5 +1,6 @@
 <template>
   <section id="contact" ref="root" class="contact section" aria-labelledby="contact-title">
+    <MarginShapes preset="contact" />
     <div class="container">
       <span class="mono contact__eyebrow">05 — {{ t.label }}</span>
 
@@ -52,6 +53,7 @@ import { computed, inject, ref } from 'vue';
 import { gsap, SplitText } from '@/lib/gsap';
 import { useGsap, MEDIA } from '@/composables/useGsap';
 import { useGate } from '@/composables/useGate';
+import MarginShapes from './ui/MarginShapes.vue';
 import GithubActivity from './GithubActivity.vue';
 import Shape from './ui/Shape.vue';
 import BraceLabel from './ui/BraceLabel.vue';
@@ -62,9 +64,9 @@ const t = computed(() => translations[lang.value].contact);
 const titleWords = computed(() => t.value.title.split(' '));
 
 const contacts = [
-  { label: 'Discord', handle: '.heiznerd', icon: 'fab fa-discord', color: '#9d95ff', ink: '#0e100f', href: 'https://discord.com/users/1316287191634149377' },
-  { label: 'GitHub', handle: '@heiznerd', icon: 'fab fa-github', color: '#fffce1', ink: '#0e100f', href: 'https://github.com/heiznerd' },
-  { label: 'Facebook', handle: 'Nguyễn Hữu Quý', icon: 'fab fa-facebook-f', color: '#00bae2', ink: '#0e100f', href: 'https://www.facebook.com/nguyen.huu.quy.906170' },
+  { label: 'Discord', handle: '.heiznerd', icon: 'fab fa-discord', color: '#a78bff', ink: '#0f0b13', href: 'https://discord.com/users/1316287191634149377' },
+  { label: 'GitHub', handle: '@heiznerd', icon: 'fab fa-github', color: '#fff1ea', ink: '#0f0b13', href: 'https://github.com/heiznerd' },
+  { label: 'Facebook', handle: 'Nguyễn Hữu Quý', icon: 'fab fa-facebook-f', color: '#6ad0ff', ink: '#0f0b13', href: 'https://www.facebook.com/nguyen.huu.quy.906170' },
 ];
 
 const root = ref(null);
@@ -83,7 +85,7 @@ useGsap(root, ({ root: el, mm }) => {
       stagger: 0.035,
       duration: 1.1,
       ease: 'expo.out',
-      scrollTrigger: { trigger: '.contact__title', start: 'top 85%', once: true },
+      scrollTrigger: { trigger: '.contact__title', start: 'top 95%', once: true },
     });
 
     gsap.timeline({ scrollTrigger: { trigger: '.contact__hero', start: 'top bottom', end: 'bottom top', scrub: 1 } })
@@ -100,7 +102,7 @@ useGsap(root, ({ root: el, mm }) => {
       stagger: 0.15,
       duration: 1.1,
       ease: 'elastic.out(1, 0.5)',
-      scrollTrigger: { trigger: '.contact__hero', start: 'top 75%', once: true },
+      scrollTrigger: { trigger: '.contact__hero', start: 'top 92%', once: true },
     });
 
     gsap.from('.contact__intro > *', {
@@ -108,7 +110,7 @@ useGsap(root, ({ root: el, mm }) => {
       autoAlpha: 0,
       stagger: 0.12,
       duration: 1.1,
-      scrollTrigger: { trigger: '.contact__intro', start: 'top 88%', once: true },
+      scrollTrigger: { trigger: '.contact__intro', start: 'top 96%', once: true },
     });
 
     gsap.from('.crow', {
@@ -116,7 +118,7 @@ useGsap(root, ({ root: el, mm }) => {
       autoAlpha: 0,
       stagger: 0.1,
       duration: 1,
-      scrollTrigger: { trigger: '.contact__list', start: 'top 90%', once: true },
+      scrollTrigger: { trigger: '.contact__list', start: 'top 97%', once: true },
     });
 
     return () => lines.forEach(line => line.classList.remove('is-split'));
@@ -125,7 +127,7 @@ useGsap(root, ({ root: el, mm }) => {
 </script>
 
 <style scoped>
-.contact__eyebrow { color: var(--c-green); }
+.contact__eyebrow { color: var(--c-accent); }
 
 .contact__hero { position: relative; margin-top: 20px; }
 .contact__title {
@@ -136,9 +138,9 @@ useGsap(root, ({ root: el, mm }) => {
   line-height: 0.88;
   letter-spacing: -0.065em;
 }
-.contact__line--2 { align-self: flex-end; background: var(--g-green); -webkit-background-clip: text; background-clip: text; color: transparent; padding-bottom: 0.06em; }
+.contact__line--2 { align-self: flex-end; background: var(--g-accent); -webkit-background-clip: text; background-clip: text; color: transparent; padding-bottom: 0.06em; }
 .contact__line--2.is-split { background: none; color: var(--c-cream); }
-.contact__line--2 :deep(.split-char) { background: var(--g-green); -webkit-background-clip: text; background-clip: text; color: transparent; padding-bottom: 0.06em; }
+.contact__line--2 :deep(.split-char) { background: var(--g-accent); -webkit-background-clip: text; background-clip: text; color: transparent; padding-bottom: 0.06em; }
 .contact__line :deep(.split-char) { display: inline-block; }
 .contact__shape { position: absolute; pointer-events: none; }
 .contact__shape--arc { top: -6%; left: 44%; width: clamp(70px, 9vw, 150px); }
@@ -173,7 +175,7 @@ useGsap(root, ({ root: el, mm }) => {
 }
 .contact__cta-title { font-size: clamp(1.6rem, 2.8vw, 2.6rem); letter-spacing: -0.04em; }
 .contact__cta p { margin-top: 10px; font-size: 1.1rem; }
-.contact__sub { display: inline-block; margin-top: 14px; color: var(--c-green); }
+.contact__sub { display: inline-block; margin-top: 14px; color: var(--c-accent); }
 
 .contact__list { margin-top: clamp(48px, 7vw, 96px); border-top: 1px solid var(--c-line); }
 .crow {
