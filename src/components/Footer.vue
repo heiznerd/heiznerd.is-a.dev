@@ -117,7 +117,8 @@ useGsap(root, ({ root: el, mm }) => {
   justify-content: center;
   margin-top: clamp(48px, 7vw, 100px);
   overflow: hidden;
-  font-size: clamp(5rem, 23.5vw, 23rem);
+  font-size: clamp(3.5rem, 18vw, 19rem);
+  padding-inline: 0.03em;
   font-weight: 600;
   line-height: 0.8;
   letter-spacing: -0.07em;
