@@ -90,5 +90,6 @@ onUnmounted(() => {
 </script>
 
 <style>
-#main { display: block; outline: none; }
+/* Decorative shapes/stickers may poke past the edge; clip (not hidden) so pins and sticky stay intact. */
+#main { display: block; outline: none; overflow-x: clip; }
 </style>

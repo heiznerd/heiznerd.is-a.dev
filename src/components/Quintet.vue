@@ -14,59 +14,69 @@
       </div>
 
       <div class="qt__stage" role="group" :aria-label="t.groupLabel" @pointerleave="onLeaveStage" @focusout="onFocusOut">
-        <ul class="qt__panels">
-          <li
-            v-for="(sister, i) in sisters"
-            :key="sister.name"
-            class="qp"
-            :class="{ 'is-active': active === i }"
-            :style="{ '--tone': TONES[i], '--shift-a': SHIFT_A[i], '--shift-b': SHIFT_B[i] }"
-          >
-            <button
-              type="button"
-              class="qp__btn"
-              :aria-pressed="locked === i"
-              :aria-label="`${sister.name} ${sister.kanji} — ${sister.order}. ${t.toggle}`"
-              @pointerenter="onEnter(i, $event)"
-              @focus="onFocus(i, $event)"
-              @click="onClick(i)"
+        <div class="paper">
+          <!-- Opening card, like the start of the reference video -->
+          <p class="paper__title" aria-hidden="true">
+            <span class="paper__mask"><span class="paper__line">The</span></span>
+            <span class="paper__mask"><span class="paper__line">Quintessential</span></span>
+            <span class="paper__mask"><span class="paper__line">Quintuplets</span></span>
+          </p>
+
+          <div class="word word--a" aria-hidden="true"><span v-for="(ch, i) in 'KISS'" :key="i">{{ ch }}</span></div>
+          <div class="word word--b" aria-hidden="true"><span v-for="(ch, i) in 'LOVE'" :key="i">{{ ch }}</span></div>
+
+          <ul class="wd-list">
+            <li
+              v-for="(idx, pos) in DISPLAY"
+              :key="WEDDING[idx].src"
+              class="wd"
+              :class="{ 'is-active': active === idx }"
+              :style="{ '--tone': TONES[idx] }"
             >
-              <span class="qp__media" aria-hidden="true">
-                <span class="qp__layer qp__layer--a"><img src="/quintet/school.jpg" alt="" width="1900" height="400" loading="lazy" decoding="async" draggable="false" /></span>
-                <span class="qp__layer qp__layer--b"><img src="/quintet/outing.jpg" alt="" width="1900" height="400" loading="lazy" decoding="async" draggable="false" /></span>
-              </span>
-              <span class="qp__shade" aria-hidden="true"></span>
-              <span class="qp__num mono" aria-hidden="true">0{{ i + 1 }}</span>
-              <span class="qp__kanji" lang="ja" aria-hidden="true">{{ sister.kanji }}</span>
-              <span class="qp__label">
-                <span class="qp__order mono">{{ sister.order }}</span>
-                <span class="qp__name">{{ sister.name }}</span>
-              </span>
-            </button>
-          </li>
-        </ul>
+              <button
+                type="button"
+                class="wd__btn"
+                :aria-pressed="locked === idx"
+                :aria-label="`${sisters[idx].name} ${sisters[idx].kanji} — ${sisters[idx].order}`"
+                @pointerenter="onEnter(idx, $event)"
+                @focus="onFocus(idx, $event)"
+                @click="onClick(idx)"
+              >
+                <span class="wd__img" aria-hidden="true">
+                  <img :src="WEDDING[idx].src" alt="" :width="736" :height="WEDDING[idx].h" loading="lazy" decoding="async" draggable="false" />
+                  <span class="wd__shade"></span>
+                </span>
+                <span class="wd__num mono" aria-hidden="true">0{{ idx + 1 }}</span>
+                <span class="wd__kanji" lang="ja" aria-hidden="true">{{ sisters[idx].kanji }}</span>
+                <span class="wd__label" aria-hidden="true">
+                  <span class="wd__order mono">{{ sisters[idx].order }}</span>
+                  <span class="wd__name">{{ sisters[idx].name }}</span>
+                </span>
+              </button>
+            </li>
+          </ul>
+
+          <svg class="strokes" viewBox="0 0 1200 560" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+            <path v-for="s in STROKES" :key="s.color" class="stroke" :d="s.d" :stroke="s.color" :stroke-width="s.w" fill="none" stroke-linecap="round" />
+          </svg>
+        </div>
         <p class="qt__hint mono"><i class="fas fa-hand-pointer" aria-hidden="true"></i> {{ t.hint }}</p>
       </div>
     </div>
 
     <div class="container qt__lower">
-      <div class="posters">
-        <h3 class="posters__title mono">{{ t.postersLabel }}</h3>
-        <ul class="posters__row">
-          <li v-for="(poster, i) in posters" :key="poster.src" class="poster" :style="{ '--r': poster.rotate, '--tone': poster.tone }">
-            <figure class="poster__card">
-              <img :src="poster.src" :alt="`${t.posters[i]} — The Quintessential Quintuplets`" width="460" :height="poster.h" loading="lazy" decoding="async" draggable="false" />
-              <figcaption class="poster__cap"><span class="mono">0{{ i + 1 }}</span> {{ t.posters[i] }}</figcaption>
-            </figure>
+      <div class="moments">
+        <h3 class="moments__title mono">{{ t.momentsLabel }}</h3>
+        <ul class="moments__row">
+          <li v-for="(m, i) in MOMENTS" :key="m.src" class="moment" :style="{ '--r': m.r }">
+            <div class="moment__float">
+              <figure class="moment__card">
+                <img :src="m.src" :alt="t.moments[i]" loading="lazy" decoding="async" draggable="false" :style="{ objectPosition: m.pos }" />
+              </figure>
+            </div>
           </li>
         </ul>
       </div>
-
-      <figure class="wed">
-        <div class="wed__frame">
-          <img class="wed__img" src="/quintet/wedding.jpg" :alt="t.weddingAlt" width="1900" height="400" loading="lazy" decoding="async" draggable="false" />
-        </div>
-      </figure>
 
       <p class="qt__credit">{{ t.credit }}</p>
     </div>
@@ -83,15 +93,34 @@ const translations = inject('translations');
 const t = computed(() => translations[lang.value].quintet);
 const sisters = computed(() => t.value.sisters);
 
-// Signature colours and where each sister sits in the 1900px-wide group banners (centre of her face).
+// Index = birth order (Ichika, Nino, Miku, Yotsuba, Itsuki).
 const TONES = ['#f7bdf8', '#ff7aa8', '#00bae2', '#ff8709', '#ff5a4a'];
-const SHIFT_A = ['-9.5%', '-30%', '-50%', '-72%', '-89.5%'];
-const SHIFT_B = ['-11%', '-32%', '-52%', '-67.5%', '-86.5%'];
+const WEDDING = [
+  { src: '/quintet/wedding-ichika.jpg', h: 920 },
+  { src: '/quintet/wedding-nino.jpg', h: 1308 },
+  { src: '/quintet/wedding-miku.jpg', h: 1308 },
+  { src: '/quintet/wedding-yotsuba.jpg', h: 1308 },
+  { src: '/quintet/wedding-itsuki.jpg', h: 1308 },
+];
+// Left → right, the same order the sisters appear in the reference video.
+const DISPLAY = [1, 3, 2, 0, 4];
 
-const posters = [
-  { src: '/quintet/poster-s1.jpg', h: 690, rotate: '-5deg', tone: '#fec5fb' },
-  { src: '/quintet/poster-s2.jpg', h: 650, rotate: '2deg', tone: '#00bae2' },
-  { src: '/quintet/poster-movie.jpg', h: 645, rotate: '5deg', tone: '#ff8709' },
+// Pastel brush strokes that sweep across the paper.
+const STROKES = [
+  { color: '#c4b2ff', w: 44, d: 'M-40 330C150 260 220 110 430 190S640 430 780 300' },
+  { color: '#c5e11a', w: 40, d: 'M300 -20C430 140 350 300 520 380S800 520 1010 470' },
+  { color: '#ff8fa3', w: 38, d: 'M-40 520C160 610 300 520 370 430' },
+  { color: '#0bb5a7', w: 36, d: 'M830 -30C760 120 900 160 960 300S1080 520 1240 560' },
+  { color: '#44b0ff', w: 32, d: 'M600 600C700 500 880 600 1000 470' },
+  { color: '#9be8a8', w: 32, d: 'M1240 60C1060 70 980 180 860 150' },
+];
+
+const MOMENTS = [
+  { src: '/quintet/moment-miku.webp', r: '-5deg', pos: '50% 30%' },
+  { src: '/quintet/moment-nino-laugh.webp', r: '3deg', pos: '45% 35%' },
+  { src: '/quintet/moment-itsuki-manga.jpg', r: '-2deg', pos: '50% 35%' },
+  { src: '/quintet/moment-nino-blush.jpg', r: '5deg', pos: '50% 30%' },
+  { src: '/quintet/moment-nino-profile.jpg', r: '-4deg', pos: '50% 40%' },
 ];
 
 const root = ref(null);
@@ -99,20 +128,33 @@ const hovered = ref(-1);
 const locked = ref(-1);
 const active = computed(() => (locked.value >= 0 ? locked.value : hovered.value));
 
-let panels = [];
 let lastApplied = null;
 
+// Hover / focus / click: the chosen portrait lifts, its neighbours step aside, the rest dim.
 const applyActive = () => {
-  if (!panels.length) return;
+  const el = root.value;
+  if (!el) return;
   const idx = active.value;
   if (idx === lastApplied) return;
   lastApplied = idx;
-  const duration = prefersReducedMotion() ? 0 : 0.9;
-  panels.forEach((panel, i) => {
-    const on = i === idx;
-    gsap.to(panel, { flexGrow: idx < 0 ? 1 : on ? 3.5 : 0.72, duration, ease: 'hz.out', overwrite: 'auto' });
-    gsap.to(panel.querySelector('.qp__layer--b'), { autoAlpha: on ? 1 : 0, duration: duration * 0.7, ease: 'power2.out', overwrite: 'auto' });
-    gsap.to(panel.querySelector('.qp__media'), { scale: on ? 1.06 : 1, duration, ease: 'hz.out', overwrite: 'auto' });
+  const duration = prefersReducedMotion() ? 0 : 0.7;
+  const onPos = DISPLAY.indexOf(idx);
+  el.querySelectorAll('.wd').forEach((li, pos) => {
+    const on = pos === onPos;
+    const side = onPos < 0 ? 0 : pos < onPos ? -1 : 1;
+    gsap.to(li.querySelector('.wd__btn'), {
+      x: on || onPos < 0 ? 0 : side * 22,
+      y: on ? -14 : 0,
+      scale: on ? 1.06 : 1,
+      duration,
+      ease: 'hz.out',
+      overwrite: 'auto',
+    });
+    gsap.to(li.querySelector('.wd__img'), {
+      filter: onPos < 0 || on ? 'brightness(1) saturate(1)' : 'brightness(0.62) saturate(0.8)',
+      duration,
+      overwrite: 'auto',
+    });
   });
 };
 
@@ -122,7 +164,7 @@ const onEnter = (i, event) => {
   applyActive();
 };
 const onFocus = (i, event) => {
-  // Mouse clicks also focus the button; only keyboard focus should expand a panel.
+  // Mouse clicks also focus the button; only keyboard focus should lift a portrait.
   if (!event.target.matches(':focus-visible')) return;
   hovered.value = i;
   applyActive();
@@ -141,9 +183,10 @@ const onFocusOut = event => {
   applyActive();
 };
 
-useGsap(root, ({ root: el, mm }) => {
-  panels = gsap.utils.toArray('.qp', el);
+const HIDDEN = 'inset(0% 100% 0% 0%)';
+const SHOWN = 'inset(0% 0% 0% 0%)';
 
+useGsap(root, ({ root: el, mm }) => {
   mm.add(MEDIA, context => {
     const { motion, desktop } = context.conditions;
     if (!motion) return undefined;
@@ -172,52 +215,73 @@ useGsap(root, ({ root: el, mm }) => {
       onToggle: self => loops.forEach(loop => (self.isActive ? loop.play() : loop.pause())),
     });
 
-    /* ---- The five panels: assemble while the section is pinned (scroll-scrubbed, so it can't be outrun) ---- */
-    // Explicit fromTo() values (not from()) so the start/end states survive every ScrollTrigger refresh.
-    const reveal = gsap.timeline({
-      defaults: { ease: 'none' },
-      scrollTrigger: desktop
-        ? { trigger: '.qt__pin', start: 'top top', end: () => `+=${Math.round(window.innerHeight * 0.95)}`, pin: true, scrub: 0.7 }
-        : { trigger: '.qt__panels', start: 'top 88%', end: 'top 35%', scrub: 0.6 },
-    });
-    reveal
-      .fromTo('.qt__head-main > *, .qt__sub', { y: 60, autoAlpha: 0 }, { y: 0, autoAlpha: 1, stagger: 0.08 }, 0)
-      .fromTo('.qp', {
-        clipPath: 'inset(100% 0% 0% 0% round 28px)',
-        y: i => [120, -60, 90, -80, 60][i % 5],
-        rotate: i => [-9, 6, -4, 8, -7][i % 5],
-        scale: 0.9,
-      }, {
-        clipPath: 'inset(0% 0% 0% 0% round 28px)',
-        y: 0,
-        rotate: 0,
-        scale: 1,
-        stagger: 0.12,
-      }, 0.1)
-      .fromTo('.qp__label, .qp__num, .qp__kanji', { y: 40, autoAlpha: 0 }, { y: 0, autoAlpha: 1, stagger: 0.04 }, 0.55)
-      .fromTo('.qt__hint', { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0 }, 0.85);
+    /* ---- The five-portrait picker ---- */
+    const items = gsap.utils.toArray('.wd', el); // left → right: Nino, Yotsuba, Miku, Ichika, Itsuki
+    const decor = gsap.utils.toArray('.wd__label, .wd__num, .wd__kanji', el);
+    const head = '.qt__head-main > *, .qt__sub';
 
-    /* ---- Posters fan out, wedding strip irises open ---- */
-    gsap.from('.poster', {
-      y: 160,
-      rotate: i => [-14, 0, 14][i % 3],
+    if (desktop) {
+      const strokes = gsap.utils.toArray('.stroke', el);
+      const kiss = gsap.utils.toArray('.word--a span', el);
+      const love = gsap.utils.toArray('.word--b span', el);
+      const arrive = (target, at) => tl.fromTo(target, { clipPath: HIDDEN, x: -90, autoAlpha: 0 }, { clipPath: SHOWN, x: 0, autoAlpha: 1, duration: 1 }, at);
+
+      // Scroll-scrubbed while pinned, so the opening can't be outrun.
+      const tl = gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: { trigger: '.qt__pin', start: 'top top', end: () => `+=${Math.round(window.innerHeight * 1.8)}`, pin: true, scrub: 0.8 },
+      });
+      tl.fromTo(head, { y: 60, autoAlpha: 0 }, { y: 0, autoAlpha: 1, stagger: 0.08, duration: 0.8 }, 0)
+        .fromTo('.paper', { clipPath: 'inset(22% 34% 22% 34% round 999px)' }, { clipPath: 'inset(0% 0% 0% 0% round 36px)', duration: 1.1 }, 0)
+        .fromTo('.paper__line', { yPercent: 115 }, { yPercent: 0, stagger: 0.18, duration: 0.7 }, 0.7)
+        .fromTo(strokes, { drawSVG: '0% 0%' }, { drawSVG: '0% 100%', stagger: 0.16, duration: 1.4 }, 1.5)
+        .to('.paper__title', { scale: 0.72, y: -30, autoAlpha: 0, duration: 0.9 }, 2.6)
+        // K · I · S · S arrive with the first four portraits
+        .fromTo(kiss, { y: -60, scale: 0.6, autoAlpha: 0 }, { y: 0, scale: 1, autoAlpha: 1, stagger: 0.7, duration: 0.5, ease: 'back.out(2)' }, 3.2);
+      arrive(items[0], 3.0);
+      arrive(items[1], 4.0);
+      arrive(items[2], 5.0);
+      arrive(items[3], 6.0);
+      // KISS flips into LOVE, then the fifth portrait takes the corner
+      tl.to(kiss, { scaleY: 0, autoAlpha: 0, stagger: 0.1, duration: 0.5 }, 7.4)
+        .fromTo(love, { scaleY: 0, autoAlpha: 0 }, { scaleY: 1, autoAlpha: 1, stagger: 0.12, duration: 0.5, ease: 'back.out(2)' }, 7.9)
+        .to(love, { y: 24, autoAlpha: 0, stagger: 0.08, duration: 0.4 }, 8.9);
+      arrive(items[4], 9.0);
+      // The brush strokes settle back so the portraits and names are easy to pick
+      tl.to('.strokes', { opacity: 0.16, duration: 0.9 }, 9.9)
+        .fromTo(decor, { y: 30, autoAlpha: 0 }, { y: 0, autoAlpha: 1, stagger: 0.03, duration: 0.6 }, 10.1)
+        .fromTo('.qt__hint', { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.6 }, 10.5)
+        .to({}, { duration: 0.6 });
+    } else {
+      gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: { trigger: '.qt__stage', start: 'top 88%', end: 'top 35%', scrub: 0.6 },
+      })
+        .fromTo(head, { y: 50, autoAlpha: 0 }, { y: 0, autoAlpha: 1, stagger: 0.08 }, 0)
+        .fromTo(items, { y: 90, rotate: i => [-6, 5, -4, 6, -5][i % 5], autoAlpha: 0 }, { y: 0, rotate: 0, autoAlpha: 1, stagger: 0.12 }, 0.1)
+        .fromTo('.qt__hint', { autoAlpha: 0 }, { autoAlpha: 1 }, 0.9);
+    }
+
+    /* ---- Moments: polaroids fan in, then drift at different speeds ---- */
+    gsap.from('.moment', {
+      y: 140,
+      rotate: i => [-10, 8, -6, 10, -8][i % 5],
       autoAlpha: 0,
-      stagger: 0.14,
+      stagger: 0.12,
       duration: 1.3,
       ease: 'expo.out',
-      scrollTrigger: { trigger: '.posters', start: 'top 85%', once: true },
+      scrollTrigger: { trigger: '.moments', start: 'top 85%', once: true },
     });
-    gsap.from('.posters__title', { y: 30, autoAlpha: 0, scrollTrigger: { trigger: '.posters', start: 'top 90%', once: true } });
-    gsap.fromTo('.wed__frame', { clipPath: 'inset(0% 46% 0% 46% round 999px)' }, {
-      clipPath: 'inset(0% 0% 0% 0% round 36px)',
-      ease: 'none',
-      scrollTrigger: { trigger: '.wed', start: 'top 92%', end: 'top 40%', scrub: 0.6 },
-    });
-    gsap.fromTo('.wed__img', { xPercent: -6 }, {
-      xPercent: 6,
-      ease: 'none',
-      scrollTrigger: { trigger: '.wed', start: 'top bottom', end: 'bottom top', scrub: true },
-    });
+    gsap.from('.moments__title', { y: 30, autoAlpha: 0, scrollTrigger: { trigger: '.moments', start: 'top 90%', once: true } });
+    if (desktop) {
+      gsap.utils.toArray('.moment__float', el).forEach((float, i) => {
+        gsap.fromTo(float, { y: i % 2 ? 50 : -30 }, {
+          y: i % 2 ? -50 : 30,
+          ease: 'none',
+          scrollTrigger: { trigger: float, start: 'top bottom', end: 'bottom top', scrub: true },
+        });
+      });
+    }
     gsap.from('.qt__credit', { autoAlpha: 0, y: 20, scrollTrigger: { trigger: '.qt__credit', start: 'top 98%', once: true } });
 
     return () => petals.forEach(petal => { petal.style.display = ''; });
@@ -242,27 +306,72 @@ useGsap(root, ({ root: el, mm }) => {
   will-change: transform;
 }
 
-.qt__pin { position: relative; display: flex; min-height: 100svh; flex-direction: column; justify-content: center; gap: clamp(22px, 4vh, 44px); padding-top: calc(var(--header-h) + 8px); padding-bottom: 20px; }
+.qt__pin { position: relative; display: flex; min-height: 100svh; flex-direction: column; justify-content: center; gap: clamp(18px, 3vh, 36px); padding-top: calc(var(--header-h) + 8px); padding-bottom: 20px; }
 
 .qt__head { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); align-items: end; gap: 20px clamp(24px, 5vw, 80px); }
 .qt__eyebrow { color: var(--c-pink); }
-.qt__title { margin-top: 12px; font-size: clamp(2.6rem, 6vw, 5.8rem); }
+.qt__title { margin-top: 12px; font-size: clamp(2.4rem, 5.2vw, 5rem); }
 .qt__sub { max-width: 44ch; font-size: clamp(1.05rem, 1.35vw, 1.3rem); }
 
-/* Panels */
+/* ---- The paper stage ---- */
 .qt__stage { width: 100%; max-width: var(--max-width); margin-inline: auto; padding-inline: var(--gutter); }
-.qt__panels { display: flex; gap: clamp(8px, 1vw, 14px); height: clamp(340px, 54vh, 560px); }
 
-.qp {
+.paper {
   position: relative;
-  flex: 1 1 0;
-  min-width: 0;
+  height: clamp(400px, 60vh, 600px);
   overflow: hidden;
-  border-radius: 28px;
-  background: var(--c-bg-2);
-  will-change: transform;
+  border-radius: 36px;
+  color: #16171a;
+  background:
+    radial-gradient(60% 80% at 15% 10%, rgba(255, 255, 255, 0.9), transparent 70%),
+    #fffdf6;
 }
-.qp__btn {
+
+.paper__title {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+  font-size: clamp(2rem, 6vw, 5.4rem);
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  text-align: center;
+  pointer-events: none;
+}
+.paper__mask { display: block; overflow: clip; padding: 0.08em 0.1em; margin: -0.08em -0.1em; }
+.paper__line { display: block; }
+
+.word {
+  position: absolute;
+  top: 0;
+  right: clamp(16px, 4vw, 64px);
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #d3141b;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(2.4rem, 6.6vw, 6.4rem);
+  font-weight: 700;
+  line-height: 0.86;
+  pointer-events: none;
+}
+.word span { display: block; opacity: 0; }
+
+.wd-list { position: absolute; inset: 0; z-index: 3; display: flex; }
+.wd { position: relative; flex: 1 1 0; min-width: 0; height: 100%; margin-left: -5.5%; }
+.wd:first-child { margin-left: 0; }
+.wd.is-active { z-index: 6; }
+
+.wd__btn {
   position: absolute;
   inset: 0;
   display: block;
@@ -270,85 +379,67 @@ useGsap(root, ({ root: el, mm }) => {
   height: 100%;
   padding: 0;
   border: 0;
-  color: inherit;
+  color: #fffce1;
   text-align: left;
   background: none;
   cursor: pointer;
+  will-change: transform;
 }
-.qp__btn:focus-visible { outline: 3px solid var(--tone); outline-offset: -6px; border-radius: 28px; }
-.qp.is-active { box-shadow: inset 0 0 0 3px var(--tone); }
+.wd__btn:focus-visible { outline: 3px solid var(--tone); outline-offset: -8px; border-radius: 28px; }
 
-.qp__media { position: absolute; inset: 0; display: block; overflow: hidden; border-radius: inherit; will-change: transform; }
-.qp__layer {
+.wd__img {
   position: absolute;
-  top: 0;
-  left: 50%;
+  inset: 0;
   display: block;
-  height: 100%;
-  aspect-ratio: 1900 / 400;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 17%, #000 83%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 17%, #000 83%, transparent 100%);
 }
-.qp__layer img { width: 100%; height: 100%; object-fit: cover; user-select: none; -webkit-user-drag: none; }
-.qp__layer--a { transform: translateX(var(--shift-a)); }
-.qp__layer--b { transform: translateX(var(--shift-b)); opacity: 0; visibility: hidden; }
+.wd:first-child .wd__img { -webkit-mask-image: linear-gradient(90deg, #000 0, #000 83%, transparent 100%); mask-image: linear-gradient(90deg, #000 0, #000 83%, transparent 100%); }
+.wd:last-child .wd__img { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 17%, #000 100%); mask-image: linear-gradient(90deg, transparent 0, #000 17%, #000 100%); }
+.wd__img img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 10%; user-select: none; -webkit-user-drag: none; }
+.wd__shade { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, rgba(14, 16, 15, 0.72) 100%); }
 
-.qp__shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(14, 16, 15, 0.35) 0%, transparent 28%, transparent 52%, rgba(14, 16, 15, 0.82) 100%); pointer-events: none; }
+.wd__num { position: absolute; top: 16px; left: 19%; font-weight: 700; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55); }
+.wd__kanji { position: absolute; top: 14px; right: 17%; color: var(--tone); font-size: clamp(1.2rem, 1.9vw, 1.9rem); font-weight: 700; line-height: 1.1; letter-spacing: 0.05em; writing-mode: vertical-rl; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6); }
+.wd__label { position: absolute; right: 16%; bottom: 18px; left: 19%; display: grid; gap: 2px; }
+.wd__order { color: var(--tone); font-weight: 700; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.65); }
+.wd__name { overflow: hidden; font-size: clamp(1.3rem, 2.3vw, 2.3rem); font-weight: 600; line-height: 1; letter-spacing: -0.045em; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 2px 14px rgba(0, 0, 0, 0.6); }
 
-.qp__num { position: absolute; top: 16px; left: 18px; color: var(--c-cream); text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5); font-weight: 700; }
-.qp__kanji {
-  position: absolute;
-  top: 14px;
-  right: 16px;
-  color: var(--tone);
-  font-size: clamp(1.4rem, 2.2vw, 2.1rem);
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: 0.05em;
-  writing-mode: vertical-rl;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
-}
-.qp__label { position: absolute; right: 18px; bottom: 18px; left: 18px; display: grid; gap: 2px; }
-.qp__order { color: var(--tone); font-weight: 700; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6); }
-/* While one panel is open the others are slim: shrink their names so nothing truncates. */
-.qt__panels:has(.qp.is-active) .qp:not(.is-active) .qp__name { font-size: clamp(0.95rem, 1.35vw, 1.3rem); letter-spacing: -0.03em; }
-.qt__panels:has(.qp.is-active) .qp:not(.is-active) .qp__label { right: 10px; left: 12px; }
-.qt__panels:has(.qp.is-active) .qp:not(.is-active) .qp__kanji { font-size: 1.2rem; }
-
-.qp__name { overflow: hidden; color: var(--c-cream); font-size: clamp(1.4rem, 2.6vw, 2.6rem); font-weight: 600; line-height: 1; letter-spacing: -0.045em; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 2px 14px rgba(0, 0, 0, 0.55); }
+.strokes { position: absolute; inset: 0; z-index: 4; width: 100%; height: 100%; opacity: 0.86; pointer-events: none; }
 
 .qt__hint { margin-top: 16px; color: var(--c-cream-75); }
 .qt__hint i { margin-right: 6px; color: var(--c-green); }
 
-/* Posters + wedding strip */
+/* ---- Moments ---- */
 .qt__lower { position: relative; z-index: 1; margin-top: clamp(60px, 9vw, 140px); }
-.posters__title { color: var(--c-cream-75); font-weight: 500; }
-.posters__row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(14px, 3vw, 48px); max-width: 1000px; margin: 22px auto 0; padding-block: 24px; }
-.poster__card {
-  position: relative;
-  overflow: hidden;
-  border-radius: 20px;
-  background: #fff;
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
+.moments__title { color: var(--c-cream-75); font-weight: 500; }
+.moments__row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: clamp(10px, 2vw, 28px); margin-top: 22px; padding-block: 36px; }
+.moment__card {
+  padding: 8px 8px 30px;
+  border-radius: 12px;
+  background: #fffdf6;
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.45);
   transform: rotate(var(--r));
   transition: transform 0.6s var(--ease-out), box-shadow 0.6s var(--ease-out);
 }
-.poster__card:hover { transform: rotate(0deg) translateY(-10px) scale(1.03); box-shadow: 0 40px 80px rgba(0, 0, 0, 0.55), 0 0 0 3px var(--tone); }
-.poster__card img { width: 100%; height: auto; }
-.poster__cap { position: absolute; right: 10px; bottom: 10px; left: 10px; display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: var(--radius-pill); color: var(--c-bg); background: rgba(255, 252, 225, 0.92); font-size: 0.9rem; font-weight: 700; backdrop-filter: blur(6px); }
-.poster__cap .mono { color: var(--tone); filter: brightness(0.75); }
+.moment__card:hover { transform: rotate(0deg) translateY(-10px) scale(1.04); box-shadow: 0 34px 70px rgba(0, 0, 0, 0.55), 0 0 0 3px var(--c-pink); }
+.moment__card img { display: block; width: 100%; aspect-ratio: 4 / 5; border-radius: 6px; object-fit: cover; user-select: none; -webkit-user-drag: none; }
 
-.wed { margin-top: clamp(50px, 7vw, 100px); }
-.wed__frame { height: clamp(150px, 24vw, 340px); overflow: hidden; border-radius: var(--radius-xl); background: #fff; }
-.wed__img { width: 118%; max-width: none; height: 100%; margin-left: -9%; object-fit: cover; object-position: 55% 38%; will-change: transform; }
-
-.qt__credit { max-width: 80ch; margin: 22px auto 0; color: var(--c-cream-50); font-size: 0.8rem; line-height: 1.5; text-align: center; }
+.qt__credit { max-width: 80ch; margin: clamp(30px, 4vw, 56px) auto 0; color: var(--c-cream-50); font-size: 0.8rem; line-height: 1.5; text-align: center; }
 
 @media (max-width: 899px) {
   .qt { padding-block: clamp(80px, 16vw, 120px) 60px; }
   .qt__pin { min-height: 0; padding-top: 0; }
   .qt__head { grid-template-columns: 1fr; }
   .qt__stage { max-width: none; padding-inline: 0; }
-  .qt__panels {
-    height: 430px;
+
+  .paper { height: auto; overflow: visible; border-radius: 0; background: none; }
+  .paper__title, .word, .strokes { display: none; }
+
+  .wd-list {
+    position: static;
+    height: 440px;
+    gap: 12px;
     padding-inline: var(--gutter);
     overflow-x: auto;
     overscroll-behavior-x: contain;
@@ -356,16 +447,21 @@ useGsap(root, ({ root: el, mm }) => {
     scroll-padding-inline: var(--gutter);
     scrollbar-width: none;
   }
-  .qt__panels::-webkit-scrollbar { display: none; }
-  .qp { flex: 0 0 min(74vw, 300px); scroll-snap-align: start; }
+  .wd-list::-webkit-scrollbar { display: none; }
+  .wd { flex: 0 0 min(74vw, 300px); margin-left: 0; overflow: hidden; border-radius: 28px; scroll-snap-align: start; }
+  .wd__img { -webkit-mask-image: none !important; mask-image: none !important; border-radius: inherit; }
+  .wd__num { left: 18px; }
+  .wd__kanji { right: 16px; }
+  .wd__label { right: 16px; left: 18px; }
   .qt__hint { padding-inline: var(--gutter); }
-  .posters__row { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-  .poster__cap { right: 6px; bottom: 6px; left: 6px; padding: 5px 8px; font-size: 0.7rem; }
-  .poster__cap .mono { display: none; }
+
+  .moments__row { display: flex; gap: 14px; overflow-x: auto; padding-inline: 4px; scroll-snap-type: x mandatory; scrollbar-width: none; }
+  .moments__row::-webkit-scrollbar { display: none; }
+  .moment { flex: 0 0 min(52vw, 220px); scroll-snap-align: start; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .petal { display: none; }
-  .poster__card, .qp { transition: none; }
+  .petal, .paper__title, .word, .strokes { display: none; }
+  .moment__card, .wd__btn { transition: none; }
 }
 </style>

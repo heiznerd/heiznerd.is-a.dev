@@ -9,8 +9,9 @@
           <span class="contact__line contact__line--2">{{ titleWords.slice(1).join(' ') }}</span>
         </h2>
         <span class="contact__shape contact__shape--arc" aria-hidden="true"><Shape name="arc" palette="candy" /></span>
-        <span class="contact__shape contact__shape--flower" aria-hidden="true"><Shape name="flower" palette="green" /></span>
         <span class="contact__shape contact__shape--zig" aria-hidden="true"><Shape name="zigzag" palette="orange" /></span>
+        <span class="contact__sticker contact__sticker--a" aria-hidden="true"><img src="/quintet/sticker-itsuki-corn.jpg" alt="" width="736" height="1161" loading="lazy" decoding="async" draggable="false" /></span>
+        <span class="contact__sticker contact__sticker--b" aria-hidden="true"><img src="/quintet/sticker-itsuki-cry.jpg" alt="" width="516" height="729" loading="lazy" decoding="async" draggable="false" /></span>
       </div>
 
       <div class="contact__intro">
@@ -87,8 +88,20 @@ useGsap(root, ({ root: el, mm }) => {
 
     gsap.timeline({ scrollTrigger: { trigger: '.contact__hero', start: 'top bottom', end: 'bottom top', scrub: 1 } })
       .fromTo('.contact__shape--arc', { rotate: -120 }, { rotate: 160, ease: 'none' }, 0)
-      .fromTo('.contact__shape--flower', { y: 120, rotate: 0 }, { y: -80, rotate: 180, ease: 'none' }, 0)
+      .fromTo('.contact__sticker--a', { y: 90 }, { y: -50, ease: 'none' }, 0)
+      .fromTo('.contact__sticker--b', { y: -40 }, { y: 70, ease: 'none' }, 0)
       .fromTo('.contact__shape--zig', { x: -60 }, { x: 60, ease: 'none' }, 0);
+
+    // Stickers pop in with a little spring, then wobble
+    gsap.from('.contact__sticker', {
+      scale: 0,
+      rotate: i => (i ? 40 : -40),
+      autoAlpha: 0,
+      stagger: 0.15,
+      duration: 1.1,
+      ease: 'elastic.out(1, 0.5)',
+      scrollTrigger: { trigger: '.contact__hero', start: 'top 75%', once: true },
+    });
 
     gsap.from('.contact__intro > *', {
       y: 60,
@@ -129,8 +142,27 @@ useGsap(root, ({ root: el, mm }) => {
 .contact__line :deep(.split-char) { display: inline-block; }
 .contact__shape { position: absolute; pointer-events: none; }
 .contact__shape--arc { top: -6%; left: 44%; width: clamp(70px, 9vw, 150px); }
-.contact__shape--flower { bottom: -2%; left: 6%; width: clamp(50px, 6vw, 100px); }
 .contact__shape--zig { bottom: 44%; right: 4%; width: clamp(70px, 8vw, 130px); }
+
+/* Little sticker cards that pop up around the headline */
+.contact__sticker {
+  position: absolute;
+  z-index: 2;
+  overflow: hidden;
+  border: 5px solid var(--c-cream);
+  border-radius: 20px;
+  background: var(--c-cream);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+.contact__sticker img { display: block; width: 100%; height: auto; }
+.contact__sticker--a { bottom: -6%; left: 5%; width: clamp(84px, 10vw, 150px); transform: rotate(-8deg); }
+.contact__sticker--b { top: 3%; right: 8%; width: clamp(76px, 9vw, 136px); transform: rotate(7deg); }
+
+@media (max-width: 899px) {
+  .contact__sticker--b { display: none; }
+  .contact__sticker--a { bottom: -10%; width: 84px; }
+}
 
 .contact__intro {
   display: grid;
