@@ -23,7 +23,7 @@ export const translations = {
       greeting: 'Xin chào, tớ là',
       description: 'Frontend Developer đam mê xây dựng ứng dụng web với Vue.js, React.js và Node.js',
       projects: 'Dự án',
-      age: 'Tuổi',
+      age: 'Năm kinh nghiệm',
       technologies: 'Công nghệ',
       viewWork: 'Xem dự án',
       contact: 'Liên hệ',
@@ -33,7 +33,7 @@ export const translations = {
       socials: 'Mạng xã hội',
       stats: {
         projectsVal: '10+',
-        ageVal: '14',
+        ageVal: '4',
         techVal: '5+'
       }
     },
@@ -269,7 +269,7 @@ export const translations = {
       socials: 'Social links',
       stats: {
         projectsVal: '10+',
-        ageVal: '14',
+        ageVal: '',
         techVal: '5+'
       }
     },
