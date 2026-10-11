@@ -293,11 +293,11 @@ useGsap(root, ({ root: el, mm }) => {
 .proj__name {
   margin-top: auto;
   color: var(--c-bg);
-  font-size: clamp(3rem, 7.2vw, 7.4rem);
+  font-size: clamp(3rem, 6.2vw, 6.8rem);
   font-weight: 600;
   line-height: 0.9;
   letter-spacing: -0.06em;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .proj__roles { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
